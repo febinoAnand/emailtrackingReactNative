@@ -1,42 +1,58 @@
-import {Text,View,TextInput, StyleSheet,Button} from 'react-native';
-
+import { View, TextInput, StyleSheet } from 'react-native';
+import { SimpleLineIcons, AntDesign, Ionicons } from '@expo/vector-icons';
 
 export default function Signup({navigation}){
     return(
-        <View style={styles.centerText} >
-            <Text>Email</Text>
-            <TextInput 
-            style={styles.textInput}/>
-            <Text>Mobile No</Text>
-            <TextInput 
-            style={styles.textInput}/>
+        <View style={styles.centerText}>
+            <View style={{ height: 200 }}></View>
+            <View style={styles.inputContainer}>
+                <SimpleLineIcons name="user" size={20} color="orange" style={styles.icon} />
+                <TextInput
+                    style={styles.textInput}
+                    placeholder='Email' />
+            </View>
+            <View style={{ height: 20 }}></View>
+            <View style={styles.inputContainer}>
+                <Ionicons name="call-sharp" size={20} color="orange" style={styles.icon} />
+                <TextInput
+                    style={styles.textInput}
+                    placeholder='Mobile No' />
+            </View>
             <View style={styles.button}>
-                <Button title="submit" onPress = {()=>{
+                <AntDesign name="rightcircle" size={50} color="orange" onPress={() => {
                     navigation.navigate("OTP")
-                }}/>
+                }} />
             </View>
         </View>
     )
 }
 
-const styles= StyleSheet.create({
-    centerText:{
-        flex:1,
-        alignItems:"center",
-        justifyContent:"center",
+const styles = StyleSheet.create({
+    centerText: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
     },
-    textInput:{
-        borderWidth:1,
-        borderColor:"black",
-        height:40,
-        width:250,
-        margin:10,
-        borderRadius:10,
-        padding:5
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
-    button:{
-        marginTop:20,
+    textInput: {
+        borderWidth: 3,
+        borderColor: "orange",
+        height: 40,
+        width: 300,
+        margin: 10,
+        borderRadius: 10,
+        paddingLeft: 40,
+    },
+    icon: {
+        position: 'absolute',
+        left: 20,
+        zIndex: 1,
+    },
+    button: {
+        marginTop: 200,
+        left: 130
     }
-
-
-})
+});
