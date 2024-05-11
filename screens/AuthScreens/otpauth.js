@@ -1,5 +1,5 @@
 import {View,Text,TextInput,Button,StyleSheet} from 'react-native'
-import { AntDesign } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import React, { useRef } from 'react';
 
 export default function OTPAuth({navigation}){
@@ -56,8 +56,8 @@ export default function OTPAuth({navigation}){
                 color="orange"
             />
         </View>
-        <View style={style.button}>
-            <AntDesign name="rightcircle" size={35} color="orange"
+        <View style={[style.circle, { backgroundColor: 'orange' }]}>
+        <MaterialIcons name="arrow-forward-ios" size={24} color="white"
                 onPress={()=>{
                     navigation.navigate("Registration")
                 }}
@@ -77,7 +77,7 @@ const style = StyleSheet.create({
     baseText: {
         fontWeight: 'bold',
         fontSize:20,
-      },
+    },
     innerText: {
         textAlign:'center'
     },
@@ -93,7 +93,14 @@ const style = StyleSheet.create({
     otpContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        width: '70%',
+        width: '90%',
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 5.84,
+        elevation: 5,
     },
     resendContainer: {
         marginTop: 10,
@@ -102,10 +109,17 @@ const style = StyleSheet.create({
     },
     resendButton: {
         height: 30,
-        width: 150,
+        width: 180,
         fontSize: 40,
-        borderRadius: 200,
+        borderRadius: 20,
         overflow: 'hidden',
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 5.84,
+        elevation: 8,
     },
     otpInput: {
         borderWidth: 3,
@@ -118,7 +132,46 @@ const style = StyleSheet.create({
     },
     button: {
         marginTop: 20,
-        left: 120
+        left: 120,
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 5.84,
+        elevation: 8,
+    },
+    circle: {
+        width: 70,
+        height: 70,
+        borderRadius: 50,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 200,
+        left: 130,
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 5.84,
+        elevation: 8,
+    },
+    circles: {
+        width: 70,
+        height: 70,
+        borderRadius: 50,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 200,
+        left: 130,
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 5.84,
+        elevation: 5,
     }
 
 })

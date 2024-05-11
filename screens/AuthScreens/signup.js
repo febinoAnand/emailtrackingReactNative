@@ -1,5 +1,5 @@
 import { View, TextInput, StyleSheet } from 'react-native';
-import { SimpleLineIcons, AntDesign, Ionicons } from '@expo/vector-icons';
+import { SimpleLineIcons, MaterialIcons, Ionicons } from '@expo/vector-icons';
 
 export default function Signup({navigation}){
     return(
@@ -18,8 +18,9 @@ export default function Signup({navigation}){
                     style={styles.textInput}
                     placeholder='Mobile No' />
             </View>
-            <View style={styles.button}>
-                <AntDesign name="rightcircle" size={50} color="orange" onPress={() => {
+            <View style={[styles.circle, { backgroundColor: 'orange' }]}>
+            <MaterialIcons name="arrow-forward-ios" size={24} color="white"
+              onPress={() => {
                     navigation.navigate("OTP")
                 }} />
             </View>
@@ -38,9 +39,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     textInput: {
-        borderWidth: 3,
+        borderWidth: 1,
         borderColor: "orange",
-        height: 40,
+        height: 45,
         width: 300,
         margin: 10,
         borderRadius: 10,
@@ -54,5 +55,21 @@ const styles = StyleSheet.create({
     button: {
         marginTop: 200,
         left: 130
+    },
+    circle: {
+        width: 70,
+        height: 70,
+        borderRadius: 50,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 200,
+        left: 130,
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 5.84,
+        elevation: 5,
     }
 });

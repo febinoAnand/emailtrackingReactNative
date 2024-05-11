@@ -1,17 +1,137 @@
-import {View,Text,StyleSheet} from 'react-native';
+import React, { useState } from 'react';
+import { View, Button, TextInput, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Table, Row } from 'react-native-table-component';
 
-export default function Reports(){
-    return(
+export default function Reports() {
+    const [searchText, setSearchText] = useState('');
+    const tableHead = ['S.No', 'Date', 'Param 1', 'Param 2', 'Param 3'];
+
+    return (
         <View style={styles.container}>
-            <Text>Reports</Text>
+            <View style={styles.searchContainer}>
+                <Ionicons name="search" size={20} color="black" style={styles.searchIcon} />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Search                                                                                   "
+                    value={searchText}
+                    onChangeText={text => setSearchText(text)}
+                />
+            </View>
+            <View style={{ height: 20 }}></View>
+            <View style={styles.inputRow}>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.inputHeader}>From Date</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="select date"
+                        />
+                    </View>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.inputHeader}>To Date</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="select date"
+                        />
+                    </View>
+                </View>
+            <View style={{ height: 20 }}></View>
+            <View style={styles.tableContainer}>
+                <Table>
+                    <Row data={tableHead} style={styles.head} textStyle={styles.text} />
+                    <Row data={['1', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
+                    <Row data={['2', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
+                    <Row data={['3', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
+                    <Row data={['4', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
+                    <Row data={['5', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
+                    <Row data={['6', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
+                    <Row data={['7', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
+                    <Row data={['8', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
+                </Table>
+            </View>
+            <View style={{ height: 20 }}></View>
+            <View style={styles.downloadButton}>
+                <Button
+                    title="Download"
+                    color="orange"
+                />
+            </View>
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
-    container:{
-        flex:1,
-        justifyContent:"center",
-        alignItems:"center",
-    }
-})
+    container: {
+        flex: 1,
+        paddingTop: 30,
+        backgroundColor: 'ghostwhite',
+        paddingHorizontal: 20
+    },
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
+        height: 40,
+        marginBottom: 20,
+        borderColor:'white',
+        borderRadius: 200,
+        borderWidth: 2,
+        overflow: 'hidden',
+        backgroundColor: 'white',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 5.84,
+        elevation: 8,
+    },
+    inputRow: {
+        flexDirection: 'row',
+        marginBottom: 20,
+    },
+    inputContainer: {
+        flex: 1,
+        marginRight: 20,
+        marginLeft: 20
+    },
+    inputHeader: {
+        marginBottom: 5,
+        fontWeight: 'bold',
+    },
+    searchIcon: {
+        marginLeft: 10,
+        marginRight: 10,
+    },
+    tableContainer: {
+        backgroundColor: 'white',
+        borderRadius:20,
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 5.84,
+        elevation: 8,
+    },
+    head: { height: 40, backgroundColor: '#808B97' },
+    row: { borderBottomWidth: 1,borderRadius:40, borderBottomColor: 'black' },
+    text: { margin: 6,left:10 },
+    rowText: { margin: 6,left:10, color: 'black' },
+    downloadButton: {
+        height: 30,
+        width: 200,
+        fontSize: 40,
+        left:80,
+        borderRadius: 200,
+        overflow: 'hidden',
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 5.84,
+        elevation: 8,
+    },
+});
