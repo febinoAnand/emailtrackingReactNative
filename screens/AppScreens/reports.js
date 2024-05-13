@@ -46,7 +46,7 @@ export default function Reports() {
                     <Row data={['5', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
                     <Row data={['6', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
                     <Row data={['7', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
-                    <Row data={['8', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
+                    <Row data={['8', '2024-05-01', '239', 'Low' , 'High']} style={[styles.row, styles.lastRow]} textStyle={styles.rowText} />
                 </Table>
             </View>
             <View style={{ height: 20 }}></View>
@@ -115,10 +115,30 @@ const styles = StyleSheet.create({
         shadowRadius: 5.84,
         elevation: 8,
     },
-    head: { height: 40, backgroundColor: '#808B97' },
-    row: { borderBottomWidth: 1,borderRadius:40, borderBottomColor: 'black' },
-    text: { margin: 6,left:10 },
-    rowText: { margin: 6,left:10, color: 'black' },
+    head: {
+        height: 40,
+        backgroundColor: '#808B97',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+    },
+    lastRow: {
+        borderBottomWidth: 0
+    },
+    row: { 
+        borderBottomWidth: 1,
+        borderRadius:40, 
+        borderBottomColor: 'black' 
+    },
+    text: { 
+        margin: 6,
+        left:10,
+        color: 'white'
+    },
+    rowText: { 
+        margin: 6,
+        left:10, 
+        color: 'black'
+    },
     downloadButton: {
         height: 30,
         width: 200,

@@ -98,17 +98,20 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: "center",
+        justifyContent: "center",
         backgroundColor: 'ghostwhite'
     },
     topHeader: {
         fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 10,
-        color:'white'
+        color: 'white'
     },
     inputRow: {
         flexDirection: 'row',
         marginBottom: 20,
+        justifyContent: "space-between",
+        width: '100%',
     },
     inputContainer: {
         flex: 1,
@@ -124,22 +127,23 @@ const styles = StyleSheet.create({
         borderColor: 'gray',
         borderRadius: 3,
         paddingHorizontal: 10,
-        paddingVertical: 1,
+        paddingVertical: 15,
+        flex: 1,
     },
     head: {
-        backgroundColor:'orange',
+        backgroundColor: 'orange',
         width: '108%',
-        borderColor:'orange',
-        borderRadius:3,
+        bottom:12,
         padding: 10,
-        top:-12.5,
         overflow: 'hidden',
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
     },
     downloadButton: {
         height: 30,
         width: 200,
         fontSize: 40,
-        left:8,
+        left: 8,
         borderRadius: 200,
         overflow: 'hidden',
         shadowOffset: {

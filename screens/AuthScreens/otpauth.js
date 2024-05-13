@@ -110,6 +110,7 @@ const style = StyleSheet.create({
     resendButton: {
         height: 30,
         width: 180,
+        bottom:50,
         fontSize: 40,
         borderRadius: 20,
         overflow: 'hidden',

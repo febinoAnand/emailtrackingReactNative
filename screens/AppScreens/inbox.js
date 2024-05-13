@@ -82,6 +82,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     baseText: {
+        flex:1,
         fontWeight: 'bold',
         fontSize: 20,
     },
@@ -106,6 +107,8 @@ const styles = StyleSheet.create({
         elevation: 8,
     },
     inputContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
         borderWidth: 2,
         borderColor:'white',
