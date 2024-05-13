@@ -1,10 +1,14 @@
-import {View,TextInput,Button,StyleSheet} from "react-native";
+import {View,TextInput,Image,StyleSheet} from "react-native";
 import { SimpleLineIcons, FontAwesome5, Feather, MaterialIcons } from '@expo/vector-icons';
 
 export default function Registration({navigation}){
     return(
         <View style={styles.centerText}>
-            <View style={{ height: 100 }}></View>
+            <Image
+                source={require('../../assets/ifm.png')}
+                style={styles.image}
+                resizeMode="cover"
+            />
             <View style={styles.inputContainer}>
                 <SimpleLineIcons name="user" size={20} color="orange" style={styles.icon} />
                 <TextInput
@@ -81,5 +85,9 @@ const styles= StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 5.84,
         elevation: 5,
-    }
+    },
+    image: {
+        width: 150,
+        height: 150,
+    },
 })
