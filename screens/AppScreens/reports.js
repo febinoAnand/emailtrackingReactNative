@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     },
     head: {
         height: 40,
-        backgroundColor: '#808B97',
+        backgroundColor: 'orange',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
     },

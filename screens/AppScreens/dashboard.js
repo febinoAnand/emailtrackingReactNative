@@ -83,6 +83,7 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: 'ghostwhite'
     },
     container: {
         flex: 1,
@@ -134,7 +135,7 @@ const styles = StyleSheet.create({
     },
     head3: {
         height: 40,
-        backgroundColor:'gray',
+        backgroundColor:'orange',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
     },

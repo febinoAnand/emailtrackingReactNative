@@ -4,7 +4,6 @@ import { View, Text, Button, TextInput, StyleSheet } from 'react-native';
 export default function Settings({ navigation }) {
     return (
         <View style={styles.container}>
-            <View style={{ height: 40 }}></View>
             <View style={styles.inputTitle}>
                 <View style={styles.head}>
                     <Text style={styles.topHeader}>Profile</Text>
@@ -116,7 +115,8 @@ const styles = StyleSheet.create({
     inputContainer: {
         flex: 1,
         marginRight: 20,
-        marginLeft: 20
+        marginLeft: 20,
+        height:70
     },
     inputHeader: {
         marginBottom: 5,
@@ -128,7 +128,6 @@ const styles = StyleSheet.create({
         borderRadius: 3,
         paddingHorizontal: 10,
         paddingVertical: 15,
-        flex: 1,
     },
     head: {
         backgroundColor: 'orange',

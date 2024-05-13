@@ -1,88 +1,62 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
-export default function Inbox() {
-    const [searchText, setSearchText] = useState('');
+const Inbox = () => {
+    const navigation = useNavigation();
+
+    const handleItemClick = () => {
+        navigation.navigate('InboxIndividual');
+    };
+
+    const renderItem = ({ item }) => (
+        <TouchableOpacity style={styles.inputContainer} onPress={handleItemClick}>
+            <Text style={styles.baseText}>Email: {item.subject} - {item.message}</Text>
+            <Text style={styles.innerText}>{item.date}</Text>
+        </TouchableOpacity>
+    );
+
+    const data = [
+        { id: '1', subject: 'Subject 1', message: 'Message 1', date: '16.04.23 12:24 PM' },
+        { id: '2', subject: 'Subject 2', message: 'Message 2', date: '16.04.23 12:24 PM' },
+        { id: '3', subject: 'Subject 3', message: 'Message 3', date: '16.04.23 12:24 PM' },
+        { id: '4', subject: 'Subject 4', message: 'Message 4', date: '16.04.23 12:24 PM' },
+        { id: '5', subject: 'Subject 5', message: 'Message 5', date: '16.04.23 12:24 PM' },
+        { id: '6', subject: 'Subject 6', message: 'Message 6', date: '16.04.23 12:24 PM' },
+        { id: '7', subject: 'Subject 7', message: 'Message 7', date: '16.04.23 12:24 PM' },
+        { id: '8', subject: 'Subject 8', message: 'Message 8', date: '16.04.23 12:24 PM' },
+        { id: '9', subject: 'Subject 9', message: 'Message 9', date: '16.04.23 12:24 PM' },
+    ];
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.container}>
             <View style={{ height: 20 }}></View>
             <View style={styles.searchContainer}>
                 <Ionicons name="search" size={20} color="black" style={styles.searchIcon} />
                 <TextInput
                     style={styles.input}
-                    placeholder="Search                                                                                           "
-                    value={searchText}
-                    onChangeText={text => setSearchText(text)}
+                    placeholder="Search"
                 />
             </View>
-            <TouchableOpacity style={styles.inputContainer}>
-                <Text style={styles.baseText}>Email : Subject-Message</Text>
-                <Text style={styles.innerText}>16.04.23  12:24 PM</Text>
-            </TouchableOpacity>
-            <View style={{ height: 10 }}></View>
-            <TouchableOpacity style={styles.inputContainer}>
-                <Text style={styles.baseText}>Email : Subject-Message</Text>
-                <Text style={styles.innerText}>16.04.23  12:24 PM</Text>
-            </TouchableOpacity>
-            <View style={{ height: 10 }}></View>
-            <TouchableOpacity style={styles.inputContainer}>
-                <Text style={styles.baseText}>Email : Subject-Message</Text>
-                <Text style={styles.innerText}>16.04.23  12:24 PM</Text>
-            </TouchableOpacity>
-            <View style={{ height: 10 }}></View>
-            <TouchableOpacity style={styles.inputContainer}>
-                <Text style={styles.baseText}>Email : Subject-Message</Text>
-                <Text style={styles.innerText}>16.04.23  12:24 PM</Text>
-            </TouchableOpacity>
-            <View style={{ height: 10 }}></View>
-            <TouchableOpacity style={styles.inputContainer}>
-                <Text style={styles.baseText}>Email : Subject-Message</Text>
-                <Text style={styles.innerText}>16.04.23  12:24 PM</Text>
-            </TouchableOpacity>
-            <View style={{ height: 10 }}></View>
-            <TouchableOpacity style={styles.inputContainer}>
-                <Text style={styles.baseText}>Email : Subject-Message</Text>
-                <Text style={styles.innerText}>16.04.23  12:24 PM</Text>
-            </TouchableOpacity>
-            <View style={{ height: 10 }}></View>
-            <TouchableOpacity style={styles.inputContainer}>
-                <Text style={styles.baseText}>Email : Subject-Message</Text>
-                <Text style={styles.innerText}>16.04.23  12:24 PM</Text>
-            </TouchableOpacity>
-            <View style={{ height: 10 }}></View>
-            <TouchableOpacity style={styles.inputContainer}>
-                <Text style={styles.baseText}>Email : Subject-Message</Text>
-                <Text style={styles.innerText}>16.04.23  12:24 PM</Text>
-            </TouchableOpacity>
-            <View style={{ height: 10 }}></View>
-            <TouchableOpacity style={styles.inputContainer}>
-                <Text style={styles.baseText}>Email : Subject-Message</Text>
-                <Text style={styles.innerText}>16.04.23  12:24 PM</Text>
-            </TouchableOpacity>
-            <View style={{ height: 10 }}></View>
-            <TouchableOpacity style={styles.inputContainer}>
-                <Text style={styles.baseText}>Email : Subject-Message</Text>
-                <Text style={styles.innerText}>16.04.23  12:24 PM</Text>
-            </TouchableOpacity>
-        </ScrollView>
+            <FlatList
+                data={data}
+                renderItem={renderItem}
+                keyExtractor={item => item.id}
+                contentContainerStyle={{ paddingBottom: 20 }}
+            />
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        flexGrow: 1,
-        alignItems: "center",
+        flex: 1,
         paddingHorizontal: 20,
         backgroundColor: 'ghostwhite'
     },
-    title: {
-        fontSize: 24,
-        marginBottom: 20,
-    },
     baseText: {
-        flex:1,
+        flex: 1,
         fontWeight: 'bold',
         fontSize: 20,
     },
@@ -111,9 +85,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         borderWidth: 2,
-        borderColor:'white',
+        borderColor: 'white',
         backgroundColor: 'white',
-        width: '100%',
         height: 80,
         padding: 10,
         borderRadius: 10,
@@ -125,6 +98,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 5.84,
         elevation: 8,
+        marginBottom: 10,
     },
     searchIcon: {
         position: 'absolute',
@@ -132,9 +106,11 @@ const styles = StyleSheet.create({
         zIndex: 1,
     },
     input: {
-        paddingLeft: 10,
+        paddingLeft: 30,
     },
     innerText: {
         textAlign: 'center'
     },
 });
+
+export default Inbox;
