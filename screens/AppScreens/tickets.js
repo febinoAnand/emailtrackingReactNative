@@ -37,7 +37,7 @@ export default function Ticket() {
                 <Ionicons name="search" size={20} color="black" style={styles.searchIcon} />
                 <TextInput
                     style={styles.input}
-                    placeholder="Search"
+                    placeholder="Search                                                                                                "
                     value={searchText}
                     onChangeText={text => setSearchText(text)}
                 />
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     },
     searchIcon: {
         position: 'absolute',
-        left: 330,
+        left: 310,
         zIndex: 1,
     },
     input: {

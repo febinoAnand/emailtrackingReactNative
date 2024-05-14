@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, Button, TextInput, StyleSheet } from 'react-native';
+import { View, Text, Button, TextInput, StyleSheet, ScrollView } from 'react-native';
 
 export default function Settings({ navigation }) {
     return (
-        <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+            <View style={{ height: 40 }}></View>
             <View style={styles.inputTitle}>
                 <View style={styles.head}>
                     <Text style={styles.topHeader}>Profile</Text>
@@ -73,14 +74,14 @@ export default function Settings({ navigation }) {
                 </View>
             </View>
             <View style={{ height: 20 }}></View>
-            <View style={styles.downloadButton}>
+            <View style={styles.buttonContainer1}>
                 <Button
                     title="Change Password"
                     color="orange"
                 />
             </View>
             <View style={{ height: 20 }}></View>
-            <View style={styles.downloadButton}>
+            <View style={styles.buttonContainer1}>
                 <Button
                     title="Logout"
                     color="orange"
@@ -89,11 +90,18 @@ export default function Settings({ navigation }) {
                     }}
                 />
             </View>
-        </View>
+            <View style={{ height: 40 }}></View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
+    scrollViewContainer: {
+        flexGrow: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'ghostwhite'
+    },
     container: {
         flex: 1,
         alignItems: "center",
@@ -131,13 +139,28 @@ const styles = StyleSheet.create({
     },
     head: {
         backgroundColor: 'orange',
-        width: '108%',
+        width: '108.5%',
         bottom:12,
         padding: 10,
         overflow: 'hidden',
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
     },
+    buttonContainer1: {
+        borderRadius: 25,
+        width:180,
+        left:110,
+        overflow: "hidden",
+        alignSelf: 'stretch',
+        shadowColor: '#000',
+            shadowOffset: {
+                width: 0,
+                height: 10,
+            },
+            shadowOpacity: 0.1,
+            shadowRadius: 5.84,
+            elevation: 5,
+      },
     downloadButton: {
         height: 30,
         width: 200,

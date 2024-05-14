@@ -21,7 +21,7 @@ export default function Dashboard(){
                     </View>
                     <View style={styles.inputRow}>
                         <View style={styles.inputContainer}>
-                            <Text style={{ fontSize: 80, textAlign:'center' }}>24</Text>
+                            <Text style={{ fontSize: 60, textAlign:'center' }}>24</Text>
                         </View>
                     </View>
                 </View>
@@ -31,7 +31,7 @@ export default function Dashboard(){
                     </View>
                     <View style={styles.inputRow}>
                         <View style={styles.inputContainer}>
-                            <Text style={{ fontSize: 80, textAlign:'center' }}>12</Text>
+                            <Text style={{ fontSize: 60, textAlign:'center' }}>12</Text>
                         </View>
                     </View>
                 </View>
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'ghostwhite'
     },
     topHeader: {
-        fontSize: 20,
+        fontSize: 12,
         fontWeight: 'bold',
         marginBottom: 10,
         color:'white'
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     },
     heads: {
         backgroundColor:'orange',
-        width: '107%',
+        width: '107.5%',
         borderColor:'orange',
         padding: 10,
         top:-12.5,
@@ -135,15 +135,19 @@ const styles = StyleSheet.create({
     },
     head3: {
         height: 40,
-        backgroundColor:'orange',
+        backgroundColor: 'orange',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
+        textAlign: 'center',
     },
-    rowText: { margin: 6,
+    rowText: { 
+        flex:1,
+        margin: 6,
         left:10, 
-        color: 'black' 
+        color: 'black'
     },
     row: { 
+        flex:1,
         borderBottomWidth: 1,
         width:'100%',
         borderBottomColor: 'black' 
@@ -165,6 +169,7 @@ const styles = StyleSheet.create({
         elevation: 8,
     },
     text: { 
+        fontSize:10,
         margin: 6,
         left:10,
         color: 'white'
@@ -219,8 +224,8 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         justifyContent: 'center',
         position: 'absolute',
-        bottom: 80,
-        left: 250,
+        bottom: 70,
+        left: 230,
     },    
     legendItem: {
         flexDirection: 'row',
