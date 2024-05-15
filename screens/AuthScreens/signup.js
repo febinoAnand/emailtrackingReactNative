@@ -17,7 +17,8 @@ export default function Signup({navigation}){
     const [mobileNo, setMobileNo] = useState("");
     const [deviceID,setDeviceID] = useState("");
     const [appToken,setAppToken] = useState("");
-    const [responseData, setResponseData] = useState("");
+    const [sessionID,setSessionID] = useState("");
+    // const [responseData, setResponseData] = useState("");
     const [networkConnected, setNetworkConneted] = useState({
         status:false,
         connection_type:""  //MOB or WIFI and NO for not connected
@@ -119,17 +120,22 @@ export default function Signup({navigation}){
             body: JSON.stringify(data),
         })
         .then(res => res.json()).then(json => {
-                // console.log("Response-->",json);
+                console.log("Response-->",json);
+                // setSessionID(json["session_id"]);
                 // checkstatus
                 //if status ok vigate
                 if(checkAndValidateResponse(json)){
-                
-                    // navigation.navigate("OTP");
-                    alert("Successfull");
+                    // alert("Message Sent to ");
+                    
+                    navigation.navigate("OTP",{responseData:json,mobileNo:mobileNo,email:email,sessionID:sessionID});
                 }
                 // else show error
+                else if(json["message"])
+                {
+                    alert(json["message"]);
+                }
                 else{
-
+                    alert("Network Issue")
                 }
             }
         ).catch(error =>{
