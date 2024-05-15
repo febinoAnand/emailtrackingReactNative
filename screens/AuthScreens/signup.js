@@ -1,36 +1,51 @@
-import { View, TextInput, StyleSheet, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, TextInput, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { SimpleLineIcons, MaterialIcons, Ionicons } from '@expo/vector-icons';
+import LoadingScreen from './loadingscreen'; 
 
-export default function Signup({navigation}){
-    return(
-        <View style={styles.centerText}>
-            <Image
-                source={require('../../assets/ifm.png')}
-                style={styles.image}
-                resizeMode="cover"
-            />
-            <View style={{ height: 20 }}></View>
-            <View style={styles.inputContainer}>
-                <SimpleLineIcons name="user" size={20} color="orange" style={styles.icon} />
-                <TextInput
-                    style={styles.textInput}
-                    placeholder='Email' />
-            </View>
-            <View style={{ height: 20 }}></View>
-            <View style={styles.inputContainer}>
-                <Ionicons name="call-sharp" size={20} color="orange" style={styles.icon} />
-                <TextInput
-                    style={styles.textInput}
-                    placeholder='Mobile No' />
-            </View>
-            <View style={[styles.circle, { backgroundColor: 'orange' }]}>
-            <MaterialIcons name="arrow-forward-ios" size={24} color="white"
-              onPress={() => {
-                    navigation.navigate("OTP")
-                }} />
-            </View>
-        </View>
-    )
+export default function Signup({ navigation }) {
+    const [isLoading, setIsLoading] = useState(false);
+
+    const navigateToOTP = () => {
+        setIsLoading(true);
+        setTimeout(() => {
+            setIsLoading(false);
+            navigation.navigate("OTP");
+        }, 2000);
+    };
+
+    return (
+        <>
+            {isLoading ? (
+                <LoadingScreen />
+            ) : (
+                <View style={styles.centerText}>
+                    <Image
+                        source={require('../../assets/ifm.png')}
+                        style={styles.image}
+                        resizeMode="cover"
+                    />
+                    <View style={{ height: 20 }}></View>
+                    <View style={styles.inputContainer}>
+                        <SimpleLineIcons name="user" size={20} color="orange" style={styles.icon} />
+                        <TextInput
+                            style={styles.textInput}
+                            placeholder='Email' />
+                    </View>
+                    <View style={{ height: 20 }}></View>
+                    <View style={styles.inputContainer}>
+                        <Ionicons name="call-sharp" size={20} color="orange" style={styles.icon} />
+                        <TextInput
+                            style={styles.textInput}
+                            placeholder='Mobile No' />
+                    </View>
+                    <TouchableOpacity style={[styles.circle, { backgroundColor: 'orange' }]} onPress={navigateToOTP}>
+                        <MaterialIcons name="arrow-forward-ios" size={24} color="white" />
+                    </TouchableOpacity>
+                </View>
+            )}
+        </>
+    );
 }
 
 const styles = StyleSheet.create({

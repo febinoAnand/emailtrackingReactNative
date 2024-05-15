@@ -1,8 +1,10 @@
+import React, { useRef, useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import React, { useRef } from 'react';
+import LoadingScreen from './loadingscreen';
 
 export default function OTPAuth({ navigation }) {
+  const [isLoading, setIsLoading] = useState(false);
   const inputRefs = [...Array(5)].map(() => useRef(null));
 
   const focusNextInput = (index) => {
@@ -24,51 +26,58 @@ export default function OTPAuth({ navigation }) {
       focusPreviousInput(index);
     }
   };
-  
+
+  const navigateToRegistration = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      navigation.navigate('Registration');
+    }, 2000);
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.textContainer}>
-        <Text style={styles.baseText}>OTP was sent to +91-9790928992</Text>
-        <Text style={styles.innerText}>Click here to change mobile no</Text>
-      </View>
-      <View style={styles.otpContainer}>
-        {[...Array(5)].map((_, index) => (
-          <TextInput
-            key={index}
-            ref={inputRefs[index]}
-            style={styles.otpInput}
-            maxLength={1}
-            keyboardType="numeric"
-            onChangeText={(value) => handleInputChange(value, index)}
-            onKeyPress={({ nativeEvent }) => {
-              if (nativeEvent.key === 'Backspace') {
-                focusPreviousInput(index);
-              }
-            }}
-          />
-        ))}
-      </View>
-      <View style={styles.resendContainer}>
-        <Text>Resend in 20 sec....</Text>
-        <View style={styles.buttonContainer}>
-            <Button title="Resend" 
-            color="orange"
-              onPress={()=>{
-                alert("Resend..OK");
-              }}
+      {isLoading ? (
+        <LoadingScreen />
+      ) : (
+        <>
+          <View style={styles.textContainer}>
+            <Text style={styles.baseText}>OTP was sent to +91-9790928992</Text>
+            <Text style={styles.innerText}>Click here to change mobile no</Text>
+          </View>
+          <View style={styles.otpContainer}>
+            {[...Array(5)].map((_, index) => (
+              <TextInput
+                key={index}
+                ref={inputRefs[index]}
+                style={styles.otpInput}
+                maxLength={1}
+                keyboardType="numeric"
+                onChangeText={(value) => handleInputChange(value, index)}
+                onKeyPress={({ nativeEvent }) => {
+                  if (nativeEvent.key === 'Backspace') {
+                    focusPreviousInput(index);
+                  }
+                }}
+              />
+            ))}
+          </View>
+          <View style={styles.resendContainer}>
+            <Text>Resend in 20 sec....</Text>
+            <View style={styles.buttonContainer}>
+              <Button title="Resend" color="orange" onPress={() => alert("Resend..OK")} />
+            </View>
+          </View>
+          <View style={[styles.circle, { backgroundColor: 'orange', left: 100 }]}>
+            <MaterialIcons
+              name="arrow-forward-ios"
+              size={24}
+              color="white"
+              onPress={navigateToRegistration}
             />
-        </View>
-      </View>
-      <View style={[styles.circle, { backgroundColor: 'orange', left:100 }]}>
-        <MaterialIcons
-          name="arrow-forward-ios"
-          size={24}
-          color="white"
-          onPress={() => {
-            navigation.navigate('Registration');
-          }}
-        />
-      </View>
+          </View>
+        </>
+      )}
     </View>
   );
 }

@@ -1,37 +1,51 @@
+import React, { useState } from 'react';
 import { View, TextInput, StyleSheet, Image } from 'react-native';
 import { SimpleLineIcons, Feather, MaterialIcons } from '@expo/vector-icons';
+import LoadingScreen from './loadingscreen';
 
 export default function Login({ navigation }) {
+    const [isLoading, setIsLoading] = useState(false);
+
     return (
-        <View style={styles.container}>
-            <Image
-                source={require('../../assets/ifm.png')}
-                style={styles.image}
-                resizeMode="cover"
-            />
-            <View style={styles.centerText}>
-                <View style={styles.inputContainer}>
-                    <SimpleLineIcons name="user" size={20} color="orange" style={styles.icon} />
-                    <TextInput
-                        style={styles.textInput}
-                        placeholder='User Name' />
+        <>
+            {isLoading ? (
+                <LoadingScreen />
+            ) : (
+                <View style={styles.container}>
+                    <Image
+                        source={require('../../assets/ifm.png')}
+                        style={styles.image}
+                        resizeMode="cover"
+                    />
+                    <View style={styles.centerText}>
+                        <View style={styles.inputContainer}>
+                            <SimpleLineIcons name="user" size={20} color="orange" style={styles.icon} />
+                            <TextInput
+                                style={styles.textInput}
+                                placeholder='User Name' />
+                        </View>
+                        <View style={{ height: 20 }}></View>
+                        <View style={styles.inputContainer}>
+                            <Feather name="lock" size={24} color="orange" style={styles.icon} />
+                            <TextInput
+                                style={styles.textInput}
+                                placeholder='Password' />
+                        </View>
+                    </View>
+                    <View style={[styles.circle, { backgroundColor: 'orange' }]}>
+                        <MaterialIcons name="arrow-forward-ios" size={24} color="white"
+                            onPress={() => {
+                                setIsLoading(true);
+                                setTimeout(() => {
+                                    setIsLoading(false);
+                                    navigation.navigate("TabScreen");
+                                }, 2000);
+                            }}
+                        />
+                    </View>
                 </View>
-                <View style={{ height: 20 }}></View>
-                <View style={styles.inputContainer}>
-                    <Feather name="lock" size={24} color="orange" style={styles.icon} />
-                    <TextInput
-                        style={styles.textInput}
-                        placeholder='Password' />
-                </View>
-            </View>
-            <View style={[styles.circle, { backgroundColor: 'orange' }]}>
-                <MaterialIcons name="arrow-forward-ios" size={24} color="white"
-                    onPress={() => {
-                        navigation.navigate("TabScreen")
-                    }}
-                />
-            </View>
-        </View>
+            )}
+        </>
     )
 }
 
