@@ -113,9 +113,9 @@ const styles = StyleSheet.create({
         paddingVertical: 1,
     },
     head: {
-        backgroundColor:'orange',
+        backgroundColor:'darkorange',
         width: '118%',
-        borderColor:'orange',
+        borderColor:'darkorange',
         borderRadius:3,
         padding: 10,
         top:-12.5,
@@ -124,9 +124,9 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 10,
     },
     heads: {
-        backgroundColor:'orange',
+        backgroundColor:'darkorange',
         width: '107.5%',
-        borderColor:'orange',
+        borderColor:'darkorange',
         padding: 10,
         top:-12.5,
         overflow: 'hidden',
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     },
     head3: {
         height: 40,
-        backgroundColor: 'orange',
+        backgroundColor: 'darkorange',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         textAlign: 'center',

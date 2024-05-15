@@ -29,12 +29,12 @@ export default function TicketIndividual(){
                 <View style={styles.heads}>
                     <Text style={styles.topHeader}>Ticket Name</Text>
                 </View>
-                <Text>Ticket Type : Upper Alarm</Text>
-                <Text>Occurred (UTC+0:00) : 15/11/23  12:34:03</Text>
-                <Text>Threshold violation : 21cm</Text>
-                <Text>Defined threshold value : 20cm</Text>
-                <Text>Typology : ip rings</Text>
-                <Text>Urgency : High</Text>
+                <Text style={styles.ticketDetailText}>Ticket Type : Upper Alarm</Text>
+                <Text style={styles.ticketDetailText}>Occurred (UTC+0:00) : 15/11/23 12:34:03</Text>
+                <Text style={styles.ticketDetailText}>Threshold violation : 21cm</Text>
+                <Text style={styles.ticketDetailText}>Defined threshold value : 20cm</Text>
+                <Text style={styles.ticketDetailText}>Typology : ip rings</Text>
+                <Text style={styles.ticketDetailText}>Urgency : High</Text>
             </View>
         </View>
     );
@@ -73,9 +73,9 @@ const styles = StyleSheet.create({
         paddingVertical: 1,
     },
     head: {
-        backgroundColor:'orange',
+        backgroundColor:'darkorange',
         width: '108%',
-        borderColor:'orange',
+        borderColor:'darkorange',
         borderRadius:3,
         padding: 10,
         top:-12.5,
@@ -84,9 +84,9 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 10,
     },
     heads: {
-        backgroundColor:'orange',
+        backgroundColor:'darkorange',
         width: '108%',
-        borderColor:'orange',
+        borderColor:'darkorange',
         borderRadius:3,
         padding: 10,
         top:-12.5,
@@ -94,6 +94,10 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
     },
+    ticketDetailText: {
+        color: 'black',
+        marginBottom:10,
+    },    
     downloadButton: {
         height: 30,
         width: 200,
