@@ -2,9 +2,11 @@ import React, { useRef, useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import LoadingScreen from './loadingscreen';
+import CustomAlert from './customalert';
 
 export default function OTPAuth({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
+  const [showResendAlert, setShowResendAlert] = useState(false);
   const inputRefs = [...Array(5)].map(() => useRef(null));
 
   const focusNextInput = (index) => {
@@ -27,12 +29,19 @@ export default function OTPAuth({ navigation }) {
     }
   };
 
-  const navigateToRegistration = () => {
+  const showNavigate = () => {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
       navigation.navigate('Registration');
     }, 2000);
+  };
+
+  const showAlertForResend = () => {
+    setShowResendAlert(true);
+    setTimeout(() => {
+      setShowResendAlert(false);
+    }, 10000);
   };
 
   return (
@@ -65,7 +74,7 @@ export default function OTPAuth({ navigation }) {
           <View style={styles.resendContainer}>
             <Text>Resend in 20 sec....</Text>
             <View style={styles.buttonContainer}>
-              <Button title="Resend" color="darkorange" onPress={() => alert("Resend..OK")} />
+              <Button title="Resend" color="darkorange" onPress={showAlertForResend} />
             </View>
           </View>
           <View style={[styles.circle, { backgroundColor: 'darkorange', left: 100 }]}>
@@ -73,11 +82,16 @@ export default function OTPAuth({ navigation }) {
               name="arrow-forward-ios"
               size={24}
               color="white"
-              onPress={navigateToRegistration}
+              onPress={showNavigate}
             />
           </View>
         </>
       )}
+      <CustomAlert
+        visible={showResendAlert}
+        onClose={() => setShowResendAlert(false)}
+        message="RESEND"
+      />
     </View>
   );
 }
@@ -109,18 +123,18 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     borderRadius: 25,
-    width:200,
+    width: 200,
     overflow: "hidden",
     alignSelf: 'stretch',
     shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 10,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 5.84,
-        elevation: 5,
-  },  
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 5.84,
+    elevation: 5,
+  },
   otpInput: {
     borderWidth: 3,
     borderColor: 'darkorange',

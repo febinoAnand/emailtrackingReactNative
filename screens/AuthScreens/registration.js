@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Image, StyleSheet } from "react-native";
+import { View, TextInput, Image, StyleSheet, ScrollView } from "react-native";
 import { SimpleLineIcons, FontAwesome5, Feather, MaterialIcons } from '@expo/vector-icons';
 import LoadingScreen from './loadingscreen';
 
@@ -11,7 +11,7 @@ export default function Registration({ navigation }) {
             {isLoading ? (
                 <LoadingScreen />
             ) : (
-                <View style={styles.container}>
+                <ScrollView contentContainerStyle={styles.scrollViewContainer}>
                     <Image
                         source={require('../../assets/ifm.png')}
                         style={styles.image}
@@ -53,17 +53,17 @@ export default function Registration({ navigation }) {
                                 }, 2000);
                             }} />
                     </View>
-                </View>
+                </ScrollView>
             )}
         </>
     )
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
+    scrollViewContainer: {
+        flexGrow: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     centerText: {
         alignItems: "center",

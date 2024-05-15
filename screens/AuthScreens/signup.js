@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { SimpleLineIcons, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import LoadingScreen from './loadingscreen'; 
 
@@ -15,7 +15,7 @@ export default function Signup({ navigation }) {
     };
 
     return (
-        <>
+        <ScrollView contentContainerStyle={styles.scrollViewContainer}>
             {isLoading ? (
                 <LoadingScreen />
             ) : (
@@ -44,13 +44,17 @@ export default function Signup({ navigation }) {
                     </TouchableOpacity>
                 </View>
             )}
-        </>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
+    scrollViewContainer: {
+        flexGrow: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     centerText: {
-        flex: 1,
         alignItems: "center",
         justifyContent: "center",
     },
