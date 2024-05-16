@@ -67,7 +67,7 @@ export default function OTPAuth({navigation}){
     const getDeviceID = async () => {
         const asyncSecureKeyName = "solitary-ids";
         let fetchUUID = await SecureStore.getItemAsync(asyncSecureKeyName);
-        fetchUUID = fetchUUID.replaceAll("\"", "");
+        fetchUUID = fetchUUID ? fetchUUID.replaceAll("\"", "") : "d83dfb60-a6fc-4e5b-8db5-0db2b722d161";
         // console.log("Device-ID->",fetchUUID);
         setDeviceID(fetchUUID)
     }
@@ -134,7 +134,6 @@ export default function OTPAuth({navigation}){
         })
     }
 
-
     return(
         <View style={style.container}>
         <View>
@@ -148,7 +147,7 @@ export default function OTPAuth({navigation}){
         </View>
         <View style={style.buttonContainer}>
             <View >
-                <Button title="Resend" 
+            <Button title="Resend" 
                     onPress={()=>{
                         alert("Resend..OK");
                     }}
