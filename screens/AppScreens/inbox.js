@@ -1,33 +1,48 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import NetInfo from '@react-native-community/netinfo';
+import { BaseURL } from '../../config/appconfig';
 
 const Inbox = () => {
+    const [data, setData] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
     const navigation = useNavigation();
 
-    const handleItemClick = () => {
-        navigation.navigate('InboxIndividual');
-    };
+    const handleItemClick = (item) => {
+        navigation.navigate('InboxIndividual', { item });
+    };    
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.inputContainer} onPress={handleItemClick}>
-            <Text style={styles.baseText}>Email: {item.subject} - {item.message}</Text>
-            <Text style={styles.innerText}>{item.date}</Text>
+        <TouchableOpacity style={styles.inputContainer} onPress={() => handleItemClick(item)}>
+            <Text style={styles.baseText}>Email: {item.from_email} - Subject: {item.subject }</Text>
+            <Text style={styles.innerText}>{item.date}  {item.time}</Text>
         </TouchableOpacity>
     );
 
-    const data = [
-        { id: '1', subject: 'Subject 1', message: 'Message 1', date: '16.04.23 12:24 PM' },
-        { id: '2', subject: 'Subject 2', message: 'Message 2', date: '16.04.23 12:24 PM' },
-        { id: '3', subject: 'Subject 3', message: 'Message 3', date: '16.04.23 12:24 PM' },
-        { id: '4', subject: 'Subject 4', message: 'Message 4', date: '16.04.23 12:24 PM' },
-        { id: '5', subject: 'Subject 5', message: 'Message 5', date: '16.04.23 12:24 PM' },
-        { id: '6', subject: 'Subject 6', message: 'Message 6', date: '16.04.23 12:24 PM' },
-        { id: '7', subject: 'Subject 7', message: 'Message 7', date: '16.04.23 12:24 PM' },
-        { id: '8', subject: 'Subject 8', message: 'Message 8', date: '16.04.23 12:24 PM' },
-        { id: '9', subject: 'Subject 9', message: 'Message 9', date: '16.04.23 12:24 PM' },
-    ];
+    useEffect(() => {
+        const fetchData = async () => {
+            const state = await NetInfo.fetch();
+            if (state.isConnected) {
+                try {
+                    const response = await fetch(BaseURL+ "emailtracking/inbox/");
+                    const result = await response.json();
+                    setData(result);
+                } catch (error) {
+                    Alert.alert("Error", "Failed to fetch data from server");
+                }
+            } else {
+                Alert.alert("No Internet Connection", "Please check your internet connection and try again.");
+            }
+        };
+
+        fetchData();
+        const interval = setInterval(() => {
+            fetchData();
+        }, 5000);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <View style={styles.container}>
@@ -36,13 +51,15 @@ const Inbox = () => {
                 <Ionicons name="search" size={20} color="black" style={styles.searchIcon} />
                 <TextInput
                     style={styles.input}
-                    placeholder="Search                                                                                      "
+                    placeholder="Search"
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
                 />
             </View>
             <FlatList
                 data={data}
                 renderItem={renderItem}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item.id.toString()}
                 contentContainerStyle={{ paddingBottom: 20 }}
             />
         </View>
@@ -107,6 +124,7 @@ const styles = StyleSheet.create({
     },
     input: {
         paddingLeft: 30,
+        width: '90%'
     },
     innerText: {
         textAlign: 'center'

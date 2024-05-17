@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, Text, Button, TextInput, StyleSheet } from 'react-native';
 
-export default function TicketIndividual(){
-    return(
+export default function TicketIndividual({ route }) {
+    const { item } = route.params;
+
+    return (
         <View style={styles.container}>
             <View style={{ height: 40 }}></View>
             <View style={styles.inputTitle}>
@@ -13,13 +15,13 @@ export default function TicketIndividual(){
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputHeader}>Date</Text>
                         <TextInput
-                            placeholder="12-11-2023"
+                            placeholder={item.date}
                         />
                     </View>
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputHeader}>Time</Text>
                         <TextInput
-                            placeholder="12:54 PM"
+                            placeholder={item.time}
                         />
                     </View>
                 </View>
@@ -27,14 +29,9 @@ export default function TicketIndividual(){
             <View style={{ height: 40 }}></View>
             <View style={styles.inputTitle}>
                 <View style={styles.heads}>
-                    <Text style={styles.topHeader}>Ticket Name</Text>
+                    <Text style={styles.topHeader}>Ticket Name: {item.ticketname}</Text>
                 </View>
-                <Text style={styles.ticketDetailText}>Ticket Type : Upper Alarm</Text>
-                <Text style={styles.ticketDetailText}>Occurred (UTC+0:00) : 15/11/23 12:34:03</Text>
-                <Text style={styles.ticketDetailText}>Threshold violation : 21cm</Text>
-                <Text style={styles.ticketDetailText}>Defined threshold value : 20cm</Text>
-                <Text style={styles.ticketDetailText}>Typology : ip rings</Text>
-                <Text style={styles.ticketDetailText}>Urgency : High</Text>
+                <Text style={styles.ticketDetailText}>{item.required_json}</Text>
             </View>
         </View>
     );

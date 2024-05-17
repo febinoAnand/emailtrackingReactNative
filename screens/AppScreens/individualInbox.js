@@ -1,25 +1,28 @@
 import React from 'react';
 import { View, Text, Button, TextInput, StyleSheet } from 'react-native';
 
-export default function InboxIndividual(){
-    return(
+export default function InboxIndividual({ route }) {
+    const { item } = route.params;
+
+
+    return (
         <View style={styles.container}>
             <View style={{ height: 40 }}></View>
             <View style={styles.inputTitle}>
                 <View style={styles.head}>
-                    <Text style={styles.topHeader}>From : Email id</Text>
+                    <Text style={styles.topHeader}>From: {item.from_email}</Text>
                 </View>
                 <View style={styles.inputRow}>
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputHeader}>Date</Text>
                         <TextInput
-                            placeholder="12-11-2023"
+                            placeholder={item.date}
                         />
                     </View>
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputHeader}>Time</Text>
                         <TextInput
-                            placeholder="12:54 PM"
+                            placeholder={item.time}
                         />
                     </View>
                 </View>
@@ -27,7 +30,7 @@ export default function InboxIndividual(){
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputHeader}>To Mail</Text>
                         <TextInput
-                            placeholder="30-04-2024  12:24 PM"
+                            placeholder={item.to_email}
                         />
                     </View>
                 </View>
@@ -35,14 +38,9 @@ export default function InboxIndividual(){
             <View style={{ height: 40 }}></View>
             <View style={styles.inputTitle}>
                 <View style={styles.heads}>
-                    <Text style={styles.topHeader}>Subject</Text>
+                    <Text style={styles.topHeader}>Subject: {item.subject}</Text>
                 </View>
-                <Text>Message :</Text>
-                <Text></Text>
-                <Text></Text>
-                <Text></Text>
-                <Text></Text>
-                <Text></Text>
+                <Text>Message: {item.message}</Text>
             </View>
         </View>
     );

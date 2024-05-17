@@ -1,10 +1,24 @@
 import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, Image } from 'react-native';
+import { View, TextInput, StyleSheet, Image, Alert } from 'react-native';
 import { SimpleLineIcons, Feather, MaterialIcons } from '@expo/vector-icons';
 import LoadingScreen from './loadingscreen';
 
 export default function Login({ navigation }) {
     const [isLoading, setIsLoading] = useState(false);
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+
+    const handleLogin = () => {
+        if (username === 'admin' && password === 'admin') {
+            setIsLoading(true);
+            setTimeout(() => {
+                setIsLoading(false);
+                navigation.navigate("TabScreen");
+            }, 2000);
+        } else {
+            Alert.alert('Invalid Credentials', 'Username or Password is incorrect');
+        }
+    };
 
     return (
         <>
@@ -22,31 +36,32 @@ export default function Login({ navigation }) {
                             <SimpleLineIcons name="user" size={20} color="darkorange" style={styles.icon} />
                             <TextInput
                                 style={styles.textInput}
-                                placeholder='User Name' />
+                                placeholder='User Name'
+                                value={username}
+                                onChangeText={setUsername}
+                            />
                         </View>
                         <View style={{ height: 20 }}></View>
                         <View style={styles.inputContainer}>
                             <Feather name="lock" size={24} color="darkorange" style={styles.icon} />
                             <TextInput
                                 style={styles.textInput}
-                                placeholder='Password' />
+                                placeholder='Password'
+                                secureTextEntry={true}
+                                value={password}
+                                onChangeText={setPassword}
+                            />
                         </View>
                     </View>
                     <View style={[styles.circle, { backgroundColor: 'darkorange' }]}>
                         <MaterialIcons name="arrow-forward-ios" size={24} color="white"
-                            onPress={() => {
-                                setIsLoading(true);
-                                setTimeout(() => {
-                                    setIsLoading(false);
-                                    navigation.navigate("TabScreen");
-                                }, 2000);
-                            }}
+                            onPress={handleLogin}
                         />
                     </View>
                 </View>
             )}
         </>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
