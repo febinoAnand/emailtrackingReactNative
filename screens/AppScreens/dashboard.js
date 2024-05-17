@@ -14,7 +14,34 @@ export default function Dashboard(){
     const widthAndHeight = 200
     const series = [123, 321, 123, 789, 537]
     const sliceColor = ['#fbd203', '#ffb300', '#ff9100', '#ff6c00', '#ff3c00']
+    // const sliceLabel = ['', '', '', '', '']
     const sliceLabel = ['Yellow', 'Orange', 'Light Orange', 'Dark Orange', 'Red']
+
+    // const generateRandomValues = () => {
+    //     const randomValues = [];
+    //     for (let i = 0; i < sliceColor.length; i++) {
+    //         randomValues.push(Math.floor(Math.random() * 1000));
+    //     }
+    //     return randomValues;
+    // };
+
+    // const [series, setSeries] = useState(generateRandomValues());
+
+    // useEffect(() => {
+    //     const intervalId = setInterval(() => {
+    //         setSeries(generateRandomValues());
+    //     }, 5000);
+    //     return () => clearInterval(intervalId);
+    // }, []);
+
+    // const calculatePercentage = (value, total) => {
+    //     return ((value / total) * 100).toFixed(2) + '%';
+    // };
+
+    // const updatedsliceLabel = sliceLabel.map((label, index) => {
+    //     const percentage = calculatePercentage(series[index], series.reduce((acc, cur) => acc + cur, 0));
+    //     return `${label} ${percentage}`;
+    // });
 
     useEffect(() => {
         const fetchData = async () => {
