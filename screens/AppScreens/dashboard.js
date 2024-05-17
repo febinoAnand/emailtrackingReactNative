@@ -1,16 +1,65 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { Table, Row } from 'react-native-table-component';
 import PieChart from 'react-native-pie-chart'
+import NetInfo from '@react-native-community/netinfo';
+import { BaseURL } from '../../config/appconfig';
 
 export default function Dashboard(){
 
+    const [totalTickets, setTotalTickets] = useState(0);
+    const [notificationTickets, setNotificationTickets] = useState(0);
+    const [recentData, setRecentData] = useState([]);
     const tableHead = ['S.No', 'Date', 'Param 1', 'Param 2', 'Param 3'];
     const widthAndHeight = 200
     const series = [123, 321, 123, 789, 537]
     const sliceColor = ['#fbd203', '#ffb300', '#ff9100', '#ff6c00', '#ff3c00']
     const sliceLabel = ['Yellow', 'Orange', 'Light Orange', 'Dark Orange', 'Red']
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch(BaseURL+ "emailtracking/ticket/");
+                const result = await response.json();
+                const total = result.length;
+                setTotalTickets(total);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        const fetchNotificationTickets = async () => {
+            try {
+                const response = await fetch(BaseURL+ "emailtracking/inbox/");
+                const result = await response.json();
+                const totalNotifications = result.length;
+                setNotificationTickets(totalNotifications);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchNotificationTickets();
+    }, []);
     
+    useEffect(() => {
+        const fetchRecentData = async () => {
+            try {
+                const response = await fetch(BaseURL + "emailtracking/ticket/");
+                const result = await response.json();
+                setRecentData(result.slice(0, 10));
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchRecentData();
+    }, []);
+
     return(
         <ScrollView contentContainerStyle={styles.scrollViewContainer}>
             <View style={{ height: 40 }}></View>
@@ -21,7 +70,7 @@ export default function Dashboard(){
                     </View>
                     <View style={styles.inputRow}>
                         <View style={styles.inputContainer}>
-                            <Text style={{ fontSize: 60, textAlign:'center' }}>24</Text>
+                            <Text style={{ fontSize: 60, textAlign:'center' }}>{totalTickets}</Text>
                         </View>
                     </View>
                 </View>
@@ -31,7 +80,7 @@ export default function Dashboard(){
                     </View>
                     <View style={styles.inputRow}>
                         <View style={styles.inputContainer}>
-                            <Text style={{ fontSize: 60, textAlign:'center' }}>12</Text>
+                            <Text style={{ fontSize: 60, textAlign:'center' }}>{notificationTickets}</Text>
                         </View>
                     </View>
                 </View>
@@ -61,16 +110,21 @@ export default function Dashboard(){
             <View style={{ height: 40 }}></View>
             <View style={styles.tableContainer}>
                 <Table>
-                <Row data={tableHead} style={styles.head3} textStyle={styles.text} />
-                    <Row data={['1', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
-                    <Row data={['2', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
-                    <Row data={['3', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
-                    <Row data={['4', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
-                    <Row data={['5', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
-                    <Row data={['6', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
-                    <Row data={['7', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
-                    <Row data={['8', '2024-05-01', '239', 'Low' , 'High']} style={styles.row} textStyle={styles.rowText} />
-                    <Row data={['9', '2024-05-01', '239', 'Low' , 'High']} style={[styles.row, styles.lastRow]} textStyle={styles.rowText} />
+                    <Row data={tableHead} style={styles.head3} textStyle={styles.text} />
+                    {recentData.map((rowData, index) => (
+                        <Row
+                            key={index}
+                            data={[
+                                (index + 1).toString(),
+                                rowData.date,
+                                rowData.actual_json,
+                                rowData.required_json,
+                                rowData.log
+                            ]}
+                            style={[styles.row, index === recentData.length - 1 && styles.lastRow]}
+                            textStyle={styles.rowText}
+                        />
+                    ))}
                 </Table>
             </View>
             <View style={{ height: 40 }}></View>
