@@ -11,6 +11,8 @@ const Inbox = () => {
     const navigation = useNavigation();
 
     const handleItemClick = (item) => {
+        // item.read = !item.read;
+        // setData([...data]);
         navigation.navigate('InboxIndividual', { item });
     };    
 
@@ -18,6 +20,7 @@ const Inbox = () => {
         <TouchableOpacity style={styles.inputContainer} onPress={() => handleItemClick(item)}>
             <Text style={styles.baseText}>Email: {item.from_email} - Subject: {item.subject }</Text>
             <Text style={styles.innerText}>{item.date}  {item.time}</Text>
+            {/* <Text style={styles.readStatus}>{item.read ? 'read' : 'Unread'}</Text> */}
         </TouchableOpacity>
     );
 
@@ -129,6 +132,12 @@ const styles = StyleSheet.create({
     innerText: {
         textAlign: 'center'
     },
+    readStatus: {
+        fontWeight: 'bold',
+        color: 'blue',
+        fontSize: 10,
+        bottom:30
+    }
 });
 
 export default Inbox;

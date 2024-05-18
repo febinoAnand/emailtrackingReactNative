@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -11,6 +11,7 @@ import Ticket from '../screens/AppScreens/tickets';
 import TicketIndividual from '../screens/AppScreens/ticketindividual';
 import Dashboard from '../screens/AppScreens/dashboard';
 import Settings from '../screens/AppScreens/settings';
+import { BaseURL } from '../config/appconfig';
 
 const BottomTab = createBottomTabNavigator();
 const InboxStack = createStackNavigator();
@@ -43,6 +44,27 @@ function TicketStackScreen() {
 }
 
 export function TabGroup() {
+  const [inboxData, setInboxData] = useState([]);
+  const [ticketData, setticketData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = () => {
+      fetch(BaseURL + "emailtracking/inbox/")
+        .then(response => response.json())
+        .then(data => setInboxData(data))
+        .catch(error => console.error('Error fetching inbox data:', error));
+  
+      fetch(BaseURL + "emailtracking/ticket/")
+        .then(response => response.json())
+        .then(data => setticketData(data))
+        .catch(error => console.error('Error fetching ticket data:', error));
+    };
+    fetchData();
+    const intervalId = setInterval(fetchData, 5000);
+    return () => clearInterval(intervalId);
+  }, []);
+  
+
   return (
     <BottomTab.Navigator
       screenOptions={({ route }) => ({
@@ -72,8 +94,12 @@ export function TabGroup() {
       }}
     >
       <BottomTab.Screen name='Dashboard' component={Dashboard} />
-      <BottomTab.Screen name='Inbox' component={InboxStackScreen} />
-      <BottomTab.Screen name='Ticket' component={TicketStackScreen} />
+      <BottomTab.Screen name='Inbox' component={InboxStackScreen} options={{
+          tabBarBadge: inboxData.length > 0 ? inboxData.length : null,
+        }}/>
+      <BottomTab.Screen name='Ticket' component={TicketStackScreen} options={{
+          tabBarBadge: ticketData.length > 0 ? ticketData.length : null,
+        }}/>
       <BottomTab.Screen name='Report' component={Report} />
       <BottomTab.Screen name='Settings' component={Settings} />
     </BottomTab.Navigator>
