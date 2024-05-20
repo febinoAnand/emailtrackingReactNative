@@ -74,10 +74,10 @@ export default function OTPAuth({ navigation }) {
           <View style={styles.resendContainer}>
             <Text>Resend in 20 sec....</Text>
             <View style={styles.buttonContainer}>
-              <Button title="Resend" color="darkorange" onPress={showAlertForResend} />
+              <Button title="Resend" color="#FF6E00" onPress={showAlertForResend} />
             </View>
           </View>
-          <View style={[styles.circle, { backgroundColor: 'darkorange', left: 100 }]}>
+          <View style={[styles.circle, { backgroundColor: '#FF6E00', left: 100 }]}>
             <MaterialIcons
               name="arrow-forward-ios"
               size={24}
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   },
   otpInput: {
     borderWidth: 3,
-    borderColor: 'darkorange',
+    borderColor: '#FF6E00',
     height: 50,
     width: 50,
     marginHorizontal: 2,

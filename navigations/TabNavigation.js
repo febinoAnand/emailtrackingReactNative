@@ -87,9 +87,9 @@ export function TabGroup() {
         },
       })}
       tabBarOptions={{
-        activeTintColor: 'darkorange',
+        activeTintColor: '#FF6E00',
         labelStyle: {
-          activeTintColor: 'darkorange',
+          activeTintColor: '#FF6E00',
         },
       }}
     >

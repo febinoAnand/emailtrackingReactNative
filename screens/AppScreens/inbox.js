@@ -79,6 +79,7 @@ const styles = StyleSheet.create({
         flex: 1,
         fontWeight: 'bold',
         fontSize: 20,
+        padding:6
     },
     searchContainer: {
         flexDirection: 'row',

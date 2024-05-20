@@ -188,9 +188,9 @@ const styles = StyleSheet.create({
         paddingVertical: 1,
     },
     head: {
-        backgroundColor:'darkorange',
+        backgroundColor:'#FF6E00',
         width: '118%',
-        borderColor:'darkorange',
+        borderColor:'#FF6E00',
         borderRadius:3,
         padding: 10,
         top:-12.5,
@@ -199,9 +199,9 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 10,
     },
     heads: {
-        backgroundColor:'darkorange',
+        backgroundColor:'#FF6E00',
         width: '107.5%',
-        borderColor:'darkorange',
+        borderColor:'#FF6E00',
         padding: 10,
         top:-12.5,
         overflow: 'hidden',
@@ -209,18 +209,21 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 10,
     },
     head3: {
-        flex:1,
-        height: 40,
-        backgroundColor: 'darkorange',
+        backgroundColor:'#FF6E00',
+        width: '100%',
+        borderColor:'#FF6E00',
+        padding: 10,
+        top:-12.5,
+        overflow: 'hidden',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
-        textAlign: 'center',
     },
     rowText: { 
-        flex:1,
+        flex:3,
         margin: 6,
-        left:10, 
-        color: 'black'
+        left:5, 
+        color: 'black',
+        fontSize:12
     },
     row: { 
         flex:1,
@@ -245,9 +248,9 @@ const styles = StyleSheet.create({
         elevation: 8,
     },
     text: { 
-        fontSize:10,
+        fontSize:11,
         margin: 6,
-        left:10,
+        left:5,
         color: 'white'
     },
     lastRow: {

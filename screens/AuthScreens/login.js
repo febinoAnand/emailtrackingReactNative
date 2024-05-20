@@ -31,29 +31,32 @@ export default function Login({ navigation }) {
                         style={styles.image}
                         resizeMode="cover"
                     />
+                    <View style={{ height: 20 }}></View>
                     <View style={styles.centerText}>
                         <View style={styles.inputContainer}>
-                            <SimpleLineIcons name="user" size={20} color="darkorange" style={styles.icon} />
+                            <SimpleLineIcons name="user" size={20} color="#FF6E00" style={styles.icon} />
                             <TextInput
                                 style={styles.textInput}
                                 placeholder='User Name'
                                 value={username}
                                 onChangeText={setUsername}
+                                autoCapitalize="none"
                             />
                         </View>
                         <View style={{ height: 20 }}></View>
                         <View style={styles.inputContainer}>
-                            <Feather name="lock" size={24} color="darkorange" style={styles.icon} />
+                            <Feather name="lock" size={24} color="#FF6E00" style={styles.icon} />
                             <TextInput
                                 style={styles.textInput}
                                 placeholder='Password'
                                 secureTextEntry={true}
                                 value={password}
                                 onChangeText={setPassword}
+                                autoCapitalize="none"
                             />
                         </View>
                     </View>
-                    <View style={[styles.circle, { backgroundColor: 'darkorange' }]}>
+                    <View style={[styles.circle, { backgroundColor: '#FF6E00' }]}>
                         <MaterialIcons name="arrow-forward-ios" size={24} color="white"
                             onPress={handleLogin}
                         />
@@ -78,7 +81,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         borderBottomWidth: 1,
-        borderBottomColor: 'darkorange',
+        borderBottomColor: '#FF6E00',
         width: 300,
         marginVertical: 10,
     },

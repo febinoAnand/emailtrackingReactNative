@@ -19,31 +19,31 @@ export default function Registration({ navigation }) {
                     />
                     <View style={styles.centerText}>
                         <View style={styles.inputContainer}>
-                            <SimpleLineIcons name="user" size={20} color="darkorange" style={styles.icon} />
+                            <SimpleLineIcons name="user" size={20} color="#FF6E00" style={styles.icon} />
                             <TextInput
                                 style={styles.textInput}
                                 placeholder='Name' />
                         </View>
                         <View style={styles.inputContainer}>
-                            <FontAwesome5 name="user-graduate" size={20} color="darkorange" style={styles.icon} />
+                            <FontAwesome5 name="user-graduate" size={20} color="#FF6E00" style={styles.icon} />
                             <TextInput
                                 style={styles.textInput}
                                 placeholder='Designation' />
                         </View>
                         <View style={styles.inputContainer}>
-                            <Feather name="unlock" size={20} color="darkorange" style={styles.icon} />
+                            <Feather name="unlock" size={20} color="#FF6E00" style={styles.icon} />
                             <TextInput
                                 style={styles.textInput}
                                 placeholder='Password' />
                         </View>
                         <View style={styles.inputContainer}>
-                            <Feather name="unlock" size={20} color="darkorange" style={styles.icon} />
+                            <Feather name="unlock" size={20} color="#FF6E00" style={styles.icon} />
                             <TextInput
                                 style={styles.textInput}
                                 placeholder='Confirm Password' />
                         </View>
                     </View>
-                    <View style={[styles.circle, { backgroundColor: 'darkorange' }]}>
+                    <View style={[styles.circle, { backgroundColor: '#FF6E00' }]}>
                         <MaterialIcons name="arrow-forward-ios" size={24} color="white"
                             onPress={() => {
                                 setIsLoading(true);
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         borderBottomWidth: 1,
-        borderBottomColor: 'darkorange',
+        borderBottomColor: '#FF6E00',
         width: 300,
         marginVertical: 10,
     },

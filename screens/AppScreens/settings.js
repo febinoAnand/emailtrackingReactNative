@@ -77,14 +77,14 @@ export default function Settings({ navigation }) {
             <View style={styles.buttonContainer1}>
                 <Button
                     title="Change Password"
-                    color="darkorange"
+                    color="#FF6E00"
                 />
             </View>
             <View style={{ height: 20 }}></View>
             <View style={styles.buttonContainer1}>
                 <Button
                     title="Logout"
-                    color="darkorange"
+                    color="#FF6E00"
                     onPress={() => {
                         navigation.navigate("Login")
                     }}
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     head: {
-        backgroundColor: 'darkorange',
+        backgroundColor: '#FF6E00',
         width: '108.5%',
         bottom:12,
         padding: 10,

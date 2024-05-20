@@ -29,7 +29,7 @@ export default function Navigation(){
                 <Stack.Screen name='Login' component={Login} options={{title: 'Login'}}/>
                 {/* <Stack.Screen name='OTP' component={OTPAuth} options={{title: 'OTP'}}/>
                 <Stack.Screen name='Registration' component={Registration} options={{title: 'Registration'}}/> */}
-                <Stack.Screen name='TabScreen' component={TabGroup}/>
+                <Stack.Screen name='TabScreen' component={TabGroup} options={{headerShown: false,}}/>
             </Stack.Navigator>
         </NavigationContainer>
     )

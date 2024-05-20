@@ -39,7 +39,7 @@ export default function Reports() {
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputHeader1}>From Date</Text>
                         <View style={styles.buttonContainer2}>
-                            <Button title={fromDate ? fromDate.toDateString() : 'Select Date'} onPress={showFromDate} color="darkorange" />
+                            <Button title={fromDate ? fromDate.toDateString() : 'Select Date'} onPress={showFromDate} color="#FF6E00" />
                         </View>
                         {showFromDatePicker && (
                             <DatePicker
@@ -57,7 +57,7 @@ export default function Reports() {
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputHeader2}>To Date</Text>
                         <View style={styles.buttonContainer1}>
-                            <Button title={toDate ? toDate.toDateString() : 'Select Date'} onPress={showToDate} color="darkorange" />
+                            <Button title={toDate ? toDate.toDateString() : 'Select Date'} onPress={showToDate} color="#FF6E00" />
                         </View>
                         {showToDatePicker && (
                             <DatePicker
@@ -90,7 +90,7 @@ export default function Reports() {
                 <View style={{ height: 40 }}></View>
                 <View style={styles.buttonContainer}>
                     <Button title="Download" 
-                    color="darkorange"
+                    color="#FF6E00"
                     />
                 </View>
                 <View style={{ height: 40 }}></View>
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     },
     head: {
         height: 40,
-        backgroundColor: 'darkorange',
+        backgroundColor: '#FF6E00',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         textAlign: 'center',
