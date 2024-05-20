@@ -8,7 +8,7 @@ export default function Dashboard() {
     const [totalTickets, setTotalTickets] = useState(0);
     const [notificationTickets, setNotificationTickets] = useState(0);
     const [recentData, setRecentData] = useState([]);
-    const tableHead = ['S.No', 'Date', 'Param 1', 'Param 2', 'Param 3'];
+    const [tableHead, setTableHead] = useState([]);
     const widthAndHeight = 200;
     const series = [123, 321, 123, 789, 537];
     const sliceColor = ['#fbd203', '#ffb300', '#ff9100', '#ff6c00', '#ff3c00'];
@@ -45,18 +45,36 @@ export default function Dashboard() {
     }, []);
 
     useEffect(() => {
+        const fetchTableHead = async () => {
+            try {
+                const response = await fetch(BaseURL + "emailtracking/parameter/");
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const result = await response.json();
+                const headers = result.map(item => item.field);
+                setTableHead(['S.No', 'Date', ...headers]);
+            } catch (error) {
+                console.error('Error fetching table head:', error);
+            }
+        };
+    
+        fetchTableHead();
+    }, []);
+    
+    useEffect(() => {
         const fetchRecentData = async () => {
             try {
                 const response = await fetch(BaseURL + "emailtracking/ticket/");
                 const result = await response.json();
                 setRecentData(result.slice(0, 10));
             } catch (error) {
-                console.error(error);
+                console.error('Error fetching recent data:', error);
             }
         };
-
+    
         fetchRecentData();
-    }, []);
+    }, []);  
 
     const formatCellContent = (content) => {
         if (typeof content === 'object') {
@@ -122,9 +140,7 @@ export default function Dashboard() {
                             data={[
                                 (index + 1).toString(),
                                 rowData.date,
-                                formatCellContent(rowData.actual_json),
-                                formatCellContent(rowData.required_json),
-                                formatCellContent(rowData.log),
+                                ...tableHead.slice(2).map(header => rowData.required_json[header])
                             ]}
                             style={[styles.row, index === recentData.length - 1 && styles.lastRow]}
                             textStyle={styles.rowText}
@@ -193,6 +209,7 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 10,
     },
     head3: {
+        flex:1,
         height: 40,
         backgroundColor: 'darkorange',
         borderTopLeftRadius: 20,
