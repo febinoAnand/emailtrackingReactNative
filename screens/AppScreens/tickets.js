@@ -16,7 +16,7 @@ export default function Ticket() {
             const state = await NetInfo.fetch();
             if (state.isConnected) {
                 try {
-                    const response = await fetch(BaseURL+ "emailtracking/ticket/");
+                    const response = await fetch(BaseURL + "emailtracking/ticket/");
                     const result = await response.json();
                     setData(result);
                     setFilteredData(result);
@@ -37,11 +37,11 @@ export default function Ticket() {
 
     const handleItemPress = (item) => {
         navigation.navigate('TicketIndividual', { item });
-    };    
+    };
 
     const renderItem = ({ item }) => (
         <TouchableOpacity style={styles.inputContainer} onPress={() => handleItemPress(item)}>
-            <Text style={styles.baseText}>Static Threshold : {item.actual_json}</Text>
+            <Text style={styles.baseText}>Static Threshold: {JSON.stringify(item.actual_json)}</Text>
             <Text style={styles.innerText}>{item.date}  {item.time}</Text>
         </TouchableOpacity>
     );
@@ -56,7 +56,7 @@ export default function Ticket() {
 
     return (
         <View style={styles.container}>
-            <View style={{ height: 20 }}></View>
+            <View style={{ height: 20 }} />
             <View style={styles.searchContainer}>
                 <Ionicons name="search" size={20} color="black" style={styles.searchIcon} />
                 <TextInput
@@ -70,7 +70,7 @@ export default function Ticket() {
                 data={filteredData}
                 renderItem={renderItem}
                 keyExtractor={item => item.id.toString()}
-                contentContainerStyle={{ paddingBottom: 20 }}
+                contentContainerStyle={styles.flatListContainer}
             />
         </View>
     );

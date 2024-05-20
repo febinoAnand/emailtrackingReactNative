@@ -1,52 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { Table, Row } from 'react-native-table-component';
-import PieChart from 'react-native-pie-chart'
-import NetInfo from '@react-native-community/netinfo';
+import PieChart from 'react-native-pie-chart';
 import { BaseURL } from '../../config/appconfig';
 
-export default function Dashboard(){
-
+export default function Dashboard() {
     const [totalTickets, setTotalTickets] = useState(0);
     const [notificationTickets, setNotificationTickets] = useState(0);
     const [recentData, setRecentData] = useState([]);
     const tableHead = ['S.No', 'Date', 'Param 1', 'Param 2', 'Param 3'];
-    const widthAndHeight = 200
-    const series = [123, 321, 123, 789, 537]
-    const sliceColor = ['#fbd203', '#ffb300', '#ff9100', '#ff6c00', '#ff3c00']
-    // const sliceLabel = ['', '', '', '', '']
-    const sliceLabel = ['Yellow', 'Orange', 'Light Orange', 'Dark Orange', 'Red']
-
-    // const generateRandomValues = () => {
-    //     const randomValues = [];
-    //     for (let i = 0; i < sliceColor.length; i++) {
-    //         randomValues.push(Math.floor(Math.random() * 1000));
-    //     }
-    //     return randomValues;
-    // };
-
-    // const [series, setSeries] = useState(generateRandomValues());
-
-    // useEffect(() => {
-    //     const intervalId = setInterval(() => {
-    //         setSeries(generateRandomValues());
-    //     }, 5000);
-    //     return () => clearInterval(intervalId);
-    // }, []);
-
-    // const calculatePercentage = (value, total) => {
-    //     return ((value / total) * 100).toFixed(2) + '%';
-    // };
-
-    // const updatedsliceLabel = sliceLabel.map((label, index) => {
-    //     const percentage = calculatePercentage(series[index], series.reduce((acc, cur) => acc + cur, 0));
-    //     return `${label} ${percentage}`;
-    // });
+    const widthAndHeight = 200;
+    const series = [123, 321, 123, 789, 537];
+    const sliceColor = ['#fbd203', '#ffb300', '#ff9100', '#ff6c00', '#ff3c00'];
+    const sliceLabel = ['Yellow', 'Orange', 'Light Orange', 'Dark Orange', 'Red'];
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(BaseURL+ "emailtracking/ticket/");
+                const response = await fetch(BaseURL + "emailtracking/ticket/");
                 const result = await response.json();
                 const total = result.length;
                 setTotalTickets(total);
@@ -61,7 +32,7 @@ export default function Dashboard(){
     useEffect(() => {
         const fetchNotificationTickets = async () => {
             try {
-                const response = await fetch(BaseURL+ "emailtracking/inbox/");
+                const response = await fetch(BaseURL + "emailtracking/inbox/");
                 const result = await response.json();
                 const totalNotifications = result.length;
                 setNotificationTickets(totalNotifications);
@@ -72,7 +43,7 @@ export default function Dashboard(){
 
         fetchNotificationTickets();
     }, []);
-    
+
     useEffect(() => {
         const fetchRecentData = async () => {
             try {
@@ -87,17 +58,24 @@ export default function Dashboard(){
         fetchRecentData();
     }, []);
 
-    return(
+    const formatCellContent = (content) => {
+        if (typeof content === 'object') {
+            return JSON.stringify(content);
+        }
+        return content;
+    };
+
+    return (
         <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-            <View style={{ height: 40 }}></View>
-            <View style={{ flexDirection: 'row',gap:20 }}>
+            <View style={{ height: 40 }} />
+            <View style={{ flexDirection: 'row', gap: 20 }}>
                 <View style={styles.inputTitle}>
                     <View style={styles.head}>
                         <Text style={styles.topHeader}>Total Ticket</Text>
                     </View>
                     <View style={styles.inputRow}>
                         <View style={styles.inputContainer}>
-                            <Text style={{ fontSize: 60, textAlign:'center' }}>{totalTickets}</Text>
+                            <Text style={{ fontSize: 60, textAlign: 'center' }}>{totalTickets}</Text>
                         </View>
                     </View>
                 </View>
@@ -107,12 +85,12 @@ export default function Dashboard(){
                     </View>
                     <View style={styles.inputRow}>
                         <View style={styles.inputContainer}>
-                            <Text style={{ fontSize: 60, textAlign:'center' }}>{notificationTickets}</Text>
+                            <Text style={{ fontSize: 60, textAlign: 'center' }}>{notificationTickets}</Text>
                         </View>
                     </View>
                 </View>
             </View>
-            <View style={{ height: 40 }}></View>
+            <View style={{ height: 40 }} />
             <View style={styles.inputTitles}>
                 <View style={styles.heads}>
                     <Text style={styles.topHeader}>Pie Chart</Text>
@@ -128,13 +106,13 @@ export default function Dashboard(){
                 <View style={styles.legendContainer}>
                     {sliceLabel.map((label, index) => (
                         <View key={index} style={styles.legendItem}>
-                            <View style={[styles.legendColor, { backgroundColor: sliceColor[index] }]}></View>
+                            <View style={[styles.legendColor, { backgroundColor: sliceColor[index] }]} />
                             <Text style={styles.legendText}>{label}</Text>
                         </View>
                     ))}
                 </View>
             </View>
-            <View style={{ height: 40 }}></View>
+            <View style={{ height: 40 }} />
             <View style={styles.tableContainer}>
                 <Table>
                     <Row data={tableHead} style={styles.head3} textStyle={styles.text} />
@@ -144,9 +122,9 @@ export default function Dashboard(){
                             data={[
                                 (index + 1).toString(),
                                 rowData.date,
-                                rowData.actual_json,
-                                rowData.required_json,
-                                rowData.log
+                                formatCellContent(rowData.actual_json),
+                                formatCellContent(rowData.required_json),
+                                formatCellContent(rowData.log),
                             ]}
                             style={[styles.row, index === recentData.length - 1 && styles.lastRow]}
                             textStyle={styles.rowText}
@@ -154,9 +132,9 @@ export default function Dashboard(){
                     ))}
                 </Table>
             </View>
-            <View style={{ height: 40 }}></View>
+            <View style={{ height: 40 }} />
         </ScrollView>
-    )
+    );
 }
 
 const styles = StyleSheet.create({

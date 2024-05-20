@@ -1,12 +1,13 @@
 import React from 'react';
-import { View, Text, Button, TextInput, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
 
 export default function TicketIndividual({ route }) {
     const { item } = route.params;
 
     return (
         <View style={styles.container}>
-            <View style={{ height: 40 }}></View>
+             <View style={{ height: 40 }}></View>
+            <View style={styles.spacer}></View>
             <View style={styles.inputTitle}>
                 <View style={styles.head}>
                     <Text style={styles.topHeader}>Ticket</Text>
@@ -16,22 +17,25 @@ export default function TicketIndividual({ route }) {
                         <Text style={styles.inputHeader}>Date</Text>
                         <TextInput
                             placeholder={item.date}
+                            editable={false}
                         />
                     </View>
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputHeader}>Time</Text>
                         <TextInput
                             placeholder={item.time}
+                            editable={false}
                         />
                     </View>
                 </View>
             </View>
             <View style={{ height: 40 }}></View>
+            <View style={styles.spacer}></View>
             <View style={styles.inputTitle}>
-                <View style={styles.heads}>
+                <View style={styles.head}>
                     <Text style={styles.topHeader}>Ticket Name: {item.ticketname}</Text>
                 </View>
-                <Text style={styles.ticketDetailText}>{item.required_json}</Text>
+                <Text style={styles.ticketDetailText}>{JSON.stringify(item.required_json, null, 2)}</Text>
             </View>
         </View>
     );

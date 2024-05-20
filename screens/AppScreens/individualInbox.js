@@ -17,12 +17,14 @@ export default function InboxIndividual({ route }) {
                         <Text style={styles.inputHeader}>Date</Text>
                         <TextInput
                             placeholder={item.date}
+                            editable={false}
                         />
                     </View>
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputHeader}>Time</Text>
                         <TextInput
                             placeholder={item.time}
+                            editable={false}
                         />
                     </View>
                 </View>
@@ -31,6 +33,7 @@ export default function InboxIndividual({ route }) {
                         <Text style={styles.inputHeader}>To Mail</Text>
                         <TextInput
                             placeholder={item.to_email}
+                            editable={false}
                         />
                     </View>
                 </View>
