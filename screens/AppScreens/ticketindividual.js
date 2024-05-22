@@ -1,8 +1,19 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
-export default function TicketIndividual({ route }) {
+export default function TicketIndividual({ route, navigation  }) {
     const { item } = route.params;
+
+    useFocusEffect(
+        React.useCallback(() => {
+            const unsubscribe = navigation.addListener('blur', () => {
+                navigation.replace('Ticket');
+            });
+
+            return unsubscribe;
+        }, [])
+    );
 
     return (
         <View style={styles.container}>
@@ -48,7 +59,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'ghostwhite'
     },
     topHeader: {
-        fontSize: 20,
+        fontSize: 15,
         fontWeight: 'bold',
         marginBottom: 10,
         color:'white'

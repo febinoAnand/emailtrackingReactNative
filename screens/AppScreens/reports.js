@@ -1,18 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Button, TextInput, Text, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Table, Row } from 'react-native-table-component';
 import DatePicker from '@react-native-community/datetimepicker';
+import { BaseURL } from '../../config/appconfig';
+import { TouchableOpacity } from 'react-native';
 
 export default function Reports() {
     const [searchText, setSearchText] = useState('');
-    const tableHead = ['S.No', 'Date', 'Param 1', 'Param 2', 'Param 3'];
-    const defaultFromDate = new Date();
-    const defaultToDate = new Date();
-    const [fromDate, setFromDate] = useState(defaultFromDate);
-    const [toDate, setToDate] = useState(defaultToDate);
+    const [tableData, setTableData] = useState([]);
+    const [fromDate, setFromDate] = useState(new Date());
+    const [toDate, setToDate] = useState(new Date());
     const [showFromDatePicker, setShowFromDatePicker] = useState(false);
     const [showToDatePicker, setShowToDatePicker] = useState(false);
+
+    useEffect(() => {
+        fetchData();
+    }, [fromDate, toDate]);
+
+    const fetchData = async () => {
+        try {
+            const response = await fetch(BaseURL + "emailtracking/ticket/");
+            if (!response.ok) {
+                throw new Error('Failed to fetch data');
+            }
+            const data = await response.json();
+            setTableData(data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
 
     const showFromDate = () => {
         setShowFromDatePicker(true);
@@ -22,10 +39,15 @@ export default function Reports() {
         setShowToDatePicker(true);
     };
 
+    const filteredData = tableData.filter(rowData => {
+        const rowDate = new Date(rowData.date);
+        return rowDate >= fromDate && rowDate <= toDate;
+    });    
+
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.container}>
-                <View style={styles.searchContainer}>
+                {/* <View style={styles.searchContainer}>
                     <Ionicons name="search" size={20} color="black" style={styles.searchIcon} />
                     <TextInput
                         style={styles.input}
@@ -33,13 +55,17 @@ export default function Reports() {
                         value={searchText}
                         onChangeText={text => setSearchText(text)}
                     />
-                </View>
+                </View> */}
                 <View style={{ height: 20 }}></View>
                 <View style={styles.inputRow}>
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputHeader1}>From Date</Text>
                         <View style={styles.buttonContainer2}>
-                            <Button title={fromDate ? fromDate.toDateString() : 'Select Date'} onPress={showFromDate} color="#FF6E00" />
+                        <TouchableOpacity 
+                            onPress={showFromDate} 
+                            style={[styles.dateButton, { backgroundColor: 'white' }]}>
+                            <Text style={styles.buttonText}>{fromDate ? fromDate.toDateString() : 'Select Date'}</Text>
+                        </TouchableOpacity>
                         </View>
                         {showFromDatePicker && (
                             <DatePicker
@@ -57,7 +83,11 @@ export default function Reports() {
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputHeader2}>To Date</Text>
                         <View style={styles.buttonContainer1}>
-                            <Button title={toDate ? toDate.toDateString() : 'Select Date'} onPress={showToDate} color="#FF6E00" />
+                        <TouchableOpacity 
+                            onPress={showToDate} 
+                            style={[styles.dateButton, { backgroundColor: 'white' }]}>
+                            <Text style={styles.buttonText}>{toDate ? toDate.toDateString() : 'Select Date'}</Text>
+                        </TouchableOpacity>
                         </View>
                         {showToDatePicker && (
                             <DatePicker
@@ -76,15 +106,19 @@ export default function Reports() {
                 <View style={{ height: 20 }}></View>
                 <View style={styles.tableContainer}>
                     <Table>
-                        <Row data={tableHead} style={styles.head} textStyle={styles.text} />
-                        <Row data={['1', '2024-05-01', '239', 'Low', 'High']} style={styles.row} textStyle={styles.rowText} />
-                        <Row data={['2', '2024-05-01', '239', 'Low', 'High']} style={styles.row} textStyle={styles.rowText} />
-                        <Row data={['3', '2024-05-01', '239', 'Low', 'High']} style={styles.row} textStyle={styles.rowText} />
-                        <Row data={['4', '2024-05-01', '239', 'Low', 'High']} style={styles.row} textStyle={styles.rowText} />
-                        <Row data={['5', '2024-05-01', '239', 'Low', 'High']} style={styles.row} textStyle={styles.rowText} />
-                        <Row data={['6', '2024-05-01', '239', 'Low', 'High']} style={styles.row} textStyle={styles.rowText} />
-                        <Row data={['7', '2024-05-01', '239', 'Low', 'High']} style={styles.row} textStyle={styles.rowText} />
-                        <Row data={['8', '2024-05-01', '239', 'Low', 'High']} style={[styles.row, styles.lastRow]} textStyle={styles.rowText} />
+                        <Row data={['Ticket Name', 'Date', 'Time']} style={styles.head} textStyle={styles.text} />
+                        {filteredData.map((rowData, index) => (
+                            <Row
+                                key={index}
+                                data={[
+                                    rowData.ticketname,
+                                    rowData.date,
+                                    rowData.time,
+                                ]}
+                                style={[styles.row, index === filteredData.length - 1 && styles.lastRow]}
+                                textStyle={styles.rowText}
+                            />
+                        ))}
                     </Table>
                 </View>
                 <View style={{ height: 40 }}></View>
@@ -224,15 +258,36 @@ const styles = StyleSheet.create({
         width:'100%',
         borderBottomColor: 'black' 
     },
+    dateButton: {
+        borderRadius: 25,
+        width: 150,
+        height:30,
+        overflow: 'hidden',
+        alignSelf: 'stretch',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 5.84,
+        elevation: 5,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    buttonText: {
+        color: 'black',
+        textAlign: 'center',
+    },    
     text: { 
         fontSize:12,
         margin: 0,
-        left:10,
+        left:30,
         color: 'white'
     },
     rowText: {
         margin: 6,
-        left: 10,
+        left: 20,
         color: 'black'
     },
     downloadButton: {

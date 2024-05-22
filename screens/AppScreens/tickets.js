@@ -36,8 +36,8 @@ export default function Ticket() {
     }, []);
 
     const handleItemPress = (item) => {
-        navigation.navigate('TicketIndividual', { item });
-    };
+        navigation.navigate('TicketIndividual', { item, navigation });
+    }; 
 
     const renderItem = ({ item }) => (
         <TouchableOpacity style={styles.inputContainer} onPress={() => handleItemPress(item)}>
@@ -57,7 +57,7 @@ export default function Ticket() {
     return (
         <View style={styles.container}>
             <View style={{ height: 20 }} />
-            <View style={styles.searchContainer}>
+            {/* <View style={styles.searchContainer}>
                 <Ionicons name="search" size={20} color="black" style={styles.searchIcon} />
                 <TextInput
                     style={styles.input}
@@ -65,7 +65,7 @@ export default function Ticket() {
                     value={searchText}
                     onChangeText={handleSearch}
                 />
-            </View>
+            </View> */}
             <FlatList
                 data={filteredData}
                 renderItem={renderItem}

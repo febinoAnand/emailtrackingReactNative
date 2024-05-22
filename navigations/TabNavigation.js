@@ -19,12 +19,8 @@ const TicketStack = createStackNavigator();
 
 function InboxStackScreen() {
   return (
-    <InboxStack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <InboxStack.Screen name="Inbox" component={Inbox} />
+    <InboxStack.Navigator>
+      <InboxStack.Screen name="Inbox" component={Inbox} options={{headerShown: false}} />
       <InboxStack.Screen name="InboxIndividual" component={InboxIndividual} />
     </InboxStack.Navigator>
   );
@@ -32,12 +28,8 @@ function InboxStackScreen() {
 
 function TicketStackScreen() {
   return (
-    <TicketStack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <TicketStack.Screen name="Ticket" component={Ticket} />
+    <TicketStack.Navigator>
+      <TicketStack.Screen name="Ticket" component={Ticket} options={{headerShown: false}} />
       <TicketStack.Screen name="TicketIndividual" component={TicketIndividual} />
     </TicketStack.Navigator>
   );

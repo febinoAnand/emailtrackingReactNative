@@ -1,12 +1,23 @@
 import React from 'react';
-import { View, Text, Button, TextInput, StyleSheet } from 'react-native';
+import { View, Text, Button, TextInput, StyleSheet, ScrollView } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
-export default function InboxIndividual({ route }) {
+export default function InboxIndividual({ route, navigation }) {
     const { item } = route.params;
+
+    useFocusEffect(
+        React.useCallback(() => {
+            const unsubscribe = navigation.addListener('blur', () => {
+                navigation.replace('Inbox');
+            });
+
+            return unsubscribe;
+        }, [])
+    );
 
 
     return (
-        <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollViewContainer}>
             <View style={{ height: 40 }}></View>
             <View style={styles.inputTitle}>
                 <View style={styles.head}>
@@ -45,18 +56,25 @@ export default function InboxIndividual({ route }) {
                 </View>
                 <Text>Message: {item.message}</Text>
             </View>
-        </View>
+            <View style={{ height: 20 }}></View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
+    scrollViewContainer: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'ghostwhite'
+    },
     container: {
         flex: 1,
         alignItems: "center",
         backgroundColor: 'ghostwhite'
     },
     topHeader: {
-        fontSize: 20,
+        fontSize: 15,
         fontWeight: 'bold',
         marginBottom: 10,
         color:'white'

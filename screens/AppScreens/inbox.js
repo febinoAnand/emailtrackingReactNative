@@ -7,18 +7,16 @@ import { BaseURL } from '../../config/appconfig';
 
 const Inbox = () => {
     const [data, setData] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
+    // const [searchQuery, setSearchQuery] = useState('');
     const navigation = useNavigation();
 
     const handleItemClick = (item) => {
-        // item.read = !item.read;
-        // setData([...data]);
-        navigation.navigate('InboxIndividual', { item });
-    };    
+        navigation.navigate('InboxIndividual', { item, navigation });
+    };        
 
     const renderItem = ({ item }) => (
         <TouchableOpacity style={styles.inputContainer} onPress={() => handleItemClick(item)}>
-            <Text style={styles.baseText}>Email: {item.from_email} - Subject: {item.subject }</Text>
+            <Text style={styles.baseText}> {item.from_email}  {item.subject }</Text>
             <Text style={styles.innerText}>{item.date}  {item.time}</Text>
             {/* <Text style={styles.readStatus}>{item.read ? 'read' : 'Unread'}</Text> */}
         </TouchableOpacity>
@@ -50,7 +48,7 @@ const Inbox = () => {
     return (
         <View style={styles.container}>
             <View style={{ height: 20 }}></View>
-            <View style={styles.searchContainer}>
+            {/* <View style={styles.searchContainer}>
                 <Ionicons name="search" size={20} color="black" style={styles.searchIcon} />
                 <TextInput
                     style={styles.input}
@@ -58,7 +56,7 @@ const Inbox = () => {
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                 />
-            </View>
+            </View> */}
             <FlatList
                 data={data}
                 renderItem={renderItem}

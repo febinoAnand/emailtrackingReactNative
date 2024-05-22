@@ -25,10 +25,10 @@ export default function Navigation(){
             <Stack.Navigator>
                 {/* <Stack.Screen name='Splash' component={Splash} options={{title: 'Auth Screen'}}/> */}
                 {/* <Stack.Screen name='AuthHomeScreen' component={AuthScreenHome} options={{title: 'Auth Screen'}}/> */}
-                {/* <Stack.Screen name='SignUp' component={Signup} options={{title: 'Sign Up'}}/> */}
-                <Stack.Screen name='Login' component={Login} options={{title: 'Login'}}/>
-                {/* <Stack.Screen name='OTP' component={OTPAuth} options={{title: 'OTP'}}/>
-                <Stack.Screen name='Registration' component={Registration} options={{title: 'Registration'}}/> */}
+                <Stack.Screen name='SignUp' component={Signup} options={{headerShown: false,}}/>
+                <Stack.Screen name='Login' component={Login} options={{headerShown: false,}}/>
+                <Stack.Screen name='OTP' component={OTPAuth} options={{headerShown: false,}}/>
+                <Stack.Screen name='Registration' component={Registration} options={{headerShown: false,}}/>
                 <Stack.Screen name='TabScreen' component={TabGroup} options={{headerShown: false,}}/>
             </Stack.Navigator>
         </NavigationContainer>

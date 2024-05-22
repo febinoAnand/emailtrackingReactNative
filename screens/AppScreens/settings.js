@@ -52,7 +52,8 @@ export default function Settings({ navigation }) {
                         <Text style={styles.inputHeader}>Device Model</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="ViVO V9 pro"
+                            // value={deviceName}
+                            editable={false}
                         />
                     </View>
                     <View style={styles.inputContainer}>
