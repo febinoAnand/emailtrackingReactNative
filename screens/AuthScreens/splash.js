@@ -1,9 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Image, StyleSheet, Animated } from 'react-native';
 
-
-export default function Splash({navigation}) {
-
+export default function Splash({ navigation }) {
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
@@ -11,10 +9,14 @@ export default function Splash({navigation}) {
             fadeAnim,
             {
                 toValue: 1,
-                duration: 2000,
+                duration: 3000,
                 useNativeDriver: true,
             }
-        ).start();
+        ).start(() => {
+            setTimeout(() => {
+                navigation.navigate('SignUp');
+            }, 5000);
+        });
     }, []);
 
     return (
@@ -25,7 +27,7 @@ export default function Splash({navigation}) {
                 resizeMode="contain"
             />
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -36,7 +38,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
     },
     image: {
-        width: '80%',
-        height: '80%',
+        width: '50%',
+        height: '50%',
     },
 });

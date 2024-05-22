@@ -23,7 +23,7 @@ export default function Navigation(){
     return (
         <NavigationContainer>
             <Stack.Navigator>
-                {/* <Stack.Screen name='Splash' component={Splash} options={{title: 'Auth Screen'}}/> */}
+                <Stack.Screen name='Splash' component={Splash} options={{headerShown: false}}/>
                 {/* <Stack.Screen name='AuthHomeScreen' component={AuthScreenHome} options={{title: 'Auth Screen'}}/> */}
                 <Stack.Screen name='SignUp' component={Signup} options={{headerShown: false,}}/>
                 <Stack.Screen name='Login' component={Login} options={{headerShown: false,}}/>
