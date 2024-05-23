@@ -3,12 +3,14 @@ import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { Table, Row } from 'react-native-table-component';
 import PieChart from 'react-native-pie-chart';
 import { BaseURL } from '../../config/appconfig';
+import Svg, { Rect } from 'react-native-svg';
 
 export default function Dashboard() {
     const [totalTickets, setTotalTickets] = useState(0);
     const [notificationTickets, setNotificationTickets] = useState(0);
     const [recentData, setRecentData] = useState([]);
     const [tableHead, setTableHead] = useState([]);
+    const [barChartData, setBarChartData] = useState([]);
     const widthAndHeight = 200;
     const series = [123, 321, 123, 789, 537];
     const sliceColor = ['#fbd203', '#ffb300', '#ff9100', '#ff6c00', '#ff3c00'];
@@ -83,6 +85,51 @@ export default function Dashboard() {
         return content;
     };
 
+    useEffect(() => {
+        const fetchParameterData = async () => {
+            try {
+                const response = await fetch(BaseURL + "emailtracking/parameter/");
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const result = await response.json();
+                const labels = result.map(item => item.field);
+                const ticketResponse = await fetch(BaseURL + "emailtracking/ticket/");
+                if (!ticketResponse.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const ticketResult = await ticketResponse.json();
+    
+                const fieldCounts = {};
+                ticketResult.forEach(ticket => {
+                    labels.forEach(label => {
+                        if (ticket.required_json[label]) {
+                            if (!fieldCounts[label]) {
+                                fieldCounts[label] = 0;
+                            }
+                            fieldCounts[label]++;
+                        }
+                    });
+                });
+                const maxValue = Math.max(...Object.values(fieldCounts));
+    
+                const randomColors = Array.from({ length: labels.length }, () => '#' + (Math.random().toString(16) + '000000').slice(2, 8));
+                const barChartData = labels.map((label, index) => ({
+                    label,
+                    value: fieldCounts[label] || 0,
+                    scaledValue: (fieldCounts[label] || 0) * 100 / maxValue,
+                    color: randomColors[index]
+                }));
+                
+                setBarChartData(barChartData);
+            } catch (error) {
+                console.error('Error fetching parameter data:', error);
+            }
+        };
+    
+        fetchParameterData();
+    }, []);
+
     return (
         <ScrollView contentContainerStyle={styles.scrollViewContainer}>
             <View style={{ height: 40 }} />
@@ -99,7 +146,7 @@ export default function Dashboard() {
                 </View>
                 <View style={styles.inputTitle}>
                     <View style={styles.head}>
-                        <Text style={styles.topHeader}>Notification Ticket</Text>
+                        <Text style={styles.topHeader}>Total Inbox</Text>
                     </View>
                     <View style={styles.inputRow}>
                         <View style={styles.inputContainer}>
@@ -126,6 +173,31 @@ export default function Dashboard() {
                         <View key={index} style={styles.legendItem}>
                             <View style={[styles.legendColor, { backgroundColor: sliceColor[index] }]} />
                             <Text style={styles.legendText}>{label}</Text>
+                        </View>
+                    ))}
+                </View>
+            </View>
+            <View style={{ height: 40 }} />
+            <View style={styles.inputTitles}>
+                <View style={styles.heads}>
+                    <Text style={styles.topHeader}>Bar Chart</Text>
+                </View>
+                <View style={{ flexDirection: 'column', alignItems: 'left', justifyContent: 'center', height: 300 }}>
+                    {barChartData.map((data, index) => (
+                        <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                            <View style={{ width: 80, alignItems: 'flex-end', marginRight: 10 }}>
+                                <Text style={{ marginRight: 5 }}>{data.label}</Text>
+                            </View>
+                            <Svg height="40" width="200">
+                                <Rect
+                                    x="0"
+                                    y="0"
+                                    width={data.scaledValue}
+                                    height="30"
+                                    fill={data.color}
+                                />
+                            </Svg>
+                            <Text style={{ marginLeft: 10 }}>{data.value}</Text>
                         </View>
                     ))}
                 </View>
@@ -166,7 +238,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'ghostwhite'
     },
     topHeader: {
-        fontSize: 12,
+        fontSize: 15,
+        top:5,
         fontWeight: 'bold',
         marginBottom: 10,
         color:'white'

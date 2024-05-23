@@ -15,7 +15,7 @@ export default function Splash({ navigation }) {
         ).start(() => {
             setTimeout(() => {
                 navigation.navigate('SignUp');
-            }, 5000);
+            }, 2000);
         });
     }, []);
 

@@ -39,12 +39,22 @@ export default function Ticket() {
         navigation.navigate('TicketIndividual', { item, navigation });
     }; 
 
-    const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.inputContainer} onPress={() => handleItemPress(item)}>
-            <Text style={styles.baseText}>Static Threshold: {JSON.stringify(item.actual_json)}</Text>
-            <Text style={styles.innerText}>{item.date}  {item.time}</Text>
-        </TouchableOpacity>
-    );
+    const renderItem = ({ item }) => {
+        const requiredJsonCount = item.required_json ? Object.keys(item.required_json).length : 0;
+        return (
+            <TouchableOpacity style={styles.inputContainer} onPress={() => handleItemPress(item)}>
+                <View style={styles.circleAvatar}>
+                    <Text style={styles.avatarText}>{requiredJsonCount}</Text>
+                </View>
+                <View style={styles.textContent}>
+                    <Text style={styles.baseText}>{item.ticketname}</Text>
+                    <Text style={styles.innerText}>{item.date}</Text>
+                    <Text style={styles.innerText}>{item.time}</Text>
+                </View>
+                <View style={{ position: 'absolute', top: '50%', right: 10, backgroundColor: 'green', width: 10, height: 10, borderRadius: 5 }}></View>
+            </TouchableOpacity>
+        );
+    };    
 
     const handleSearch = (text) => {
         setSearchText(text);
@@ -83,10 +93,27 @@ const styles = StyleSheet.create({
         backgroundColor: 'ghostwhite',
     },
     baseText: {
-        flex: 1,
         fontWeight: 'bold',
+        fontSize: 18,
+        top:15,
+        padding: 6
+    },
+    textContent: {
+        flex: 1,
+    },
+    circleAvatar: {
+        width: 55,
+        height: 55,
+        borderRadius: 30,
+        backgroundColor: '#FF6E00',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 10,
+    },
+    avatarText: {
         fontSize: 20,
-        padding:6
+        fontWeight: 'bold',
+        color: 'white',
     },
     searchContainer: {
         flexDirection: 'row',
@@ -110,7 +137,7 @@ const styles = StyleSheet.create({
     },
     inputContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         alignItems: 'center',
         borderWidth: 2,
         borderColor: 'white',
@@ -138,5 +165,8 @@ const styles = StyleSheet.create({
     },
     innerText: {
         textAlign: 'center',
+        left:80,
+        bottom:30,
+        fontSize:12
     },
 });

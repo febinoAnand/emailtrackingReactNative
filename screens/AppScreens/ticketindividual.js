@@ -15,6 +15,19 @@ export default function TicketIndividual({ route, navigation  }) {
         }, [])
     );
 
+    const formatRequiredJson = () => {
+        let formattedData = [];
+        for (const key in item.required_json) {
+            formattedData.push(
+                <View key={key} style={{ flexDirection: 'row', marginBottom: 10 }}>
+                    <Text style={styles.inputHeader}>{key} :</Text>
+                    <Text style={styles.ticketDetailText}> {item.required_json[key]}</Text>
+                </View>
+            );
+        }
+        return formattedData;
+    };    
+
     return (
         <View style={styles.container}>
              <View style={{ height: 40 }}></View>
@@ -39,14 +52,23 @@ export default function TicketIndividual({ route, navigation  }) {
                         />
                     </View>
                 </View>
+                <View style={styles.inputRow}>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.inputHeader}>Ticket Name</Text>
+                        <TextInput
+                            placeholder={item.ticketname}
+                            editable={false}
+                        />
+                    </View>
+                </View>
             </View>
             <View style={{ height: 40 }}></View>
             <View style={styles.spacer}></View>
             <View style={styles.inputTitle}>
                 <View style={styles.head}>
-                    <Text style={styles.topHeader}>Ticket Name: {item.ticketname}</Text>
+                    <Text style={styles.topHeader}>Fields</Text>
                 </View>
-                <Text style={styles.ticketDetailText}>{JSON.stringify(item.required_json, null, 2)}</Text>
+                <Text style={styles.ticketDetailText}>{formatRequiredJson()}</Text>
             </View>
         </View>
     );
@@ -88,8 +110,7 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 10,
     },
     ticketDetailText: {
-        color: 'black',
-        marginBottom:10,
+        color: 'gray',
     },    
     inputTitle: {
         alignItems: 'center',
@@ -108,4 +129,7 @@ const styles = StyleSheet.create({
         shadowRadius: 5.84,
         elevation: 8,
     },
+    ticketText :{
+        color:'gray'
+    }
 });

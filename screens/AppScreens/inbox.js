@@ -5,6 +5,18 @@ import { useNavigation } from '@react-navigation/native';
 import NetInfo from '@react-native-community/netinfo';
 import { BaseURL } from '../../config/appconfig';
 
+const CircleAvatar = ({ text }) => {
+    let firstLetter = text.charAt(0).toUpperCase()
+    if (!firstLetter.match(/[a-zA-Z]/)) {
+        firstLetter = text.charAt(1);
+    }
+    return (
+        <View style={styles.circleAvatar}>
+            <Text style={styles.avatarText}>{firstLetter}</Text>
+        </View>
+    );
+};
+
 const Inbox = () => {
     const [data, setData] = useState([]);
     // const [searchQuery, setSearchQuery] = useState('');
@@ -16,9 +28,13 @@ const Inbox = () => {
 
     const renderItem = ({ item }) => (
         <TouchableOpacity style={styles.inputContainer} onPress={() => handleItemClick(item)}>
-            <Text style={styles.baseText}> {item.from_email}  {item.subject }</Text>
-            <Text style={styles.innerText}>{item.date}  {item.time}</Text>
-            {/* <Text style={styles.readStatus}>{item.read ? 'read' : 'Unread'}</Text> */}
+            <CircleAvatar text={item.from_email} />
+            <View style={styles.textContent}>
+            <Text style={styles.baseText}>{item.subject.length > 20 ? item.subject.substring(0, 20) + "..." : item.subject}</Text>
+            <Text style={styles.messagetext}>{item.message.length > 40 ? item.message.substring(0, 40) + "..." : item.message}</Text>
+                <Text style={styles.innerText}>{item.date}</Text>
+                <Text style={styles.innerText}>{item.time}</Text>
+            </View>
         </TouchableOpacity>
     );
 
@@ -74,34 +90,31 @@ const styles = StyleSheet.create({
         backgroundColor: 'ghostwhite'
     },
     baseText: {
-        flex: 1,
         fontWeight: 'bold',
         fontSize: 20,
-        padding:6
+        top:15,
+        padding: 6
     },
-    searchContainer: {
-        flexDirection: 'row',
+    circleAvatar: {
+        width: 55,
+        height: 55,
+        borderRadius: 30,
+        backgroundColor: '#FF6E00',
+        justifyContent: 'center',
         alignItems: 'center',
-        width: '100%',
-        height: 40,
-        marginBottom: 20,
-        borderColor:'white',
-        borderRadius: 200,
-        borderWidth: 2,
-        overflow: 'hidden',
-        backgroundColor: 'white',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 10,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 5.84,
-        elevation: 8,
+        marginRight: 10,
+    },
+    avatarText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: 'white',
+    },
+    textContent: {
+        flex: 1,
     },
     inputContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         alignItems: 'center',
         borderWidth: 2,
         borderColor: 'white',
@@ -119,23 +132,23 @@ const styles = StyleSheet.create({
         elevation: 5,
         marginBottom: 10,
     },
-    searchIcon: {
-        position: 'absolute',
-        left: 310,
-        zIndex: 1,
-    },
-    input: {
-        paddingLeft: 30,
-        width: '90%'
-    },
     innerText: {
-        textAlign: 'center'
+        textAlign: 'center',
+        left:80,
+        bottom:40,
+        fontSize:12
     },
     readStatus: {
         fontWeight: 'bold',
         color: 'blue',
         fontSize: 10,
-        bottom:30
+        bottom: 30
+    },
+    messagetext:{
+        color:'gray',
+        fontSize:14,
+        left:5,
+        top:10
     }
 });
 
