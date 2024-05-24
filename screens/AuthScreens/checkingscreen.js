@@ -1,37 +1,65 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Button, TextInput, Text, StyleSheet, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Table, Row } from 'react-native-table-component';
-import DatePicker from '@react-native-community/datetimepicker';
-import { BaseURL } from '../../config/appconfig';
-import { TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function Checkscreen() {
-    
+export default function Checkscreen({ navigation }) {
+    const [authState, setAuthState] = useState('');
+    const [seedValue, setSeedValue] = useState('');
+    const [loggedTime, setLoggedTime] = useState('');
+
+    const handleSetAuthState = () => {
+        setSeedValue(authState);
+    };
+
+    const handleSwitchToSplash = () => {
+        navigation.navigate('Splash', { authState });
+    };
+
+    const handleSetTime = async () => {
+        const currentTime = new Date().toLocaleString();
+        await AsyncStorage.setItem('loggedinat', currentTime);
+        setLoggedTime(currentTime);
+    };
+
     return (
         <ScrollView contentContainerStyle={styles.scrollViewContainer}>
             <View style={styles.centerText}>
-                        <View style={styles.inputContainer}>
-                            <TextInput
-                                style={styles.textInput}
-                                placeholder='Auth State'
-                            />
-                        </View>
-                    </View>
+                <View style={styles.inputContainer}>
+                    <TextInput
+                        style={styles.textInput}
+                        placeholder='Auth State'
+                        value={authState}
+                        onChangeText={text => setAuthState(text)}
+                    />
+                </View>
+                <Text style={styles.seedText}>Value: {seedValue}</Text>
+            </View>
             <View style={{ height: 40 }}></View>
             <View style={styles.buttonContainer1}>
                 <Button
                     title="Set"
                     color="#FF6E00"
+                    onPress={handleSetAuthState}
                 />
             </View>
             <View style={{ height: 20 }}></View>
             <View style={styles.buttonContainer1}>
                 <Button
-                    title="Move"
+                    title="Switch"
                     color="#FF6E00"
+                    onPress={handleSwitchToSplash}
                 />
             </View>
+            <View style={{ height: 20 }}></View>
+            <View style={styles.buttonContainer1}>
+                <Button
+                    title="Set Time"
+                    color="#FF6E00"
+                    onPress={handleSetTime}
+                />
+            </View>
+            <View style={{ height: 40 }}></View>
+            <Text>Time: {loggedTime}</Text>
             <View style={{ height: 40 }}></View>
         </ScrollView>
     );
@@ -44,86 +72,26 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: 'ghostwhite'
     },
-    container: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: 'ghostwhite'
-    },
     centerText: {
         alignItems: "center",
         justifyContent: "center",
     },
-    topHeader: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 10,
-        color: 'white'
-    },
-    inputRow: {
-        flexDirection: 'row',
-        marginBottom: 20,
-        justifyContent: "space-between",
-        width: '100%',
-    },
-    inputHeader: {
-        marginBottom: 5,
-        fontWeight: 'bold',
-    },
-    input: {
-        borderBottomWidth: 1,
-        borderBottomColor: 'gray',
+    inputContainer: {
+        width: '80%',
+        borderWidth: 1,
+        borderColor: 'gray',
+        borderRadius: 5,
         paddingHorizontal: 10,
-        paddingVertical: 5,
-        width: '100%',
+        marginBottom: 20,
     },
-    head: {
-        backgroundColor: '#FF6E00',
-        width: '108.5%',
-        bottom:12,
-        padding: 10,
-        overflow: 'hidden',
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10,
+    textInput: {
+        height: 40,
     },
     buttonContainer1: {
         borderRadius: 25,
-        width:180,
-        left:110,
+        width: 180,
         overflow: "hidden",
-        alignSelf: 'stretch',
-        shadowColor: '#000',
-            shadowOffset: {
-                width: 0,
-                height: 10,
-            },
-            shadowOpacity: 0.1,
-            shadowRadius: 5.84,
-            elevation: 5,
-      },
-    downloadButton: {
-        height: 30,
-        width: 200,
-        fontSize: 40,
-        left: 8,
-        borderRadius: 200,
-        overflow: 'hidden',
-        shadowOffset: {
-            width: 0,
-            height: 10,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 5.84,
-        elevation: 8,
-    },
-    inputTitle: {
-        alignItems: 'center',
-        borderWidth: 2,
-        borderColor: 'white',
-        backgroundColor: 'white',
-        width: '80%',
-        padding: 10,
-        borderRadius: 10,
+        alignSelf: 'center',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -131,6 +99,6 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.1,
         shadowRadius: 5.84,
-        elevation: 8,
+        elevation: 5,
     },
 });
