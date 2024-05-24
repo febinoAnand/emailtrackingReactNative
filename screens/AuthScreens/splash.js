@@ -4,6 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User_Expirytime } from '../../config/appconfig.js';
 import { differenceInSeconds } from 'date-fns'
+import { DeviceID, App_Token } from '../../config/appconfig.js';
 
 
 export default function Splash({ route, navigation }) {
@@ -36,6 +37,9 @@ export default function Splash({ route, navigation }) {
                     nextScreen = 'Login';
                 }
             }
+            await AsyncStorage.setItem('deviceID', DeviceID);
+            await AsyncStorage.setItem('appToken', App_Token);
+
             await SecureStore.setItemAsync('authState', authState);
 
             Animated.timing(

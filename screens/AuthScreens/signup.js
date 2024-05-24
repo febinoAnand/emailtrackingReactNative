@@ -1,17 +1,122 @@
-import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Text, Alert } from 'react-native';
 import { SimpleLineIcons, MaterialIcons, Ionicons } from '@expo/vector-icons';
+import NetInfo from '@react-native-community/netinfo';
 import LoadingScreen from './loadingscreen'; 
+import CustomAlert from './customalert';
+import CustomAlertprompt from './customalertprompt';
+import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BaseURL } from '../../config/appconfig';
 
 export default function Signup({ navigation }) {
     const [isLoading, setIsLoading] = useState(false);
+    const [showConnectAlert, setShowConnectAlert] = useState(false);
+    const [showValidAlert, setShowValidAlert] = useState(false);
+    const [showInValidAlert, setShowInValidAlert] = useState(false);
+    const [showPromptAlert, setShowPromptAlert] = useState(false);
+    const [showPopmessage, setShowPopmessage] = useState(false);
+    const [email, setEmail] = useState('');
+    const [mobileNo, setMobileNumber] = useState('');
 
-    const navigateToOTP = () => {
-        setIsLoading(true);
-        setTimeout(() => {
+    useEffect(() => {
+        const unsubscribe = NetInfo.addEventListener(state => {
+            if (!state.isConnected) {
+                setShowConnectAlert(true);
+            } else {
+                setShowConnectAlert(false);
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    const navigateToOTP = async () => {
+        try {
+            const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+            setShowConnectAlert(!isConnected);
+            if (!isConnected) return;
+            const isEmailValid = validateEmail(email);
+            const isMobileValid = validateMobile(mobileNo);
+    
+            if (!isEmailValid || !isMobileValid) {
+                setShowValidAlert(true);
+                return;
+            }
+            const deviceID = await AsyncStorage.getItem('deviceID');
+            const appToken = await AsyncStorage.getItem('appToken');
+    
+            const mobileno = "+91" + mobileNo;
+    
+            const response = await fetch(BaseURL + "app/userauth/", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    deviceID,
+                    appToken,
+                    email,
+                    mobileno,
+                }),
+            });
+            console.log(deviceID)
+            console.log(appToken)
+            console.log(email)
+            console.log(mobileno)
+    
+            if (response.ok) {
+                const responseData = await response.json();
+                console.log(responseData);
+                const { status } = responseData;
+                
+                if (status === "INVALID") {
+                    setShowInValidAlert(true);
+                    const { message } = responseData;
+                    if (message) {
+                        setShowPopmessage(message);
+                    }
+                } else if (status === "PROMPT") {
+                    setShowPromptAlert(true);
+                    const { message } = responseData;
+                    if (message) {
+                        setShowPopmessage(message);
+                    }
+                } else if (status === "OK") {
+                    const { session_id, otp_resend_interval, otp_expiry_time, is_existing_user } = responseData;
+                    await AsyncStorage.multiSet([
+                        ['session_id', session_id],
+                        ['otp_resend_interval', otp_resend_interval.toString()],
+                        ['otp_expiry_time', otp_expiry_time.toString()],
+                        ['is_existing_user', is_existing_user.toString()]
+                    ]);
+    
+                    setIsLoading(true);
+                    setTimeout(() => {
+                        setIsLoading(false);
+                        navigation.navigate("OTP");
+                    }, 2000);
+                } else {
+                    setShowValidAlert(true);
+                }
+            } else {
+                console.error('Server request failed');
+                setIsLoading(false);
+            }
+        } catch (error) {
+            console.error('Error checking internet connection:', error);
             setIsLoading(false);
-            navigation.navigate("OTP");
-        }, 2000);
+        }
+    };    
+
+    const validateEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+    const validateMobile = (mobileNo) => {
+        const mobileRegex = /^\d{10}$/;
+        return mobileRegex.test(mobileNo);
     };
 
     return (
@@ -30,20 +135,48 @@ export default function Signup({ navigation }) {
                         <SimpleLineIcons name="user" size={20} color="#FF6E00" style={styles.icon} />
                         <TextInput
                             style={styles.textInput}
-                            placeholder='Email' />
+                            placeholder='Email'
+                            value={email}
+                            onChangeText={setEmail}
+                            autoCapitalize="none"
+                        />
                     </View>
                     <View style={{ height: 20 }}></View>
                     <View style={styles.inputContainer}>
                         <Ionicons name="call-sharp" size={20} color="#FF6E00" style={styles.icon} />
+                        <Text style={styles.text}>+ 91</Text>
                         <TextInput
                             style={styles.textInput}
-                            placeholder='Mobile No' />
+                            placeholder='Mobile No'
+                            value={mobileNo}
+                            onChangeText={setMobileNumber}
+                        />
                     </View>
                     <TouchableOpacity style={[styles.circle, { backgroundColor: '#FF6E00' }]} onPress={navigateToOTP}>
                         <MaterialIcons name="arrow-forward-ios" size={24} color="white" />
                     </TouchableOpacity>
                 </View>
             )}
+            <CustomAlert
+                visible={showConnectAlert}
+                onClose={() => setShowConnectAlert(false)}
+                message="Connect to the internet or exit the app"
+            />
+            <CustomAlert
+                visible={showValidAlert}
+                onClose={() => setShowValidAlert(false)}
+                message="Please enter valid email and mobile number"
+            />
+            <CustomAlert
+                visible={showInValidAlert}
+                onClose={() => setShowInValidAlert(false)}
+                message={showPopmessage}
+            />
+            <CustomAlertprompt
+                visible={showPromptAlert}
+                onClose={() => setShowPromptAlert(false)}
+                message={showPopmessage}
+            />
         </ScrollView>
     );
 }
@@ -101,4 +234,7 @@ const styles = StyleSheet.create({
         width: 150,
         height: 150,
     },
+    text: {
+        left:25
+    }
 });
