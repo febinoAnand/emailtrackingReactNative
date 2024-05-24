@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Button, TextInput, Text, StyleSheet, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { format } from 'date-fns';
+import { timeFormat } from '../../config/appconfig';
 
 export default function Checkscreen({ navigation }) {
     const [authState, setAuthState] = useState('');
@@ -16,7 +18,7 @@ export default function Checkscreen({ navigation }) {
     };
 
     const handleSetTime = async () => {
-        const currentTime = new Date().toLocaleString();
+        const currentTime = format(new Date(),timeFormat);
         await AsyncStorage.setItem('loggedinat', currentTime);
         setLoggedTime(currentTime);
     };

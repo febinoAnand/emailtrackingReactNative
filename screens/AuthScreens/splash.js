@@ -3,6 +3,8 @@ import { View, Image, StyleSheet, Animated } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User_Expirytime } from '../../config/appconfig.js';
+import { differenceInSeconds } from 'date-fns'
+
 
 export default function Splash({ route, navigation }) {
     const { authState } = route.params;
@@ -19,21 +21,20 @@ export default function Splash({ route, navigation }) {
             if (authState === '1') {
                 nextScreen = 'Login';
             } else if (authState === '2') {
-                // code need to be checked
-                // const loggedTime = await AsyncStorage.getItem('loggedinat');
-                // console.log(loggedTime)
-                // const currentTime = new Date().toLocaleString();
-                // console.log(currentTime)
-                // const elapsedTime = parseInt(currentTime) - parseInt(loggedTime);
-                // console.log(elapsedTime)
-                // const elapsedTimeInSeconds = elapsedTime / 1000;
-                // console.log("Elapsed Time:", elapsedTimeInSeconds);
+                
+                const loggedTime = new Date(await AsyncStorage.getItem('loggedinat'));
+                // console.log(loggedTime);
+                const currentTime = new Date();
+                // console.log(currentTime);
 
-                // if (elapsedTimeInSeconds < User_Expirytime) { 
-                //     nextScreen = 'TabScreen';
-                // } else {
-                //     nextScreen = 'Login';
-                // }
+                const elapsedTimeInSeconds = differenceInSeconds(currentTime,loggedTime);
+                // console.log(elapsedTimeInSeconds);
+                
+                if (elapsedTimeInSeconds < User_Expirytime) { 
+                    nextScreen = 'TabScreen';
+                } else {
+                    nextScreen = 'Login';
+                }
             }
             await SecureStore.setItemAsync('authState', authState);
 
