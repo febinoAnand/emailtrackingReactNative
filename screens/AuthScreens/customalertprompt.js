@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
-const CustomAlert = ({ visible, onClose, message }) => {
+const CustomAlertprompt = ({ visible, onClose, message, onYesPress, onNoPress }) => {
   return (
     <Modal
       visible={visible}
@@ -14,9 +14,14 @@ const CustomAlert = ({ visible, onClose, message }) => {
         <View style={styles.alertContainer}>
           <MaterialIcons name="error" size={50} color="white" style={styles.icon} />
           <Text style={styles.message}>{message}</Text>
-          <TouchableOpacity style={styles.button} onPress={onClose}>
-            <Text style={styles.buttonText}>OK</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={onYesPress}>
+              <Text style={styles.buttonText}>Yes</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={onNoPress}>
+              <Text style={styles.buttonText}>No</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Modal>
@@ -33,7 +38,6 @@ const styles = StyleSheet.create({
   alertContainer: {
     backgroundColor: '#FF6E00',
     width: 300,
-    height: 180,
     padding: 20,
     borderRadius: 10,
     alignItems: 'center',
@@ -47,11 +51,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: 'white',
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
   button: {
     backgroundColor: '#fff',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
+    marginHorizontal: 5,
   },
   buttonText: {
     fontSize: 16,
@@ -60,4 +70,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CustomAlert;
+export default CustomAlertprompt;
