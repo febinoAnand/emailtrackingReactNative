@@ -1,10 +1,121 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TextInput, Image, StyleSheet, ScrollView } from "react-native";
 import { SimpleLineIcons, FontAwesome5, Feather, MaterialIcons } from '@expo/vector-icons';
 import LoadingScreen from './loadingscreen';
+import CustomAlert from './customalert';
+import SuccessAlert from './successalert';
+import NetInfo from "@react-native-community/netinfo";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BaseURL } from '../../config/appconfig';
+import * as SecureStore from 'expo-secure-store';
 
 export default function Registration({ navigation }) {
     const [isLoading, setIsLoading] = useState(false);
+    const [showConnectAlert, setShowConnectAlert] = useState(false);
+    const [showPasswordAlert, setShowPasswordAlert] = useState(false);
+    const [showRegisterAlert, setShowRegisterAlert] = useState(false);
+    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [showValidAlert, setShowValidAlert] = useState(false);
+    const [isConnected, setIsConnected] = useState(true);
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [name, setName] = useState('');
+    const [designation, setDesignation] = useState('');
+    const [showPopmessage, setShowPopmessage] = useState(false);
+
+    useEffect(() => {
+        const unsubscribe = NetInfo.addEventListener(state => {
+            setIsConnected(state.isConnected);
+        });
+
+        return () => {
+            unsubscribe();
+        };
+    }, []);
+
+    const generateUUID = () => {
+        let dt = new Date().getTime();
+        const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = (dt + Math.random()*16)%16 | 0;
+            dt = Math.floor(dt/16);
+            return (c === 'x' ? r : (r&0x3|0x8)).toString(16);
+        });
+        return uuid;
+    };    
+
+    const navigateToLogin = async () => {
+        if (!isConnected) {
+            setShowConnectAlert(true);
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            setShowPasswordAlert(true);
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            await SecureStore.setItemAsync('authState', '1');
+            const sessionID = await AsyncStorage.getItem('sessionID');
+            const deviceID = await AsyncStorage.getItem('deviceID');
+            const appToken = await AsyncStorage.getItem('appToken');
+            const notificationID = generateUUID();
+            const verificationID = await AsyncStorage.getItem('verificationID');
+
+            const data = {
+                name,
+                designation,
+                password,
+                sessionID,
+                deviceID,
+                appToken,
+                notificationID,
+                verificationID
+            };
+            console.log(data)
+
+            const response = await fetch(BaseURL + "app/userregister/", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                const responseData = await response.json();
+                const { status } = responseData;
+                console.log(responseData);
+                if (status === "OK") {
+                    const { message } = responseData;
+                    if (message) {
+                        setShowPopmessage(message);
+                    }
+
+
+                setIsLoading(false);
+                setShowSuccessAlert(true);
+                setTimeout(() => {
+                    setShowSuccessAlert(false);
+                    navigation.navigate("Login");
+                }, 2000);
+            } else {
+                const { message } = responseData;
+                    if (message) {
+                        setShowPopmessage(message);
+                    }
+            }
+            } else {
+                setShowRegisterAlert(true);
+                setIsLoading(false);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            setIsLoading(false);
+        }
+    };
 
     return (
         <>
@@ -22,37 +133,67 @@ export default function Registration({ navigation }) {
                             <SimpleLineIcons name="user" size={20} color="#FF6E00" style={styles.icon} />
                             <TextInput
                                 style={styles.textInput}
-                                placeholder='Name' />
+                                placeholder='Name'
+                                autoCapitalize="none" 
+                                onChangeText={text => setName(text)} />
                         </View>
                         <View style={styles.inputContainer}>
                             <FontAwesome5 name="user-graduate" size={20} color="#FF6E00" style={styles.icon} />
                             <TextInput
                                 style={styles.textInput}
-                                placeholder='Designation' />
+                                placeholder='Designation'
+                                autoCapitalize="none" 
+                                onChangeText={text => setDesignation(text)}/>
                         </View>
                         <View style={styles.inputContainer}>
                             <Feather name="unlock" size={20} color="#FF6E00" style={styles.icon} />
                             <TextInput
                                 style={styles.textInput}
-                                placeholder='Password' />
+                                placeholder='Password'
+                                autoCapitalize="none"
+                                secureTextEntry={true}
+                                onChangeText={text => setPassword(text)} 
+                            />
                         </View>
                         <View style={styles.inputContainer}>
                             <Feather name="unlock" size={20} color="#FF6E00" style={styles.icon} />
                             <TextInput
                                 style={styles.textInput}
-                                placeholder='Confirm Password' />
+                                placeholder='Confirm Password'
+                                autoCapitalize="none" 
+                                secureTextEntry={true}
+                                onChangeText={text => setConfirmPassword(text)} 
+                            />
                         </View>
                     </View>
                     <View style={[styles.circle, { backgroundColor: '#FF6E00' }]}>
-                        <MaterialIcons name="arrow-forward-ios" size={24} color="white"
-                            onPress={() => {
-                                setIsLoading(true);
-                                setTimeout(() => {
-                                    setIsLoading(false);
-                                    navigation.navigate("Login");
-                                }, 2000);
-                            }} />
+                        <MaterialIcons name="arrow-forward-ios" size={24} color="white" onPress={navigateToLogin} />
                     </View>
+                    <CustomAlert
+                        visible={showConnectAlert}
+                        onClose={() => setShowConnectAlert(false)}
+                        message="Connect to the internet or exit the app"
+                    />
+                    <CustomAlert
+                        visible={showPasswordAlert}
+                        onClose={() => setShowPasswordAlert(false)}
+                        message="Confirm Password does not match"
+                    />
+                    <CustomAlert
+                        visible={showRegisterAlert}
+                        onClose={() => setShowRegisterAlert(false)}
+                        message={showPopmessage}
+                    />
+                    <SuccessAlert
+                        visible={showSuccessAlert}
+                        onClose={() => setShowSuccessAlert(false)}
+                        message={showPopmessage}
+                    />
+                    <CustomAlert
+                        visible={showValidAlert}
+                        onClose={() => setShowValidAlert(false)}
+                        message="Please enter valid data"
+                    />
                 </ScrollView>
             )}
         </>

@@ -40,7 +40,8 @@
     "react-native-screens": "3.31.1",
     "react-native-svg": "^15.3.0",
     "react-native-tab-view": "^3.5.2",
-    "react-native-table-component": "^1.2.2"
+    "react-native-table-component": "^1.2.2",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

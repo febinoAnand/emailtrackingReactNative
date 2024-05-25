@@ -1,24 +1,83 @@
-import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, Image, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, TextInput, StyleSheet, Image } from 'react-native';
 import { SimpleLineIcons, Feather, MaterialIcons } from '@expo/vector-icons';
 import LoadingScreen from './loadingscreen';
+import NetInfo from "@react-native-community/netinfo";
+import CustomAlert from './customalert';
+import SuccessAlert from './successalert';
+import { BaseURL } from '../../config/appconfig';
 
 export default function Login({ navigation }) {
     const [isLoading, setIsLoading] = useState(false);
+    const [showConnectAlert, setShowConnectAlert] = useState(false);
+    const [showFieldAlert, setShowFieldAlert] = useState(false);
+    const [showPopmessage, setShowPopmessage] = useState(false);
+    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [showValidAlert, setShowValidAlert] = useState(false);
+    const [lastErrorMessage, setLastErrorMessage] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
+    useEffect(() => {
+        const unsubscribe = NetInfo.addEventListener(state => {
+            setShowConnectAlert(!state.isConnected);
+        });
+
+        return () => {
+            unsubscribe();
+        };
+    }, []);
+
     const handleLogin = () => {
-        if (username === 'admin' && password === 'admin') {
-            setIsLoading(true);
-            setTimeout(() => {
-                setIsLoading(false);
-                navigation.navigate("TabScreen");
-            }, 2000);
-        } else {
-            Alert.alert('Invalid Credentials', 'Username or Password is incorrect');
+        if (!username.trim() || !password.trim()) {
+            setShowFieldAlert(true);
+            return;
         }
-    };
+        NetInfo.fetch().then(state => {
+            if (!state.isConnected) {
+                setShowConnectAlert(true);
+                return;
+            }
+            setIsLoading(true);
+            fetch(BaseURL + "app/userauthtoken/", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password,
+                }),
+            })
+            .then(async response => {
+                setIsLoading(false);
+                if (!response.ok) {
+                    const responseData = await response.json();
+                    const { status, message } = responseData;
+                    console.log(responseData);
+                    if (status === "OK") {
+                        if (message) {
+                            setShowPopmessage(message);
+                        }
+                        throw new Error('Login failed. Please try again.');
+                    } else {
+                        if (message) {
+                            setShowPopmessage(message);
+                        }
+                    }
+                    return response.json();
+                } else {
+                    const data = await response.json();
+                    navigation.navigate("TabScreen");
+                    return data;
+                }
+            })
+            .catch(error => {
+                setIsLoading(false);
+                setLastErrorMessage(error.message);
+            });
+        });
+    };    
 
     return (
         <>
@@ -38,9 +97,9 @@ export default function Login({ navigation }) {
                             <TextInput
                                 style={styles.textInput}
                                 placeholder='User Name'
+                                autoCapitalize="none"
                                 value={username}
                                 onChangeText={setUsername}
-                                autoCapitalize="none"
                             />
                         </View>
                         <View style={{ height: 20 }}></View>
@@ -50,9 +109,9 @@ export default function Login({ navigation }) {
                                 style={styles.textInput}
                                 placeholder='Password'
                                 secureTextEntry={true}
+                                autoCapitalize="none"
                                 value={password}
                                 onChangeText={setPassword}
-                                autoCapitalize="none"
                             />
                         </View>
                     </View>
@@ -61,6 +120,31 @@ export default function Login({ navigation }) {
                             onPress={handleLogin}
                         />
                     </View>
+                    <CustomAlert
+                        visible={showConnectAlert}
+                        onClose={() => setShowConnectAlert(false)}
+                        message="Connect to the internet or exit the app"
+                    />
+                    <CustomAlert
+                        visible={showFieldAlert}
+                        onClose={() => setShowFieldAlert(false)}
+                        message="Please provide both username and password."
+                    />
+                    <SuccessAlert
+                        visible={showSuccessAlert}
+                        onClose={() => setShowSuccessAlert(false)}
+                        message={showPopmessage}
+                    />
+                    <CustomAlert
+                        visible={showValidAlert}
+                        onClose={() => setShowValidAlert(false)}
+                        message="Please enter valid data"
+                    />
+                    <CustomAlert
+                        visible={showValidAlert}
+                        onClose={() => setShowValidAlert(false)}
+                        message={lastErrorMessage}
+                    />
                 </View>
             )}
         </>

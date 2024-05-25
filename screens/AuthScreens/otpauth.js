@@ -1,13 +1,111 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import NetInfo from "@react-native-community/netinfo";
 import { MaterialIcons } from '@expo/vector-icons';
 import LoadingScreen from './loadingscreen';
 import CustomAlert from './customalert';
+import { BaseURL } from '../../config/appconfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function OTPAuth({ navigation }) {
+export default function OTPpage({ navigation, route }) {
+  const { otp_resend_interval, mobileNo } = route.params;
   const [isLoading, setIsLoading] = useState(false);
   const [showResendAlert, setShowResendAlert] = useState(false);
   const inputRefs = [...Array(5)].map(() => useRef(null));
+  const [showConnectAlert, setShowConnectAlert] = useState(false);
+  const [showOtpAlert, setShowOtpAlert] = useState(false);
+  const [showresAlert, setShowresAlert] = useState(false);
+  const [resendInterval, setResendInterval] = useState(null);
+  const [OTP, setEnteredOTP] = useState('');
+  const countdownRef = useRef(null);
+
+  useEffect(() => {
+    checkInternetConnection();
+  }, []);
+
+  useEffect(() => {
+    let interval = null;
+    if (showResendAlert) {
+      interval = setInterval(() => {
+        setResendInterval(prevInterval => prevInterval - 1);
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [showResendAlert]);
+
+  const checkInternetConnection = async () => {
+    const state = await NetInfo.fetch();
+    if (!state.isConnected) {
+      setShowConnectAlert(true);
+      return false;
+    }
+    return true;
+  };
+
+  const compareOTPWithServer = async () => {
+    if (OTP.length === 5) {
+      setIsLoading(true);
+      const isConnected = await checkInternetConnection();
+      if (isConnected) {
+        try {
+          const deviceID = await AsyncStorage.getItem('deviceID');
+          const appToken = await AsyncStorage.getItem('appToken');
+          const session_id = await AsyncStorage.getItem('sessionID');
+
+          const response = await fetch(BaseURL + "app/userverify/", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              OTP: OTP,
+              sessionID: session_id,
+              appToken: appToken,
+              deviceID: deviceID,
+            }),
+          });
+          // console.log(OTP)
+          // console.log(session_id)
+          // console.log(appToken)
+          // console.log(deviceID)
+
+          if (response.ok) {
+            const responseData = await response.json();
+            if (responseData.verification_id) {
+              setIsLoading(false);
+              AsyncStorage.setItem('verificationID', responseData.verification_id);
+              // console.log(responseData.verification_id);
+              navigation.navigate('Registration');
+            } else {
+              setIsLoading(false);
+              setShowresAlert(true);
+            }
+          } else {
+            setIsLoading(false);
+            setShowOtpAlert(true);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          setIsLoading(false);
+          setShowOtpAlert(true);
+        }
+      } else {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const handleInputChange = (value, index) => {
+    if (value !== '') {
+      setEnteredOTP(prevOTP => prevOTP + value);
+      focusNextInput(index);
+    } else {
+      setEnteredOTP(prevOTP => prevOTP.slice(0, -1));
+      focusPreviousInput(index);
+    }
+  };
 
   const focusNextInput = (index) => {
     if (index < inputRefs.length - 1) {
@@ -21,28 +119,51 @@ export default function OTPAuth({ navigation }) {
     }
   };
 
-  const handleInputChange = (value, index) => {
-    if (value !== '') {
-      focusNextInput(index);
-    } else {
-      focusPreviousInput(index);
+  const showAlertForResend = async () => {
+    const isConnected = await checkInternetConnection();
+    if (isConnected) {
+      setShowResendAlert(true);
+      let interval = otp_resend_interval;
+      setResendInterval(interval);
+      const session_id = await AsyncStorage.getItem('sessionID');
+      const deviceID = await AsyncStorage.getItem('deviceID');
+      const appToken = await AsyncStorage.getItem('appToken');
+  
+      const requestBody = {
+        sessionID: session_id,
+        deviceID: deviceID,
+        appToken: appToken,
+      };
+  
+      fetch(BaseURL + "app/resendotp/", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to resend OTP');
+          }
+        })
+        .catch(error => {
+          console.error('Error resending OTP:', error);
+        });
+  
+      const countdown = setInterval(() => {
+        interval--;
+        setResendInterval(interval);
+        if (interval === 0) {
+          clearInterval(countdown);
+          setShowResendAlert(false);
+          setResendInterval(null);
+        }
+      }, 1000);
+      if (countdownRef.current) clearInterval(countdownRef.current);
+        countdownRef.current = countdown;
     }
-  };
-
-  const showNavigate = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      navigation.navigate('Registration');
-    }, 2000);
-  };
-
-  const showAlertForResend = () => {
-    setShowResendAlert(true);
-    setTimeout(() => {
-      setShowResendAlert(false);
-    }, 10000);
-  };
+  };  
 
   return (
     <View style={styles.container}>
@@ -51,7 +172,7 @@ export default function OTPAuth({ navigation }) {
       ) : (
         <>
           <View style={styles.textContainer}>
-            <Text style={styles.baseText}>OTP was sent to +91-9790928992</Text>
+            <Text style={styles.baseText}>OTP was sent to +91-{mobileNo}</Text>
             <Text style={styles.innerText}>Click here to change mobile no</Text>
           </View>
           <View style={styles.otpContainer}>
@@ -72,7 +193,9 @@ export default function OTPAuth({ navigation }) {
             ))}
           </View>
           <View style={styles.resendContainer}>
-            <Text>Resend in 20 sec....</Text>
+            {resendInterval !== null && (
+              <Text>Resend in {resendInterval} sec....</Text>
+            )}
             <View style={styles.buttonContainer}>
               <Button title="Resend" color="#FF6E00" onPress={showAlertForResend} />
             </View>
@@ -82,7 +205,7 @@ export default function OTPAuth({ navigation }) {
               name="arrow-forward-ios"
               size={24}
               color="white"
-              onPress={showNavigate}
+              onPress={compareOTPWithServer}
             />
           </View>
         </>
@@ -91,6 +214,21 @@ export default function OTPAuth({ navigation }) {
         visible={showResendAlert}
         onClose={() => setShowResendAlert(false)}
         message="RESEND"
+      />
+      <CustomAlert
+        visible={showConnectAlert}
+        onClose={() => setShowConnectAlert(false)}
+        message="Connect to the internet or exit the app"
+      />
+      <CustomAlert
+        visible={showOtpAlert}
+        onClose={() => setShowOtpAlert(false)}
+        message="Entered OTP is incorrect. Please try again."
+      />
+      <CustomAlert
+        visible={showresAlert}
+        onClose={() => setShowresAlert(false)}
+        message="Something went wrong !"
       />
     </View>
   );

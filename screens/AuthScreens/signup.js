@@ -60,15 +60,15 @@ export default function Signup({ navigation }) {
                     mobileno,
                 }),
             });
-            console.log(deviceID)
-            console.log(appToken)
-            console.log(email)
-            console.log(mobileno)
+            // console.log(deviceID)
+            // console.log(appToken)
+            // console.log(email)
+            // console.log(mobileno)
     
             if (response.ok) {
                 const responseData = await response.json();
+                const { status, otp_resend_interval } = responseData;
                 console.log(responseData);
-                const { status } = responseData;
                 
                 if (status === "INVALID") {
                     setShowInValidAlert(true);
@@ -85,7 +85,7 @@ export default function Signup({ navigation }) {
                 } else if (status === "OK") {
                     const { session_id, otp_resend_interval, otp_expiry_time, is_existing_user } = responseData;
                     await AsyncStorage.multiSet([
-                        ['session_id', session_id],
+                        ['sessionID', session_id],
                         ['otp_resend_interval', otp_resend_interval.toString()],
                         ['otp_expiry_time', otp_expiry_time.toString()],
                         ['is_existing_user', is_existing_user.toString()]
@@ -94,7 +94,7 @@ export default function Signup({ navigation }) {
                     setIsLoading(true);
                     setTimeout(() => {
                         setIsLoading(false);
-                        navigation.navigate("OTP");
+                        navigation.navigate("OTP", { otp_resend_interval,  mobileNo });
                     }, 2000);
                 } else {
                     setShowValidAlert(true);
