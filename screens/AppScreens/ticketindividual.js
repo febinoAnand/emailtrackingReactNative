@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
-export default function TicketIndividual({ route, navigation  }) {
+export default function TicketIndividual({ route, navigation }) {
     const { item } = route.params;
 
     useFocusEffect(
@@ -26,11 +26,11 @@ export default function TicketIndividual({ route, navigation  }) {
             );
         }
         return formattedData;
-    };    
+    };
 
     return (
         <View style={styles.container}>
-             <View style={{ height: 40 }}></View>
+            <View style={{ height: 40 }}></View>
             <View style={styles.spacer}></View>
             <View style={styles.inputTitle}>
                 <View style={styles.head}>
@@ -68,7 +68,7 @@ export default function TicketIndividual({ route, navigation  }) {
                 <View style={styles.head}>
                     <Text style={styles.topHeader}>Fields</Text>
                 </View>
-                <Text style={styles.ticketDetailText}>{formatRequiredJson()}</Text>
+                {formatRequiredJson()}
             </View>
         </View>
     );
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: 'bold',
         marginBottom: 10,
-        color:'white'
+        color: 'white'
     },
     inputRow: {
         flexDirection: 'row',
@@ -100,18 +100,18 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     head: {
-        backgroundColor:'#FF6E00',
+        backgroundColor: '#FF6E00',
         width: '108%',
-        borderColor:'#FF6E00',
+        borderColor: '#FF6E00',
         padding: 10,
-        top:-12.5,
+        top: -12.5,
         overflow: 'hidden',
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
     },
     ticketDetailText: {
         color: 'gray',
-    },    
+    },
     inputTitle: {
         alignItems: 'center',
         borderWidth: 2,
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
         shadowRadius: 5.84,
         elevation: 8,
     },
-    ticketText :{
-        color:'gray'
+    ticketText: {
+        color: 'gray'
     }
 });

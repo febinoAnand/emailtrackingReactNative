@@ -11,10 +11,10 @@ export default function Dashboard() {
     const [recentData, setRecentData] = useState([]);
     const [tableHead, setTableHead] = useState([]);
     const [barChartData, setBarChartData] = useState([]);
-    const widthAndHeight = 200;
-    const series = [123, 321, 123, 789, 537];
-    const sliceColor = ['#fbd203', '#ffb300', '#ff9100', '#ff6c00', '#ff3c00'];
-    const sliceLabel = ['Yellow', 'Orange', 'Light Orange', 'Dark Orange', 'Red'];
+    // const widthAndHeight = 200;
+    // const series = [123, 321, 123, 789, 537];
+    // const sliceColor = ['#fbd203', '#ffb300', '#ff9100', '#ff6c00', '#ff3c00'];
+    // const sliceLabel = ['Yellow', 'Orange', 'Light Orange', 'Dark Orange', 'Red'];
 
     useEffect(() => {
         const fetchData = async () => {
@@ -155,7 +155,7 @@ export default function Dashboard() {
                     </View>
                 </View>
             </View>
-            <View style={{ height: 40 }} />
+            {/* <View style={{ height: 40 }} />
             <View style={styles.inputTitles}>
                 <View style={styles.heads}>
                     <Text style={styles.topHeader}>Pie Chart</Text>
@@ -176,19 +176,19 @@ export default function Dashboard() {
                         </View>
                     ))}
                 </View>
-            </View>
+            </View> */}
             <View style={{ height: 40 }} />
             <View style={styles.inputTitles}>
                 <View style={styles.heads}>
                     <Text style={styles.topHeader}>Bar Chart</Text>
                 </View>
-                <View style={{ flexDirection: 'column', alignItems: 'left', justifyContent: 'center', height: 300 }}>
+                <View style={{ flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', width: '100%' }}>
                     {barChartData.map((data, index) => (
                         <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-                            <View style={{ width: 80, alignItems: 'flex-end', marginRight: 10 }}>
+                            <View style={{ width: 100, alignItems: 'flex-end', marginRight: 10 }}>
                                 <Text style={{ marginRight: 5 }}>{data.label}</Text>
                             </View>
-                            <Svg height="40" width="200">
+                            <Svg height="40" width={data.scaledValue + 20}>
                                 <Rect
                                     x="0"
                                     y="0"
@@ -197,28 +197,28 @@ export default function Dashboard() {
                                     fill={data.color}
                                 />
                             </Svg>
-                            <Text style={{ marginLeft: 10 }}>{data.value}</Text>
+                            <Text style={{ marginright: 20, flex: 1, textAlign: 'center' }}>{data.value}</Text>
                         </View>
                     ))}
                 </View>
             </View>
             <View style={{ height: 40 }} />
             <View style={styles.tableContainer}>
-                <Table>
-                    <Row data={tableHead} style={styles.head3} textStyle={styles.text} />
-                    {recentData.map((rowData, index) => (
-                        <Row
-                            key={index}
-                            data={[
-                                (index + 1).toString(),
-                                rowData.date,
-                                ...tableHead.slice(2).map(header => rowData.required_json[header])
-                            ]}
-                            style={[styles.row, index === recentData.length - 1 && styles.lastRow]}
-                            textStyle={styles.rowText}
-                        />
-                    ))}
-                </Table>
+            <Table>
+                <Row data={tableHead} style={styles.head3} textStyle={styles.text} />
+                {recentData.slice(0).reverse().map((rowData, index) => (
+                    <Row
+                        key={index}
+                        data={[
+                            (index + 1).toString(),
+                            rowData.date,
+                            ...tableHead.slice(2).map(header => rowData.required_json[header])
+                        ]}
+                        style={[styles.row, index === recentData.length - 1 && styles.lastRow]}
+                        textStyle={styles.rowText}
+                    />
+                ))}
+            </Table>
             </View>
             <View style={{ height: 40 }} />
         </ScrollView>

@@ -1,7 +1,21 @@
 import React from 'react';
 import { View, Text, Button, TextInput, StyleSheet, ScrollView } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Settings({ navigation }) {
+
+    const handleLogout = async () => {
+        try {
+            await SecureStore.setItemAsync('authState', '1');
+            await AsyncStorage.removeItem('session_id');
+            await AsyncStorage.removeItem('verificationID');
+            navigation.navigate("Login");
+        } catch (error) {
+            console.error('Error updating authState:', error);
+        }
+    };
+
     return (
         <ScrollView contentContainerStyle={styles.scrollViewContainer}>
             <View style={{ height: 40 }}></View>
@@ -86,9 +100,7 @@ export default function Settings({ navigation }) {
                 <Button
                     title="Logout"
                     color="#FF6E00"
-                    onPress={() => {
-                        navigation.navigate("Login")
-                    }}
+                    onPress={handleLogout}
                 />
             </View>
             <View style={{ height: 40 }}></View>

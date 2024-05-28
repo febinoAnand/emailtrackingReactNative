@@ -74,7 +74,7 @@ const Inbox = () => {
                 />
             </View> */}
             <FlatList
-                data={data}
+                data={data.slice(0).reverse()}
                 renderItem={renderItem}
                 keyExtractor={item => item.id.toString()}
                 contentContainerStyle={{ paddingBottom: 20 }}

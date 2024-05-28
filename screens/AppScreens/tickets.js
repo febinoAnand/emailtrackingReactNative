@@ -77,7 +77,7 @@ export default function Ticket() {
                 />
             </View> */}
             <FlatList
-                data={filteredData}
+                data={filteredData.slice(0).reverse()}
                 renderItem={renderItem}
                 keyExtractor={item => item.id.toString()}
                 contentContainerStyle={styles.flatListContainer}
