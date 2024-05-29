@@ -1,20 +1,49 @@
 import React from 'react';
-import { View, Text, Button, TextInput, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Button, TextInput, StyleSheet, ScrollView, Alert } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
+import { BaseURL } from '../../config/appconfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Settings({ navigation }) {
 
     const handleLogout = async () => {
         try {
-            await SecureStore.setItemAsync('authState', '1');
-            await AsyncStorage.removeItem('session_id');
-            await AsyncStorage.removeItem('verificationID');
+            const token = await AsyncStorage.getItem('token');
+            if (!token) {
+                throw new Error('Token not found in AsyncStorage');
+            }
+    
+            console.log(`Revoking token: ${token}`);
+            const url = `${BaseURL}Userauth/revoke-token/?token=${token}`;
+            console.log(`Request URL: ${url}`);
+    
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.log('Error data:', errorData);
+                throw new Error(errorData.error || 'Failed to revoke token');
+            }
+    
+            await Promise.all([
+                SecureStore.setItemAsync('authState', '1'),
+                AsyncStorage.removeItem('token'),
+                AsyncStorage.removeItem('session_id'),
+                AsyncStorage.removeItem('verificationID')
+            ]);
+    
             navigation.navigate("Login");
         } catch (error) {
-            console.error('Error updating authState:', error);
+            console.error('Error revoking token:', error.message);
+            Alert.alert('Error', error.message);
         }
     };
+    
 
     return (
         <ScrollView contentContainerStyle={styles.scrollViewContainer}>

@@ -6,6 +6,7 @@ import NetInfo from "@react-native-community/netinfo";
 import CustomAlert from './customalert';
 import SuccessAlert from './successalert';
 import { BaseURL } from '../../config/appconfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Login({ navigation }) {
     const [isLoading, setIsLoading] = useState(false);
@@ -68,6 +69,8 @@ export default function Login({ navigation }) {
                     return response.json();
                 } else {
                     const data = await response.json();
+                    await AsyncStorage.setItem('token', data.token);
+                    console.log(data.token)
                     navigation.navigate("TabScreen");
                     return data;
                 }
