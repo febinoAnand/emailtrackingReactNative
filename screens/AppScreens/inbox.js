@@ -19,7 +19,7 @@ const CircleAvatar = ({ text }) => {
 
 const Inbox = () => {
     const [data, setData] = useState([]);
-    // const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
     const navigation = useNavigation();
 
     const handleItemClick = (item) => {
@@ -61,20 +61,29 @@ const Inbox = () => {
         return () => clearInterval(interval);
     }, []);
 
+    const filteredData = data.filter(item => {
+        return item.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                item.date.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                item.time.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                item.from_email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                item.to_email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+               item.message.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+
     return (
         <View style={styles.container}>
             <View style={{ height: 20 }}></View>
-            {/* <View style={styles.searchContainer}>
+            <View style={styles.searchContainer}>
                 <Ionicons name="search" size={20} color="black" style={styles.searchIcon} />
                 <TextInput
                     style={styles.input}
-                    placeholder="Search"
+                    placeholder="Search                                                                               "
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                 />
-            </View> */}
+            </View>
             <FlatList
-                data={data.slice(0).reverse()}
+                data={filteredData.slice(0).reverse()}
                 renderItem={renderItem}
                 keyExtractor={item => item.id.toString()}
                 contentContainerStyle={{ paddingBottom: 20 }}
@@ -143,6 +152,34 @@ const styles = StyleSheet.create({
         color: 'blue',
         fontSize: 10,
         bottom: 30
+    },
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
+        height: 40,
+        marginBottom: 20,
+        borderColor: 'white',
+        borderRadius: 200,
+        borderWidth: 2,
+        overflow: 'hidden',
+        backgroundColor: 'white',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 5.84,
+        elevation: 8,
+    },
+    searchIcon: {
+        position: 'absolute',
+        left: 310,
+        zIndex: 1,
+    },
+    input: {
+        paddingLeft: 30,
     },
     messagetext:{
         color:'gray',
