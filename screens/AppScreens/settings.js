@@ -1,49 +1,73 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Button, TextInput, StyleSheet, ScrollView, Alert } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { BaseURL } from '../../config/appconfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CustomAlert from '../AuthScreens/customalert.js';
+import NetInfo from "@react-native-community/netinfo";
 
 export default function Settings({ navigation }) {
+    const [showValidAlert, setShowValidAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [isConnected, setIsConnected] = useState(true);
+
+    useEffect(() => {
+        const unsubscribe = NetInfo.addEventListener(state => {
+            setIsConnected(state.isConnected);
+        });
+
+        return () => {
+            unsubscribe();
+        };
+    }, []);
 
     const handleLogout = async () => {
         try {
-            const token = await AsyncStorage.getItem('token');
-            if (!token) {
-                throw new Error('Token not found in AsyncStorage');
+            if (!isConnected) {
+                setShowValidAlert(true);
+                setAlertMessage('No internet connection');
+                return;
             }
     
-            console.log(`Revoking token: ${token}`);
+            const token = await AsyncStorage.getItem('token');
+            if (!token) {
+                setShowValidAlert(true);
+                setAlertMessage('Token not found in AsyncStorage');
+                return;
+            }
+    
+            console.log('Authorization:', `Token ${token}`);
             const url = `${BaseURL}Userauth/revoke-token/?token=${token}`;
-            console.log(`Request URL: ${url}`);
+            console.log(`URL: ${url}`);
     
             const response = await fetch(url, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Token ${token}`,
                 },
             });
     
             if (!response.ok) {
                 const errorData = await response.json();
                 console.log('Error data:', errorData);
-                throw new Error(errorData.error || 'Failed to revoke token');
+                setShowValidAlert(true);
+                setAlertMessage(errorData.error || 'Failed to revoke token');
+                return;
             }
     
-            await Promise.all([
-                SecureStore.setItemAsync('authState', '1'),
-                AsyncStorage.removeItem('token'),
-                AsyncStorage.removeItem('session_id'),
-                AsyncStorage.removeItem('verificationID')
-            ]);
+            await SecureStore.setItemAsync('authState', '1');
+            await AsyncStorage.removeItem('token');
+            await AsyncStorage.removeItem('session_id');
+            await AsyncStorage.removeItem('verificationID');
     
             navigation.navigate("Login");
         } catch (error) {
-            console.error('Error revoking token:', error.message);
-            Alert.alert('Error', error.message);
+            console.error('Logout error:', error);
+            setShowValidAlert(true);
+            setAlertMessage(error.message || 'Failed to logout');
         }
     };
-    
 
     return (
         <ScrollView contentContainerStyle={styles.scrollViewContainer}>
@@ -132,6 +156,11 @@ export default function Settings({ navigation }) {
                     onPress={handleLogout}
                 />
             </View>
+            <CustomAlert
+                visible={showValidAlert}
+                onClose={() => setShowValidAlert(false)}
+                message={alertMessage}
+            />
             <View style={{ height: 40 }}></View>
         </ScrollView>
     );

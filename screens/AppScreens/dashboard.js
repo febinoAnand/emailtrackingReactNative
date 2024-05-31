@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { Table, Row } from 'react-native-table-component';
-import PieChart from 'react-native-pie-chart';
-import { BaseURL } from '../../config/appconfig';
 import Svg, { Rect } from 'react-native-svg';
+import { BaseURL } from '../../config/appconfig';
 
 export default function Dashboard() {
     const [totalTickets, setTotalTickets] = useState(0);
@@ -11,10 +10,6 @@ export default function Dashboard() {
     const [recentData, setRecentData] = useState([]);
     const [tableHead, setTableHead] = useState([]);
     const [barChartData, setBarChartData] = useState([]);
-    // const widthAndHeight = 200;
-    // const series = [123, 321, 123, 789, 537];
-    // const sliceColor = ['#fbd203', '#ffb300', '#ff9100', '#ff6c00', '#ff3c00'];
-    // const sliceLabel = ['Yellow', 'Orange', 'Light Orange', 'Dark Orange', 'Red'];
 
     useEffect(() => {
         const fetchData = async () => {
@@ -55,15 +50,15 @@ export default function Dashboard() {
                 }
                 const result = await response.json();
                 const headers = result.map(item => item.field);
-                setTableHead(['S.No', 'Date', ...headers]);
+                setTableHead(['Date', 'Time', ...headers]);
             } catch (error) {
                 console.error('Error fetching table head:', error);
             }
         };
-    
+
         fetchTableHead();
     }, []);
-    
+
     useEffect(() => {
         const fetchRecentData = async () => {
             try {
@@ -74,9 +69,9 @@ export default function Dashboard() {
                 console.error('Error fetching recent data:', error);
             }
         };
-    
+
         fetchRecentData();
-    }, []);  
+    }, []);
 
     const formatCellContent = (content) => {
         if (typeof content === 'object') {
@@ -99,7 +94,7 @@ export default function Dashboard() {
                     throw new Error('Network response was not ok');
                 }
                 const ticketResult = await ticketResponse.json();
-    
+
                 const fieldCounts = {};
                 ticketResult.forEach(ticket => {
                     labels.forEach(label => {
@@ -112,7 +107,7 @@ export default function Dashboard() {
                     });
                 });
                 const maxValue = Math.max(...Object.values(fieldCounts));
-    
+
                 const randomColors = Array.from({ length: labels.length }, () => '#' + (Math.random().toString(16) + '000000').slice(2, 8));
                 const barChartData = labels.map((label, index) => ({
                     label,
@@ -120,13 +115,13 @@ export default function Dashboard() {
                     scaledValue: (fieldCounts[label] || 0) * 100 / maxValue,
                     color: randomColors[index]
                 }));
-                
+
                 setBarChartData(barChartData);
             } catch (error) {
                 console.error('Error fetching parameter data:', error);
             }
         };
-    
+
         fetchParameterData();
     }, []);
 
@@ -155,28 +150,6 @@ export default function Dashboard() {
                     </View>
                 </View>
             </View>
-            {/* <View style={{ height: 40 }} />
-            <View style={styles.inputTitles}>
-                <View style={styles.heads}>
-                    <Text style={styles.topHeader}>Pie Chart</Text>
-                </View>
-                <PieChart
-                    style={styles.pie}
-                    widthAndHeight={widthAndHeight}
-                    series={series}
-                    sliceColor={sliceColor}
-                    coverRadius={0.45}
-                    coverFill={'#FFF'}
-                />
-                <View style={styles.legendContainer}>
-                    {sliceLabel.map((label, index) => (
-                        <View key={index} style={styles.legendItem}>
-                            <View style={[styles.legendColor, { backgroundColor: sliceColor[index] }]} />
-                            <Text style={styles.legendText}>{label}</Text>
-                        </View>
-                    ))}
-                </View>
-            </View> */}
             <View style={{ height: 40 }} />
             <View style={styles.inputTitles}>
                 <View style={styles.heads}>
@@ -197,28 +170,34 @@ export default function Dashboard() {
                                     fill={data.color}
                                 />
                             </Svg>
-                            <Text style={{ marginright: 20, flex: 1, textAlign: 'center' }}>{data.value}</Text>
+                            <Text style={{ marginRight: 20, flex: 1, textAlign: 'center' }}>{data.value}</Text>
                         </View>
                     ))}
                 </View>
             </View>
             <View style={{ height: 40 }} />
             <View style={styles.tableContainer}>
-            <Table>
-                <Row data={tableHead} style={styles.head3} textStyle={styles.text} />
-                {recentData.slice(0).reverse().map((rowData, index) => (
-                    <Row
-                        key={index}
-                        data={[
-                            (index + 1).toString(),
-                            rowData.date,
-                            ...tableHead.slice(2).map(header => rowData.required_json[header])
-                        ]}
-                        style={[styles.row, index === recentData.length - 1 && styles.lastRow]}
-                        textStyle={styles.rowText}
-                    />
-                ))}
-            </Table>
+                <ScrollView horizontal>
+                    <Table>
+                        <Row data={tableHead} style={styles.head3} textStyle={styles.text} />
+                        {recentData.slice(0).reverse().map((rowData, index) => (
+                            <Row
+                                key={index}
+                                data={tableHead.map(header => {
+                                    if (header === 'Date') {
+                                        return rowData.date;
+                                    } else if (header === 'Time') {
+                                        return rowData.time;
+                                    } else {
+                                        return rowData.required_json[header] || '';
+                                    }
+                                })}
+                                style={[styles.row, index === recentData.length - 1 && styles.lastRow]}
+                                textStyle={styles.cellText}
+                            />
+                        ))}
+                    </Table>
+                </ScrollView>
             </View>
             <View style={{ height: 40 }} />
         </ScrollView>
@@ -239,10 +218,10 @@ const styles = StyleSheet.create({
     },
     topHeader: {
         fontSize: 15,
-        top:5,
+        top: 5,
         fontWeight: 'bold',
         marginBottom: 10,
-        color:'white'
+        color: 'white'
     },
     inputRow: {
         flexDirection: 'row',
@@ -261,54 +240,56 @@ const styles = StyleSheet.create({
         paddingVertical: 1,
     },
     head: {
-        backgroundColor:'#FF6E00',
+        backgroundColor: '#FF6E00',
         width: '118%',
-        borderColor:'#FF6E00',
-        borderRadius:3,
+        borderColor: '#FF6E00',
+        borderRadius: 3,
         padding: 10,
-        top:-12.5,
+        top: -12.5,
         overflow: 'hidden',
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
     },
     heads: {
-        backgroundColor:'#FF6E00',
+        backgroundColor: '#FF6E00',
         width: '107.5%',
-        borderColor:'#FF6E00',
+        borderColor: '#FF6E00',
         padding: 10,
-        top:-12.5,
+        top: -12.5,
         overflow: 'hidden',
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
     },
     head3: {
-        backgroundColor:'#FF6E00',
+        backgroundColor: '#FF6E00',
         width: '100%',
-        borderColor:'#FF6E00',
+        height: 70,
+        marginTop: 10,
+        borderColor: '#FF6E00',
         padding: 10,
-        top:-12.5,
+        top: -10,
         overflow: 'hidden',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
     },
-    rowText: { 
-        flex:3,
+    rowText: {
         margin: 6,
-        left:5, 
+        left: 20,
         color: 'black',
-        fontSize:12
+        fontSize: 12
     },
-    row: { 
-        flex:1,
+    row: {
+        flex: 1,
         borderBottomWidth: 1,
-        width:'100%',
-        borderBottomColor: 'black' 
+        width: '100%',
+        height: 50,
+        borderBottomColor: 'black'
     },
     pie: {
-        right:60
+        right: 60
     },
     tableContainer: {
-        flex:1,
+        flex: 1,
         backgroundColor: 'white',
         borderRadius: 20,
         width: '90%',
@@ -319,11 +300,15 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 5.84,
         elevation: 8,
+        overflowX: 'auto',
+        display: 'flex',
     },
-    text: { 
-        fontSize:11,
-        margin: 6,
-        left:5,
+    text: {
+        flexWrap: 'wrap',
+        width: 80,
+        left:10,
+        maxWidth: 80,
+        textAlign: 'left',
         color: 'white'
     },
     lastRow: {
@@ -333,7 +318,7 @@ const styles = StyleSheet.create({
         height: 30,
         width: 200,
         fontSize: 40,
-        left:8,
+        left: 8,
         borderRadius: 200,
         overflow: 'hidden',
     },
@@ -378,7 +363,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 70,
         left: 230,
-    },    
+    },
     legendItem: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -393,4 +378,11 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: 'black',
     },
-})
+    cellText: {
+        flexWrap: 'wrap',
+        left:15,
+        width: 50,
+        maxWidth: 50,
+        textAlign: 'left'
+    }
+});
