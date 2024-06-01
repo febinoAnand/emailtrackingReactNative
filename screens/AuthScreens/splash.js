@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Image, StyleSheet, Animated } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -8,21 +8,33 @@ import { DeviceID, App_Token } from '../../config/appconfig.js';
 
 
 export default function Splash({ route, navigation }) {
-    const { authState } = route.params;
+    // const { authState } = route.params;
+    const [authState,setAuthState] = useState("");
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
-    useEffect(() => {
-        checkAuthState(authState);
-    }, [authState]);
+    const authStateKey = "authState";
+  
+
+    const getAuthState = async (key) =>{
+        let data = await SecureStore.getItemAsync(key);
+        if(data==null || data =='' || data == 'null' || !data || typeof(data) != 'string' ){
+            data = '0';
+            await SecureStore.setItemAsync(key,data); 
+        }
+        console.log("splashauthState-->",data);
+        checkAuthState(data);
+        setAuthState(data);
+    }
+
+    useEffect(()=>{
+        getAuthState(authStateKey);
+    },[])
 
     const checkAuthState = async (authState) => {
         try {
             let nextScreen = 'SignUp';
 
-            if (authState === '1') {
-                nextScreen = 'Login';
-            } else if (authState === '2') {
-                
+             if (authState === '2') {
                 const loggedTime = new Date(await AsyncStorage.getItem('loggedinat'));
                 // console.log(loggedTime);
                 const currentTime = new Date();
@@ -31,28 +43,42 @@ export default function Splash({ route, navigation }) {
                 const elapsedTimeInSeconds = differenceInSeconds(currentTime,loggedTime);
                 // console.log(elapsedTimeInSeconds);
                 
-                if (elapsedTimeInSeconds < User_Expirytime) { 
-                    nextScreen = 'TabScreen';
-                } else {
+                //if session expired...
+                if (elapsedTimeInSeconds > User_Expirytime) { 
                     nextScreen = 'Login';
+                    setAuthState("1");
+                await SecureStore.setItemAsync(authStateKey, "1");
+                } 
+                //if not expired...
+                else {
+                    nextScreen = 'TabScreen';
                 }
+            }
+            // Login Needed...
+            else if (authState === '1') {
+                nextScreen = 'Login';
+            } 
+            else{
+                setAuthState("0");
+                await SecureStore.setItemAsync(authStateKey, "0");
             }
             await AsyncStorage.setItem('deviceID', DeviceID);
             await AsyncStorage.setItem('appToken', App_Token);
 
-            await SecureStore.setItemAsync('authState', authState);
+            
 
             Animated.timing(
                 fadeAnim,
                 {
                     toValue: 1,
-                    duration: 3000,
+                    duration: 1000,
                     useNativeDriver: true,
                 }
             ).start(() => {
                 setTimeout(() => {
+
                     navigation.navigate(nextScreen);
-                }, 2000);
+                }, 1000);
             });
         } catch (error) {
             console.error('Error retrieving authentication state:', error);

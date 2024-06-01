@@ -14,7 +14,9 @@ import Registration from '../screens/AuthScreens/registration';
 import AuthScreenHome from '../screens/AuthScreens/authHome';
 import Splash from '../screens/AuthScreens/splash';
 import Checkscreen from '../screens/AuthScreens/checkingscreen';
+
 import { TabGroup } from './TabNavigation';
+import Checksecure from '../screens/AuthScreens/checkingsecure';
 const Stack = createNativeStackNavigator();
 
 
@@ -24,6 +26,7 @@ export default function Navigation(){
     return (
         <NavigationContainer>
             <Stack.Navigator>
+                {/* <Stack.Screen name='Checksecure' component={Checksecure} options={{headerShown: false}}/> */}
                 <Stack.Screen name='Checkscreen' component={Checkscreen} options={{headerShown: false}}/>
                 <Stack.Screen name='Splash' component={Splash} options={{headerShown: false}}/>
                 {/* <Stack.Screen name='AuthHomeScreen' component={AuthScreenHome} options={{title: 'Auth Screen'}}/> */}

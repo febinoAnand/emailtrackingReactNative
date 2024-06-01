@@ -1,20 +1,60 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Button, TextInput, Text, StyleSheet, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { format } from 'date-fns';
 import { timeFormat } from '../../config/appconfig';
+import * as SecureStore from 'expo-secure-store';
+import { useIsFocused } from '@react-navigation/native';
 
 export default function Checkscreen({ navigation }) {
     const [authState, setAuthState] = useState('');
     const [seedValue, setSeedValue] = useState('');
     const [loggedTime, setLoggedTime] = useState('');
 
+    const isFocused = useIsFocused();
+
+    const saveValue = async (key,value) =>{
+        await SecureStore.setItemAsync(key,value);
+    }
+
+    const getAuthState = async (key) =>{
+        let data = await SecureStore.getItemAsync(key)
+        console.log("checkingScreen--->'"+data+"'");
+        if(data==null || data =='' || data == 'null' || !data || typeof(data) != 'string' ){
+            data = '0';
+            await SecureStore.setItemAsync(key,data); 
+        }
+        setSeedValue(data);
+    }
+
+    useEffect(()=>{
+        setAuthState("");
+        getCurrentTime();
+        isFocused && getAuthState("authState");
+    },[isFocused])
+
+    const getCurrentTime = () =>{
+        const currentTime = format(new Date(),timeFormat);
+        AsyncStorage.getItem('loggedinat').then(value=>{
+            if(value == null){
+                value = currentTime;
+            }
+            setLoggedTime(value);
+        })
+    }
+
+    // useEffect(()=>{
+    //     getAuthState("authState");    
+    //     getCurrentTime();
+    // },[])
+
     const handleSetAuthState = () => {
+        saveValue("authState",authState)
         setSeedValue(authState);
     };
 
     const handleSwitchToSplash = () => {
-        navigation.navigate('Splash', { authState });
+        navigation.navigate('Splash');
     };
 
     const handleSetTime = async () => {
