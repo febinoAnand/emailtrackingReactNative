@@ -77,7 +77,7 @@ export default function Splash({ route, navigation }) {
             ).start(() => {
                 setTimeout(() => {
 
-                    navigation.navigate(nextScreen);
+                    navigation.replace(nextScreen);
                 }, 1000);
             });
         } catch (error) {

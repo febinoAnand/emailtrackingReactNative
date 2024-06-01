@@ -19,7 +19,7 @@ export default function Checkscreen({ navigation }) {
 
     const getAuthState = async (key) =>{
         let data = await SecureStore.getItemAsync(key)
-        console.log("checkingScreen--->'"+data+"'");
+        console.log("checkingScreen--->",data);
         if(data==null || data =='' || data == 'null' || !data || typeof(data) != 'string' ){
             data = '0';
             await SecureStore.setItemAsync(key,data); 
