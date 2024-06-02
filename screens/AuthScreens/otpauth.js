@@ -1,11 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Pressable ,TouchableOpacity} from 'react-native';
 import NetInfo from "@react-native-community/netinfo";
 import { MaterialIcons } from '@expo/vector-icons';
 import LoadingScreen from './loadingscreen';
 import CustomAlert from './customalert';
 import { BaseURL } from '../../config/appconfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+// import {  } from 'react-native-gesture-handler';
 
 export default function OTPpage({ navigation, route }) {
   const { otp_resend_interval, mobileNo } = route.params;
@@ -15,25 +16,51 @@ export default function OTPpage({ navigation, route }) {
   const [showConnectAlert, setShowConnectAlert] = useState(false);
   const [showOtpAlert, setShowOtpAlert] = useState(false);
   const [showresAlert, setShowresAlert] = useState(false);
+  const [showInValidAlert, setShowInValidAlert] = useState(false);
   const [resendInterval, setResendInterval] = useState(null);
   const [OTP, setEnteredOTP] = useState('');
+  const [showPopmessage, setShowPopmessage] = useState(false);
   const countdownRef = useRef(null);
+
+  const [resendFocus,setResendFocus] = useState(false);
+
+  // const countDownInterval = setInterval(decrementInterval,1000);
 
   useEffect(() => {
     checkInternetConnection();
+    
+    
+    // updateResendInterval();
+    updateResendInterval();
   }, []);
 
-  useEffect(() => {
-    let interval = null;
-    if (showResendAlert) {
-      interval = setInterval(() => {
-        setResendInterval(prevInterval => prevInterval - 1);
-      }, 1000);
-    } else {
-      clearInterval(interval);
-    }
-    return () => clearInterval(interval);
-  }, [showResendAlert]);
+
+
+  //  useEffect(() => {
+    
+  // }, []);
+
+  // useEffect(() => {
+  //   updateResendInterval2();
+  // }, [resendInterval]);
+
+  const updateResendInterval = () =>{
+    setResendFocus(false);
+    let i = otp_resend_interval;
+    var intervalID = setInterval(()=>{
+      i = i - 1;
+      // console.log("testing.."+i)
+      setResendInterval(i);
+      if(i<=0){
+        clearInterval(intervalID);
+        setResendFocus(true);
+        setResendInterval(null);
+        // console.log("cleared...")
+      }
+    },1000)
+  }
+
+ 
 
   const checkInternetConnection = async () => {
     const state = await NetInfo.fetch();
@@ -46,13 +73,18 @@ export default function OTPpage({ navigation, route }) {
 
   const compareOTPWithServer = async () => {
     if (OTP.length === 5) {
-      setIsLoading(true);
       const isConnected = await checkInternetConnection();
       if (isConnected) {
+        setIsLoading(true);
         try {
           const deviceID = await AsyncStorage.getItem('deviceID');
           const appToken = await AsyncStorage.getItem('appToken');
-          const session_id = await AsyncStorage.getItem('sessionID');
+          const sessionID = await AsyncStorage.getItem('sessionID');
+
+          console.log("OTP-->",OTP)
+          console.log("sessionID-->",sessionID)
+          console.log("appToken--->",appToken)
+          console.log("deviceID--->",deviceID)
 
           const response = await fetch(BaseURL + "app/userverify/", {
             method: 'POST',
@@ -60,32 +92,63 @@ export default function OTPpage({ navigation, route }) {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              OTP: OTP,
-              sessionID: session_id,
-              appToken: appToken,
-              deviceID: deviceID,
+              OTP,
+              sessionID,
+              appToken,
+              deviceID,
             }),
           });
-          // console.log(OTP)
-          // console.log(session_id)
-          // console.log(appToken)
-          // console.log(deviceID)
+          
+          setEnteredOTP("");
 
           if (response.ok) {
             const responseData = await response.json();
-            if (responseData.verification_id) {
+            const { status } = responseData;
+
+            console.log(responseData);
+
+            if (status === "INVALID") {
+              setShowInValidAlert(true);
+              const { message } = responseData;
+              if (message) {
+                  setShowPopmessage(message);
+              }
               setIsLoading(false);
-              AsyncStorage.setItem('verificationID', responseData.verification_id);
-              // console.log(responseData.verification_id);
-              navigation.navigate('Registration');
-            } else {
+            } 
+            else if (status === "OK") {
+              const { session_id, verification_id, Application_id } = responseData;
+              await AsyncStorage.multiSet([
+                  ['sessionID', session_id],
+                  ['verificationID', verification_id.toString()],
+                  ['applicationID', Application_id.toString()],
+              ]);
+
+              
+              setTimeout(() => {
+                // setIsLoading(false);
+                // console.log(responseData.verification_id);
+                // AsyncStorage.setItem('verificationID', responseData.verification_id);
+                navigation.replace('Registration');
+                
+              }, 2000);
+            }
+            // else if (responseData.verification_id) {
+            //   setIsLoading(false);
+            //   AsyncStorage.setItem('verificationID', responseData.verification_id);
+            //   // console.log(responseData.verification_id);
+            //   navigation.replace('Registration');
+            // } 
+            else {
               setIsLoading(false);
               setShowresAlert(true);
             }
           } else {
             setIsLoading(false);
-            setShowOtpAlert(true);
+            setShowresAlert(true);
           }
+
+
+
         } catch (error) {
           console.error('Error:', error);
           setIsLoading(false);
@@ -122,46 +185,65 @@ export default function OTPpage({ navigation, route }) {
   const showAlertForResend = async () => {
     const isConnected = await checkInternetConnection();
     if (isConnected) {
+      
       setShowResendAlert(true);
+      
       let interval = otp_resend_interval;
+
       setResendInterval(interval);
-      const session_id = await AsyncStorage.getItem('sessionID');
+
+      const sessionID = await AsyncStorage.getItem('sessionID');
       const deviceID = await AsyncStorage.getItem('deviceID');
       const appToken = await AsyncStorage.getItem('appToken');
   
-      const requestBody = {
-        sessionID: session_id,
-        deviceID: deviceID,
-        appToken: appToken,
-      };
+      // const requestBody = {
+      //   sessionID: session_id,
+      //   deviceID: deviceID,
+      //   appToken: appToken,
+      // };
+      // console.log("sessionID-->",sessionID)
+      // console.log("appToken-->",appToken)
   
-      fetch(BaseURL + "app/resendotp/", {
+      const response = await fetch(BaseURL + "app/resendotp/", {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+            'Content-Type': 'application/json',
         },
-        body: JSON.stringify(requestBody),
-      })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Failed to resend OTP');
-          }
-        })
-        .catch(error => {
-          console.error('Error resending OTP:', error);
-        });
-  
-      const countdown = setInterval(() => {
-        interval--;
-        setResendInterval(interval);
-        if (interval === 0) {
-          clearInterval(countdown);
-          setShowResendAlert(false);
-          setResendInterval(null);
+        body: JSON.stringify({
+            appToken,
+            sessionID,
+        }),
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        const { status, otp_resend_interval } = responseData;
+        
+        console.log(responseData);
+
+        
+        if (status === "INVALID") {
+            setShowResendAlert(false);
+            setShowInValidAlert(true);
+            const { message } = responseData;
+            if (message) {
+                setShowPopmessage(message);
+            }
+        } else if (status === "OK") {
+            const { session_id, otp_resend_interval, otp_expiry_time } = responseData;
+            await AsyncStorage.multiSet([
+                ['sessionID', session_id],
+                ['otp_resend_interval', otp_resend_interval.toString()],
+                ['otp_expiry_time', otp_expiry_time.toString()],
+            ]);
+        } else {
+            setShowValidAlert(true);
         }
-      }, 1000);
-      if (countdownRef.current) clearInterval(countdownRef.current);
-        countdownRef.current = countdown;
+    } else {
+        console.error('Server request failed');
+    }
+
+      updateResendInterval();
     }
   };  
 
@@ -173,7 +255,7 @@ export default function OTPpage({ navigation, route }) {
         <>
           <View style={styles.textContainer}>
             <Text style={styles.baseText}>OTP was sent to +91-{mobileNo}</Text>
-            <Text style={styles.innerText}>Click here to change mobile no</Text>
+            <Text style={styles.innerText}>Click back to change mobile no</Text>
           </View>
           <View style={styles.otpContainer}>
             {[...Array(5)].map((_, index) => (
@@ -197,7 +279,13 @@ export default function OTPpage({ navigation, route }) {
               <Text>Resend in {resendInterval} sec....</Text>
             )}
             <View style={styles.buttonContainer}>
-              <Button title="Resend" color="#FF6E00" onPress={showAlertForResend} />
+              <Button title="Resend" disabled={!resendFocus} color="#FF6E00" onPress={showAlertForResend} />
+            </View>
+            <View style={styles.buttonContainer}>
+              
+              <Button title="Back" color="#FF6E00" onPress={()=>{
+                navigation.navigate("SignUp")}
+                 }/>
             </View>
           </View>
           <View style={[styles.circle, { backgroundColor: '#FF6E00', left: 100 }]}>
@@ -213,7 +301,7 @@ export default function OTPpage({ navigation, route }) {
       <CustomAlert
         visible={showResendAlert}
         onClose={() => setShowResendAlert(false)}
-        message="RESEND"
+        message="OTP Resend Successfull"
       />
       <CustomAlert
         visible={showConnectAlert}
@@ -229,6 +317,11 @@ export default function OTPpage({ navigation, route }) {
         visible={showresAlert}
         onClose={() => setShowresAlert(false)}
         message="Something went wrong !"
+      />
+      <CustomAlert
+          visible={showInValidAlert}
+          onClose={() => setShowInValidAlert(false)}
+          message={showPopmessage}
       />
     </View>
   );
@@ -265,6 +358,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     alignSelf: 'stretch',
     shadowColor: '#000',
+    marginBottom: 15,
+    marginTop: 5,
     shadowOffset: {
       width: 0,
       height: 10,
