@@ -7,17 +7,21 @@ import CustomAlert from './customalert';
 import CustomAlertprompt from './customalertprompt';
 import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BaseURL } from '../../config/appconfig';
+import { BaseURL, serverTimeoutSeconds } from '../../config/appconfig';
+import { useIsFocused } from '@react-navigation/native';
 
 export default function Signup({ navigation }) {
     const [isLoading, setIsLoading] = useState(false);
     const [showConnectAlert, setShowConnectAlert] = useState(false);
+    const [showresAlert, setShowresAlert] = useState(false);
     const [showValidAlert, setShowValidAlert] = useState(false);
     const [showInValidAlert, setShowInValidAlert] = useState(false);
     const [showPromptAlert, setShowPromptAlert] = useState(false);
     const [showPopmessage, setShowPopmessage] = useState(false);
     const [email, setEmail] = useState('');
     const [mobileNo, setMobileNumber] = useState('');
+
+    const isFocused = useIsFocused();
 
     useEffect(() => {
         const unsubscribe = NetInfo.addEventListener(state => {
@@ -27,9 +31,100 @@ export default function Signup({ navigation }) {
                 setShowConnectAlert(false);
             }
         });
-
+        isFocused && setIsLoading(false);
         return () => unsubscribe();
-    }, []);
+    }, [isFocused]);
+
+    const promptNavigation = async (prompt) =>{
+        try {
+            const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+            setShowConnectAlert(!isConnected);
+            if (!isConnected) return;
+            const deviceID = await SecureStore.getItemAsync('deviceID');
+            const appToken = await AsyncStorage.getItem('appToken');
+            const sessionID = await AsyncStorage.getItem('sessionID');
+            const needtochange = prompt
+    
+            // console.log("deviceID->",deviceID);
+            // console.log("appToken->",appToken);
+            // console.log("sessionID->",sessionID);
+            // console.log("needtochange->",needtochange);
+
+            //Open loading screen
+            setIsLoading(true);
+
+            
+            //Start Timer 
+            let timeout = false;
+            const timeoutAlert = setTimeout(() => {
+                setIsLoading(false);
+                setShowresAlert(true);   
+                timeout=true;
+            }, serverTimeoutSeconds);
+
+
+            //call user prompt API
+            const response = await fetch(BaseURL + "app/userprompt/", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    deviceID,
+                    appToken,
+                    sessionID,
+                    needtochange,
+                }),
+            });
+
+            if(timeout===true) return;
+    
+            if (response.ok) {
+                clearInterval(timeoutAlert);
+                const responseData = await response.json();
+                const { status } = responseData;
+                
+                // console.log(responseData);
+
+                
+                if (status === "INVALID") {
+                    setShowInValidAlert(true);
+                    const { message } = responseData;
+                    if (message) {
+                        setShowPopmessage(message);
+                    }
+                    setIsLoading(false);
+                } else if (status === "OK") {
+                    const { session_id, otp_resend_interval, otp_expiry_time } = responseData;
+                    await AsyncStorage.multiSet([
+                        ['sessionID', session_id],
+                        ['otp_resend_interval', otp_resend_interval.toString()],
+                        ['otp_expiry_time', otp_expiry_time.toString()],
+                        ['is_existing_user', "true"]
+                    ]);
+    
+                    
+                    setTimeout(() => {
+                    // setIsLoading(false);
+                        navigation.navigate("OTP", { otp_resend_interval,  mobileNo });
+                        // setIsLoading(false);
+                    }, 2000);
+                } else {
+                    setShowValidAlert(true);
+                    setIsLoading(false);
+                }
+            } else {
+                console.error('Server request failed');
+                setIsLoading(false);
+            }
+        } catch (error) {
+            console.error('Error checking internet connection:', error);
+            setIsLoading(false);
+        }
+        
+
+
+    }
 
     const navigateToOTP = async () => {
         try {
@@ -43,11 +138,33 @@ export default function Signup({ navigation }) {
                 setShowValidAlert(true);
                 return;
             }
-            const deviceID = await AsyncStorage.getItem('deviceID');
+
+            const deviceID = await SecureStore.getItemAsync('deviceID');
             const appToken = await AsyncStorage.getItem('appToken');
     
             const mobileno = "+91" + mobileNo;
-    
+
+
+            //set authState to zero
+            SecureStore.setItemAsync('authState','0');
+
+            //Open loading screen
+            setIsLoading(true);
+
+            
+            //Start Timer 
+            let timeout = false;
+            const timeoutAlert = setTimeout(() => {
+                setIsLoading(false);
+                setShowresAlert(true);   
+                timeout=true;
+            }, serverTimeoutSeconds);
+
+            
+
+            
+
+            //call API
             const response = await fetch(BaseURL + "app/userauth/", {
                 method: 'POST',
                 headers: {
@@ -60,15 +177,27 @@ export default function Signup({ navigation }) {
                     mobileno,
                 }),
             });
+
+            //return if expired...
+            if (timeout===true) return;
+            clearTimeout(timeoutAlert);
+            
+            
             // console.log(deviceID)
             // console.log(appToken)
             // console.log(email)
             // console.log(mobileno)
-    
+            
+
+
             if (response.ok) {
+                // stop the timer if repose got
+                
                 const responseData = await response.json();
                 const { status, otp_resend_interval } = responseData;
-                console.log(responseData);
+                
+                // console.log(responseData);
+
                 
                 if (status === "INVALID") {
                     setShowInValidAlert(true);
@@ -76,12 +205,17 @@ export default function Signup({ navigation }) {
                     if (message) {
                         setShowPopmessage(message);
                     }
+                    setIsLoading(false);
                 } else if (status === "PROMPT") {
                     setShowPromptAlert(true);
-                    const { message } = responseData;
+                    const { message, session_id } = responseData;
                     if (message) {
                         setShowPopmessage(message);
                     }
+                    if(session_id){
+                        await AsyncStorage.setItem('sessionID',session_id);
+                    }
+                    setIsLoading(false);
                 } else if (status === "OK") {
                     const { session_id, otp_resend_interval, otp_expiry_time, is_existing_user } = responseData;
                     await AsyncStorage.multiSet([
@@ -91,13 +225,15 @@ export default function Signup({ navigation }) {
                         ['is_existing_user', is_existing_user.toString()]
                     ]);
     
-                    setIsLoading(true);
+                    
                     setTimeout(() => {
-                        setIsLoading(false);
+                    // setIsLoading(false);
                         navigation.navigate("OTP", { otp_resend_interval,  mobileNo });
+                        // setIsLoading(false);
                     }, 2000);
                 } else {
                     setShowValidAlert(true);
+                    setIsLoading(false);
                 }
             } else {
                 console.error('Server request failed');
@@ -160,7 +296,12 @@ export default function Signup({ navigation }) {
             <CustomAlert
                 visible={showConnectAlert}
                 onClose={() => setShowConnectAlert(false)}
-                message="Connect to the internet or exit the app"
+                message="Connect to the internet"
+            />
+            <CustomAlert
+                visible={showresAlert}
+                onClose={() => setShowresAlert(false)}
+                message="Something went wrong !"
             />
             <CustomAlert
                 visible={showValidAlert}
@@ -176,6 +317,16 @@ export default function Signup({ navigation }) {
                 visible={showPromptAlert}
                 onClose={() => setShowPromptAlert(false)}
                 message={showPopmessage}
+                onYesPress={() =>{
+                    setShowPromptAlert(false);
+                    promptNavigation(true);
+                    // console.log("Yes pressed..")
+                }}
+                onNoPress={() =>{
+                    setShowPromptAlert(false);
+                    // console.log("No pressed..")
+                    promptNavigation(false);
+                }}
             />
         </ScrollView>
     );
