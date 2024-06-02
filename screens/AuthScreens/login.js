@@ -20,14 +20,20 @@ export default function Login({ navigation }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-    useEffect(() => {
-        const unsubscribe = NetInfo.addEventListener(state => {
-            setShowConnectAlert(!state.isConnected);
-        });
+    const getEmailID = async ()=>{
+         const emailID = await AsyncStorage.getItem("emailID");
+         setUsername(emailID);
+    }
 
-        return () => {
-            unsubscribe();
-        };
+    useEffect(() => {
+        getEmailID();
+        // const unsubscribe = NetInfo.addEventListener(state => {
+        //     setShowConnectAlert(!state.isConnected);
+        // });
+
+        // return () => {
+        //     unsubscribe();
+        // };
     }, []);
 
     const handleLogin = () => {
@@ -103,7 +109,10 @@ export default function Login({ navigation }) {
                                 placeholder='User Name'
                                 autoCapitalize="none"
                                 value={username}
-                                onChangeText={setUsername}
+                                // onChangeText={setUsername}
+                                editable={false}
+                                selectTextOnFocus={false}
+
                             />
                         </View>
                         <View style={{ height: 20 }}></View>
@@ -132,7 +141,7 @@ export default function Login({ navigation }) {
                     <CustomAlert
                         visible={showFieldAlert}
                         onClose={() => setShowFieldAlert(false)}
-                        message="Please provide both username and password."
+                        message="Please provide password."
                     />
                     <SuccessAlert
                         visible={showSuccessAlert}
