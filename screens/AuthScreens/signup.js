@@ -7,12 +7,13 @@ import CustomAlert from './customalert';
 import CustomAlertprompt from './customalertprompt';
 import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BaseURL } from '../../config/appconfig';
+import { BaseURL, serverTimeoutSeconds } from '../../config/appconfig';
 import { useIsFocused } from '@react-navigation/native';
 
 export default function Signup({ navigation }) {
     const [isLoading, setIsLoading] = useState(false);
     const [showConnectAlert, setShowConnectAlert] = useState(false);
+    const [showresAlert, setShowresAlert] = useState(false);
     const [showValidAlert, setShowValidAlert] = useState(false);
     const [showInValidAlert, setShowInValidAlert] = useState(false);
     const [showPromptAlert, setShowPromptAlert] = useState(false);
@@ -39,7 +40,7 @@ export default function Signup({ navigation }) {
             const isConnected = await NetInfo.fetch().then(state => state.isConnected);
             setShowConnectAlert(!isConnected);
             if (!isConnected) return;
-            const deviceID = await AsyncStorage.getItem('deviceID');
+            const deviceID = await SecureStore.getItemAsync('deviceID');
             const appToken = await AsyncStorage.getItem('appToken');
             const sessionID = await AsyncStorage.getItem('sessionID');
             const needtochange = prompt
@@ -51,6 +52,16 @@ export default function Signup({ navigation }) {
 
             //Open loading screen
             setIsLoading(true);
+
+            
+            //Start Timer 
+            let timeout = false;
+            const timeoutAlert = setTimeout(() => {
+                setIsLoading(false);
+                setShowresAlert(true);   
+                timeout=true;
+            }, serverTimeoutSeconds);
+
 
             //call user prompt API
             const response = await fetch(BaseURL + "app/userprompt/", {
@@ -66,11 +77,12 @@ export default function Signup({ navigation }) {
                 }),
             });
 
-
+            if(timeout===true) return;
     
             if (response.ok) {
+                clearInterval(timeoutAlert);
                 const responseData = await response.json();
-                const { status, otp_resend_interval } = responseData;
+                const { status } = responseData;
                 
                 // console.log(responseData);
 
@@ -127,7 +139,7 @@ export default function Signup({ navigation }) {
                 return;
             }
 
-            const deviceID = await AsyncStorage.getItem('deviceID');
+            const deviceID = await SecureStore.getItemAsync('deviceID');
             const appToken = await AsyncStorage.getItem('appToken');
     
             const mobileno = "+91" + mobileNo;
@@ -138,6 +150,19 @@ export default function Signup({ navigation }) {
 
             //Open loading screen
             setIsLoading(true);
+
+            
+            //Start Timer 
+            let timeout = false;
+            const timeoutAlert = setTimeout(() => {
+                setIsLoading(false);
+                setShowresAlert(true);   
+                timeout=true;
+            }, serverTimeoutSeconds);
+
+            
+
+            
 
             //call API
             const response = await fetch(BaseURL + "app/userauth/", {
@@ -153,12 +178,21 @@ export default function Signup({ navigation }) {
                 }),
             });
 
+            //return if expired...
+            if (timeout===true) return;
+            clearTimeout(timeoutAlert);
+            
+            
             // console.log(deviceID)
             // console.log(appToken)
             // console.log(email)
             // console.log(mobileno)
-    
+            
+
+
             if (response.ok) {
+                // stop the timer if repose got
+                
                 const responseData = await response.json();
                 const { status, otp_resend_interval } = responseData;
                 
@@ -263,6 +297,11 @@ export default function Signup({ navigation }) {
                 visible={showConnectAlert}
                 onClose={() => setShowConnectAlert(false)}
                 message="Connect to the internet"
+            />
+            <CustomAlert
+                visible={showresAlert}
+                onClose={() => setShowresAlert(false)}
+                message="Something went wrong !"
             />
             <CustomAlert
                 visible={showValidAlert}

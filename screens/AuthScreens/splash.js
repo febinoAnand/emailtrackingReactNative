@@ -5,6 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User_Expirytime } from '../../config/appconfig.js';
 import { differenceInSeconds } from 'date-fns'
 import { DeviceID, App_Token } from '../../config/appconfig.js';
+import { v4 as uuidv4 } from 'uuid';
+import 'react-native-get-random-values';
 
 
 export default function Splash({ route, navigation }) {
@@ -21,13 +23,25 @@ export default function Splash({ route, navigation }) {
             data = '0';
             await SecureStore.setItemAsync(key,data); 
         }
-        console.log("splashauthState-->",data);
+        // console.log("splashauthState-->",data);
         checkAuthState(data);
-        setAuthState(data);
+        setAuthState(data)
+    }
+
+    const getDeviceID = async () =>{
+        let uuid = uuidv4();
+        let fetchUUID = await SecureStore.getItemAsync('deviceID');
+        //if user has already signed up prior
+        if (!fetchUUID) {
+            await SecureStore.setItemAsync('deviceID', uuid);
+            fetchUUID = uuid
+        }
+        // console.log("device id-->",fetchUUID)
     }
 
     useEffect(()=>{
         getAuthState(authStateKey);
+        getDeviceID();
     },[])
 
     const checkAuthState = async (authState) => {

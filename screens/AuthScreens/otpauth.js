@@ -4,8 +4,9 @@ import NetInfo from "@react-native-community/netinfo";
 import { MaterialIcons } from '@expo/vector-icons';
 import LoadingScreen from './loadingscreen';
 import CustomAlert from './customalert';
-import { BaseURL } from '../../config/appconfig';
+import { BaseURL, serverTimeoutSeconds } from '../../config/appconfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 // import {  } from 'react-native-gesture-handler';
 
 export default function OTPpage({ navigation, route }) {
@@ -77,7 +78,7 @@ export default function OTPpage({ navigation, route }) {
       if (isConnected) {
         setIsLoading(true);
         try {
-          const deviceID = await AsyncStorage.getItem('deviceID');
+          const deviceID = await SecureStore.getItemAsync('deviceID');
           const appToken = await AsyncStorage.getItem('appToken');
           const sessionID = await AsyncStorage.getItem('sessionID');
 
@@ -85,6 +86,16 @@ export default function OTPpage({ navigation, route }) {
           console.log("sessionID-->",sessionID)
           console.log("appToken--->",appToken)
           console.log("deviceID--->",deviceID)
+
+
+            //Start Timer 
+            let timeout = false;
+            const timeoutAlert = setTimeout(() => {
+                setIsLoading(false);
+                setShowresAlert(true);   
+                timeout=true;
+            }, serverTimeoutSeconds);
+
 
           const response = await fetch(BaseURL + "app/userverify/", {
             method: 'POST',
@@ -99,6 +110,11 @@ export default function OTPpage({ navigation, route }) {
             }),
           });
           
+          
+          //return if expired...
+          if (timeout===true) return;
+          clearTimeout(timeoutAlert);
+
           setEnteredOTP("");
 
           if (response.ok) {
@@ -125,19 +141,9 @@ export default function OTPpage({ navigation, route }) {
 
               
               setTimeout(() => {
-                // setIsLoading(false);
-                // console.log(responseData.verification_id);
-                // AsyncStorage.setItem('verificationID', responseData.verification_id);
                 navigation.replace('Registration');
-                
               }, 2000);
             }
-            // else if (responseData.verification_id) {
-            //   setIsLoading(false);
-            //   AsyncStorage.setItem('verificationID', responseData.verification_id);
-            //   // console.log(responseData.verification_id);
-            //   navigation.replace('Registration');
-            // } 
             else {
               setIsLoading(false);
               setShowresAlert(true);
@@ -146,9 +152,6 @@ export default function OTPpage({ navigation, route }) {
             setIsLoading(false);
             setShowresAlert(true);
           }
-
-
-
         } catch (error) {
           console.error('Error:', error);
           setIsLoading(false);
@@ -193,7 +196,7 @@ export default function OTPpage({ navigation, route }) {
       setResendInterval(interval);
 
       const sessionID = await AsyncStorage.getItem('sessionID');
-      const deviceID = await AsyncStorage.getItem('deviceID');
+      const deviceID = await SecureStore.getItemAsync('deviceID');
       const appToken = await AsyncStorage.getItem('appToken');
   
       // const requestBody = {
@@ -203,6 +206,14 @@ export default function OTPpage({ navigation, route }) {
       // };
       // console.log("sessionID-->",sessionID)
       // console.log("appToken-->",appToken)
+
+      //Start Timer 
+      let timeout = false;
+      const timeoutAlert = setTimeout(() => {
+          setIsLoading(false);
+          setShowresAlert(true);   
+          timeout=true;
+      }, serverTimeoutSeconds);
   
       const response = await fetch(BaseURL + "app/resendotp/", {
         method: 'POST',
@@ -212,14 +223,19 @@ export default function OTPpage({ navigation, route }) {
         body: JSON.stringify({
             appToken,
             sessionID,
+            deviceID
         }),
       });
+
+      //return if expired...
+      if (timeout===true) return;
+      clearTimeout(timeoutAlert);
 
       if (response.ok) {
         const responseData = await response.json();
         const { status, otp_resend_interval } = responseData;
         
-        console.log(responseData);
+        // console.log(responseData);
 
         
         if (status === "INVALID") {

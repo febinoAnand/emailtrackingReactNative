@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Image, StyleSheet, ScrollView } from "react-native";
+import { View, TextInput, Image, StyleSheet, ScrollView, Platform } from "react-native";
 import { SimpleLineIcons, FontAwesome5, Feather, MaterialIcons } from '@expo/vector-icons';
 import LoadingScreen from './loadingscreen';
 import CustomAlert from './customalert';
@@ -8,11 +8,14 @@ import NetInfo from "@react-native-community/netinfo";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BaseURL } from '../../config/appconfig';
 import * as SecureStore from 'expo-secure-store';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
 
 export default function Registration({ navigation }) {
     const [isLoading, setIsLoading] = useState(false);
     const [showConnectAlert, setShowConnectAlert] = useState(false);
     const [showPasswordAlert, setShowPasswordAlert] = useState(false);
+    const [showInputAlert, setShowInputAlert] = useState(false);
     const [showRegisterAlert, setShowRegisterAlert] = useState(false);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const [showValidAlert, setShowValidAlert] = useState(false);
@@ -22,30 +25,69 @@ export default function Registration({ navigation }) {
     const [name, setName] = useState('');
     const [designation, setDesignation] = useState('');
     const [showPopmessage, setShowPopmessage] = useState(false);
+    const [showMessagePrompt,setShowMessagePrompt] = useState("")
+    // let expoprojectID = AsyncStorage.getItem('applicationID');
 
-    useEffect(() => {
+
+    const introEffect = async ()=>{
+
+        //  check internet status
         const unsubscribe = NetInfo.addEventListener(state => {
             setIsConnected(state.isConnected);
         });
 
-        return () => {
-            unsubscribe();
-        };
+         //initialize the project id
+         const projectExpoID = await initializeApplicationID();
+
+        
+         // register the expo project and get id
+         registerForPushNotificationsAsync(projectExpoID);
+
+    }
+
+    useEffect(() => {
+        introEffect();
+        // return () => {
+        //     unsubscribe();
+        // };
     }, []);
 
-    const generateUUID = () => {
-        let dt = new Date().getTime();
-        const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            const r = (dt + Math.random()*16)%16 | 0;
-            dt = Math.floor(dt/16);
-            return (c === 'x' ? r : (r&0x3|0x8)).toString(16);
-        });
-        return uuid;
-    };    
+    const initializeApplicationID = async () =>{
+        const expoprojectID = await AsyncStorage.getItem('applicationID');
+        // console.log("application id -->"+expoprojectID)
+        return expoprojectID;
+    }
+
+    // const generateUUID = () => {
+    //     let dt = new Date().getTime();
+    //     const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    //         const r = (dt + Math.random()*16)%16 | 0;
+    //         dt = Math.floor(dt/16);
+    //         return (c === 'x' ? r : (r&0x3|0x8)).toString(16);
+    //     });
+    //     return uuid;
+    // };    
 
     const navigateToLogin = async () => {
         if (!isConnected) {
             setShowConnectAlert(true);
+            return;
+        }
+
+        if (name===null || name==='' || name.length < 3){
+            setShowInputAlert(true);
+            setShowMessagePrompt("Enter Valid Name");
+            return;
+        }
+
+        if (designation===null || designation==='' || designation.length < 3){
+            setShowInputAlert(true);
+            setShowMessagePrompt("Enter Valid designation");
+            return;
+        }
+        if (password===null || password==='' || password.length < 5){
+            setShowInputAlert(true);
+            setShowMessagePrompt("Enter Valid Password");
             return;
         }
 
@@ -57,11 +99,11 @@ export default function Registration({ navigation }) {
         setIsLoading(true);
 
         try {
-            await SecureStore.setItemAsync('authState', '1');
+            
             const sessionID = await AsyncStorage.getItem('sessionID');
-            const deviceID = await AsyncStorage.getItem('deviceID');
+            const deviceID = await SecureStore.getItemAsync('deviceID');
             const appToken = await AsyncStorage.getItem('appToken');
-            const notificationID = generateUUID();
+            const notificationID = await AsyncStorage.getItem('notificationID');
             const verificationID = await AsyncStorage.getItem('verificationID');
 
             const data = {
@@ -85,10 +127,12 @@ export default function Registration({ navigation }) {
             });
 
             if (response.ok) {
+
                 const responseData = await response.json();
                 const { status } = responseData;
-                console.log(responseData);
+                // console.log(responseData);
                 if (status === "OK") {
+                    await SecureStore.setItemAsync('authState', '1');
                     const { message } = responseData;
                     if (message) {
                         setShowPopmessage(message);
@@ -97,10 +141,10 @@ export default function Registration({ navigation }) {
 
                 setIsLoading(false);
                 setShowSuccessAlert(true);
-                setTimeout(() => {
-                    setShowSuccessAlert(false);
-                    navigation.navigate("Login");
-                }, 2000);
+                // setTimeout(() => {
+                //     setShowSuccessAlert(false);
+                    
+                // }, 2000);
             } else {
                 const { message } = responseData;
                     if (message) {
@@ -116,6 +160,44 @@ export default function Registration({ navigation }) {
             setIsLoading(false);
         }
     };
+
+     async function registerForPushNotificationsAsync (expoProjectID){
+        let token;
+      
+        if (Platform.OS === 'android') {
+          await Notifications.setNotificationChannelAsync('default', {
+            name: 'default',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+          });
+        }
+      
+        if (Device.isDevice) {
+          const { status: existingStatus } = await Notifications.getPermissionsAsync();
+          let finalStatus = existingStatus;
+          if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+          }
+          if (finalStatus !== 'granted') {
+            alert('Failed to get push token for push notification!');
+            return;
+          }
+          // Learn more about projectId:
+          // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
+          
+          token = (await Notifications.getExpoPushTokenAsync({ projectId: expoProjectID})).data;
+          
+          await AsyncStorage.setItem('notificationID',token);
+        //   console.log("Expo-device-id-->",await AsyncStorage.getItem('notificationID'));
+
+        } else {
+          alert('Must use physical device for Push Notifications');
+        }
+      
+        return token;
+      }
 
     return (
         <>
@@ -172,12 +254,19 @@ export default function Registration({ navigation }) {
                     <CustomAlert
                         visible={showConnectAlert}
                         onClose={() => setShowConnectAlert(false)}
-                        message="Connect to the internet or exit the app"
+                        message="Connect to the internet"
                     />
                     <CustomAlert
                         visible={showPasswordAlert}
                         onClose={() => setShowPasswordAlert(false)}
                         message="Confirm Password does not match"
+                    />
+                    <CustomAlert
+                        visible={showInputAlert}
+                        onClose={() =>
+                            setShowInputAlert(false)
+                        }
+                        message={showMessagePrompt}
                     />
                     <CustomAlert
                         visible={showRegisterAlert}
@@ -186,7 +275,12 @@ export default function Registration({ navigation }) {
                     />
                     <SuccessAlert
                         visible={showSuccessAlert}
-                        onClose={() => setShowSuccessAlert(false)}
+                        onClose={() => {
+                            navigation.pop();
+                            navigation.replace("Login");
+                            setShowSuccessAlert(false)
+                            }
+                        }
                         message={showPopmessage}
                     />
                     <CustomAlert
