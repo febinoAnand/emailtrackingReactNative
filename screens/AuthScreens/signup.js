@@ -139,8 +139,12 @@ export default function Signup({ navigation }) {
                 return;
             }
 
+            // save Email
+            await AsyncStorage.setItem('emailID',email);
+
             const deviceID = await SecureStore.getItemAsync('deviceID');
             const appToken = await AsyncStorage.getItem('appToken');
+            
     
             const mobileno = "+91" + mobileNo;
 
