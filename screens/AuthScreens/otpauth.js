@@ -82,10 +82,10 @@ export default function OTPpage({ navigation, route }) {
           const appToken = await AsyncStorage.getItem('appToken');
           const sessionID = await AsyncStorage.getItem('sessionID');
 
-          console.log("OTP-->",OTP)
-          console.log("sessionID-->",sessionID)
-          console.log("appToken--->",appToken)
-          console.log("deviceID--->",deviceID)
+          // console.log("OTP-->",OTP)
+          // console.log("sessionID-->",sessionID)
+          // console.log("appToken--->",appToken)
+          // console.log("deviceID--->",deviceID)
 
 
             //Start Timer 
@@ -121,7 +121,7 @@ export default function OTPpage({ navigation, route }) {
             const responseData = await response.json();
             const { status } = responseData;
 
-            console.log(responseData);
+            // console.log(responseData);
 
             if (status === "INVALID") {
               setShowInValidAlert(true);

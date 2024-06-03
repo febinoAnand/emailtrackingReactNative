@@ -5,7 +5,8 @@ import LoadingScreen from './loadingscreen';
 import NetInfo from "@react-native-community/netinfo";
 import CustomAlert from './customalert';
 import SuccessAlert from './successalert';
-import { BaseURL } from '../../config/appconfig';
+import { format } from 'date-fns';
+import { App_Token, BaseURL, timeFormat } from '../../config/appconfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 
@@ -13,27 +14,23 @@ export default function Login({ navigation }) {
     const [isLoading, setIsLoading] = useState(false);
     const [showConnectAlert, setShowConnectAlert] = useState(false);
     const [showFieldAlert, setShowFieldAlert] = useState(false);
-    const [showPopmessage, setShowPopmessage] = useState(false);
+    const [showPopmessage, setShowPopmessage] = useState("");
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const [showValidAlert, setShowValidAlert] = useState(false);
+    const [showInvalidAlert,setShowInvalidAlert] = useState(false)
     const [lastErrorMessage, setLastErrorMessage] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [deviceID,setDeviceID] = useState('');
 
-    const getEmailID = async ()=>{
-         const emailID = await AsyncStorage.getItem("emailID");
-         setUsername(emailID);
+    const getIDs = async ()=>{
+        const emailID = await AsyncStorage.getItem("emailID");
+        setDeviceID(await SecureStore.getItemAsync("deviceID"))
+        setUsername(emailID);
     }
 
     useEffect(() => {
-        getEmailID();
-        // const unsubscribe = NetInfo.addEventListener(state => {
-        //     setShowConnectAlert(!state.isConnected);
-        // });
-
-        // return () => {
-        //     unsubscribe();
-        // };
+        getIDs();
     }, []);
 
     const handleLogin = () => {
@@ -47,7 +44,14 @@ export default function Login({ navigation }) {
                 return;
             }
             setIsLoading(true);
-            fetch(BaseURL + "app/userauthtoken/", {
+            
+            // console.log("username",username)
+            // console.log("password",password)
+            // console.log("deviceID",deviceID)
+            // console.log("app_token",App_Token)
+
+
+            fetch(BaseURL + "app/userlogin/", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -55,36 +59,50 @@ export default function Login({ navigation }) {
                 body: JSON.stringify({
                     username: username,
                     password: password,
+                    device_id: deviceID,
+                    app_token: App_Token
                 }),
             })
             .then(async response => {
                 setIsLoading(false);
-                if (!response.ok) {
+                // console.log("response==>",response);
+                if (response.ok) {
                     const responseData = await response.json();
                     const { status, message } = responseData;
-                    console.log(responseData);
+                    // console.log(responseData);
                     if (status === "OK") {
-                        if (message) {
-                            setShowPopmessage(message);
-                        }
-                        throw new Error('Login failed. Please try again.');
-                    } else {
-                        if (message) {
-                            setShowPopmessage(message);
-                        }
+                        setShowPopmessage(message);
+                        setShowSuccessAlert(true);
+                        // console.log(responseData.token)
+                        await AsyncStorage.setItem('token', responseData.token);
+                        await SecureStore.setItemAsync('authState', '2');
+                        const currentTime = format(new Date(),timeFormat);
+                        await AsyncStorage.setItem('loggedinat', currentTime);
+                        // console.log("currentTime",currentTime)
                     }
-                    return response.json();
+                    else if(status === "INVALID"){
+                        setShowPopmessage(message);
+                        setShowInvalidAlert(true);
+                    }
+                    else {
+                        if (!message) {
+                           message = "Something went wrong" 
+                        }
+                        setShowPopmessage(message);
+                        setShowInvalidAlert(true);
+                    }
+                    // return response.json();
                 } else {
-                    const data = await response.json();
-                    await AsyncStorage.setItem('token', data.token);
-                    console.log(data.token)
-                    navigation.navigate("TabScreen");
-                    return data;
+                    setShowPopmessage("Something Went Wrong Try after some times")
+                    setShowInvalidAlert(true);
+                    // return data;
                 }
             })
             .catch(error => {
                 setIsLoading(false);
-                setLastErrorMessage(error.message);
+                // setLastErrorMessage(error.message);
+                setShowPopmessage("Something Went Wrong Try after some times")
+                setShowInvalidAlert(true);
             });
         });
     };    
@@ -136,7 +154,7 @@ export default function Login({ navigation }) {
                     <CustomAlert
                         visible={showConnectAlert}
                         onClose={() => setShowConnectAlert(false)}
-                        message="Connect to the internet or exit the app"
+                        message="Connect to the internet"
                     />
                     <CustomAlert
                         visible={showFieldAlert}
@@ -145,7 +163,11 @@ export default function Login({ navigation }) {
                     />
                     <SuccessAlert
                         visible={showSuccessAlert}
-                        onClose={() => setShowSuccessAlert(false)}
+                        onClose={() => {
+                                // setShowSuccessAlert(false)
+                                navigation.replace("TabScreen");
+                            }
+                        }
                         message={showPopmessage}
                     />
                     <CustomAlert
@@ -157,6 +179,12 @@ export default function Login({ navigation }) {
                         visible={showValidAlert}
                         onClose={() => setShowValidAlert(false)}
                         message={lastErrorMessage}
+                    />
+
+                    <CustomAlert
+                        visible={showInvalidAlert}
+                        onClose={() => setShowInvalidAlert(false)}
+                        message={showPopmessage}
                     />
                 </View>
             )}
