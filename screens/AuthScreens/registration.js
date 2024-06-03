@@ -116,7 +116,7 @@ export default function Registration({ navigation }) {
                 notificationID,
                 verificationID
             };
-            console.log(data)
+            // console.log(data)
 
             const response = await fetch(BaseURL + "app/userregister/", {
                 method: 'POST',
