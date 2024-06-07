@@ -20,7 +20,7 @@ export default function Reports() {
 
     const fetchData = async () => {
         try {
-            const response = await fetch(BaseURL + "emailtracking/ticket/");
+            const response = await fetch(BaseURL + "emailtracking/report/");
             if (!response.ok) {
                 throw new Error('Failed to fetch data');
             }
@@ -42,30 +42,21 @@ export default function Reports() {
     const filteredData = tableData.filter(rowData => {
         const rowDate = new Date(rowData.date);
         return rowDate >= fromDate && rowDate <= toDate;
-    });    
+    });
 
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.container}>
-                {/* <View style={styles.searchContainer}>
-                    <Ionicons name="search" size={20} color="black" style={styles.searchIcon} />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Search                                                                                   "
-                        value={searchText}
-                        onChangeText={text => setSearchText(text)}
-                    />
-                </View> */}
                 <View style={{ height: 20 }}></View>
                 <View style={styles.inputRow}>
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputHeader1}>From Date</Text>
                         <View style={styles.buttonContainer2}>
-                        <TouchableOpacity 
-                            onPress={showFromDate} 
-                            style={[styles.dateButton, { backgroundColor: 'white' }]}>
-                            <Text style={styles.buttonText}>{fromDate ? fromDate.toDateString() : 'Select Date'}</Text>
-                        </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={showFromDate}
+                                style={[styles.dateButton, { backgroundColor: 'white' }]}>
+                                <Text style={styles.buttonText}>{fromDate ? fromDate.toDateString() : 'Select Date'}</Text>
+                            </TouchableOpacity>
                         </View>
                         {showFromDatePicker && (
                             <DatePicker
@@ -83,11 +74,11 @@ export default function Reports() {
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputHeader2}>To Date</Text>
                         <View style={styles.buttonContainer1}>
-                        <TouchableOpacity 
-                            onPress={showToDate} 
-                            style={[styles.dateButton, { backgroundColor: 'white' }]}>
-                            <Text style={styles.buttonText}>{toDate ? toDate.toDateString() : 'Select Date'}</Text>
-                        </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={showToDate}
+                                style={[styles.dateButton, { backgroundColor: 'white' }]}>
+                                <Text style={styles.buttonText}>{toDate ? toDate.toDateString() : 'Select Date'}</Text>
+                            </TouchableOpacity>
                         </View>
                         {showToDatePicker && (
                             <DatePicker
@@ -106,14 +97,21 @@ export default function Reports() {
                 <View style={{ height: 20 }}></View>
                 <View style={styles.tableContainer}>
                     <Table>
-                        <Row data={['Ticket Name', 'Date', 'Time']} style={styles.head} textStyle={styles.text} />
+                        <Row data={['Ticket Name', 'Date', 'Time', 'Rule', 'Message', 'Send To user' , 'Operator', 'Value', 'Logical Operator', 'Actual Value']} style={styles.head} textStyle={styles.text} />
                         {filteredData.map((rowData, index) => (
                             <Row
                                 key={index}
                                 data={[
-                                    rowData.ticketname,
+                                    rowData.ticket.ticketname,
                                     rowData.date,
                                     rowData.time,
+                                    rowData.active_trigger.trigger_name,
+                                    rowData.active_trigger.notification_message,
+                                    rowData.active_trigger.user_to_send,
+                                    rowData.parameter_filter_list && rowData.parameter_filter_list.length > 0 ? rowData.parameter_filter_list[0].operator : '',
+                                    rowData.parameter_filter_list && rowData.parameter_filter_list.length > 0 ? rowData.parameter_filter_list[0].value : '',
+                                    rowData.parameter_filter_list && rowData.parameter_filter_list.length > 0 ? rowData.parameter_filter_list[0].logical_operator : '',
+                                    rowData.actual_value,
                                 ]}
                                 style={[styles.row, index === filteredData.length - 1 && styles.lastRow]}
                                 textStyle={styles.rowText}
@@ -123,8 +121,8 @@ export default function Reports() {
                 </View>
                 <View style={{ height: 40 }}></View>
                 <View style={styles.buttonContainer}>
-                    <Button title="Download" 
-                    color="#FF6E00"
+                    <Button title="Download"
+                        color="#FF6E00"
                     />
                 </View>
                 <View style={{ height: 40 }}></View>

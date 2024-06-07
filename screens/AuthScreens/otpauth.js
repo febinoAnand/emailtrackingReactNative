@@ -171,9 +171,9 @@ export default function OTPpage({ navigation, route }) {
       focusNextInput(index);
     } else {
       setEnteredOTP(prevOTP => prevOTP.slice(0, -1));
-      focusPreviousInput(index);
+      inputRefs[index].current.focus();
     }
-  };
+  };  
 
   const focusNextInput = (index) => {
     if (index < inputRefs.length - 1) {
@@ -266,6 +266,7 @@ export default function OTPpage({ navigation, route }) {
   };  
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
     <View style={styles.container}>
       {isLoading ? (
         <LoadingScreen />
@@ -276,27 +277,23 @@ export default function OTPpage({ navigation, route }) {
             <Text style={styles.innerText}>Click back to change mobile no</Text>
           </View>
           
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <View style={styles.otpContainer}>
-          
-            {[...Array(5)].map((_, index) => (
-              <TextInput
-                key={index}
-                ref={inputRefs[index]}
-                style={styles.otpInput}
-                maxLength={1}
-                keyboardType="numeric"
-                onChangeText={(value) => handleInputChange(value, index)}
-                onKeyPress={({ nativeEvent }) => {
-                  if (nativeEvent.key === 'Backspace') {
-                    focusPreviousInput(index);
-                  }
-                }}
-              />
-            ))}
-            
-          </View>
-          </TouchableWithoutFeedback>
+            <View style={styles.otpContainer}>
+              {[...Array(5)].map((_, index) => (
+                <TextInput
+                  key={index}
+                  ref={inputRefs[index]}
+                  style={styles.otpInput}
+                  maxLength={1}
+                  keyboardType="numeric"
+                  onChangeText={(value) => handleInputChange(value, index)}
+                  onKeyPress={({ nativeEvent }) => {
+                    if (nativeEvent.key === 'Backspace') {
+                      focusPreviousInput(index);
+                    }
+                  }}
+                />
+              ))}
+            </View>
           
           <View style={styles.resendContainer}>
             {resendInterval !== null && (
@@ -312,7 +309,7 @@ export default function OTPpage({ navigation, route }) {
                  }/>
             </View>
           </View>
-          <View style={[styles.circle, { backgroundColor: '#FF6E00', left: 100 }]}>
+          <View style={[styles.circle, { backgroundColor: '#FF6E00', left: 120 }]}>
             <MaterialIcons
               name="arrow-forward-ios"
               size={24}
@@ -348,6 +345,7 @@ export default function OTPpage({ navigation, route }) {
           message={showPopmessage}
       />
     </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -410,10 +408,10 @@ const styles = StyleSheet.create({
     marginTop: 200,
     shadowOffset: {
       width: 0,
-      height: 10,
+      height: 3,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 5.84,
-    elevation: 8,
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
+    elevation: 5,
   },
 });

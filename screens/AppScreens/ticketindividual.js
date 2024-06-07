@@ -83,6 +83,7 @@ const styles = StyleSheet.create({
     topHeader: {
         fontSize: 15,
         fontWeight: 'bold',
+        top:7,
         marginBottom: 10,
         color: 'white'
     },

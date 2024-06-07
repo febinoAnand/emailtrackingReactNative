@@ -29,10 +29,6 @@ export default function Ticket() {
         };
 
         fetchData();
-        const interval = setInterval(() => {
-            fetchData();
-        }, 5000);
-        return () => clearInterval(interval);
     }, []);
 
     const handleItemPress = (item) => {
@@ -148,10 +144,10 @@ const styles = StyleSheet.create({
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 10,
+            height: 3,
         },
-        shadowOpacity: 1.0,
-        shadowRadius: 2,
+        shadowOpacity: 0.2,
+        shadowRadius: 1,
         elevation: 5,
         marginBottom: 10,
     },

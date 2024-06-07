@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, StyleSheet, Image,Platform } from 'react-native';
+import { View, TextInput, StyleSheet, Image,Platform, TouchableWithoutFeedback,Keyboard } from 'react-native';
 import { SimpleLineIcons, Feather, MaterialIcons } from '@expo/vector-icons';
 import LoadingScreen from './loadingscreen';
 import NetInfo from "@react-native-community/netinfo";
@@ -234,6 +234,7 @@ export default function Login({ navigation }) {
 
     return (
         <>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
             {isLoading ? (
                 <LoadingScreen />
             ) : (
@@ -335,6 +336,7 @@ export default function Login({ navigation }) {
                     />
                 </View>
             )}
+            </TouchableWithoutFeedback>
         </>
     );
 }
@@ -378,10 +380,10 @@ const styles = StyleSheet.create({
         marginTop: 50,
         shadowOffset: {
             width: 0,
-            height: 0,
+            height: 3,
         },
-        shadowOpacity: 1.0,
-        shadowRadius: 2,
+        shadowOpacity: 0.2,
+        shadowRadius: 1,
         elevation: 5,
     },
     image: {
