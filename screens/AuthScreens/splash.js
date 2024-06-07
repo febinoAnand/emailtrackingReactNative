@@ -3,16 +3,26 @@ import { View, Image, StyleSheet, Animated } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User_Expirytime } from '../../config/appconfig.js';
+import CustomAlert from '../AuthScreens/customalert.js';
 import { differenceInSeconds } from 'date-fns'
 import { DeviceID, App_Token } from '../../config/appconfig.js';
 import { v4 as uuidv4 } from 'uuid';
 import 'react-native-get-random-values';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
 
 
 export default function Splash({ route, navigation }) {
     // const { authState } = route.params;
     const [authState,setAuthState] = useState("");
+
+    const [popupInvalidAlert,setPopupInvalidAlert] = useState(false);
+
+    const [popMessage, setPopmessage] = useState(false);
+    const [showInValidAlert,setShowInValidAlert] = useState(false)
+
     const fadeAnim = useRef(new Animated.Value(0)).current;
+    let user_expiry_time = 0;
 
     const authStateKey = "authState";
   
@@ -39,9 +49,37 @@ export default function Splash({ route, navigation }) {
         // console.log("device id-->",fetchUUID)
     }
 
+    const udpateNotificationPermissino = async ()=>{
+        if (Device.isDevice) {
+            const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            let finalStatus = existingStatus;
+            if (existingStatus !== 'granted') {
+                const { status } = await Notifications.requestPermissionsAsync();
+                finalStatus = status;
+            }
+            if (finalStatus !== 'granted') {
+                alert('Failed to get push token for push notification!');
+                return;
+            }
+        }
+    }
+
+    const getUserExpiryTime = async () =>{
+        user_expiry_time = await AsyncStorage.getItem("expiry_time");
+        try{
+            user_expiry_time = parseInt(user_expiry_time)
+        }
+        catch(error){
+            user_expiry_time = 0
+            await AsyncStorage.setItem("expiry_time","0");
+        }
+    }
+
     useEffect(()=>{
+        udpateNotificationPermissino();
         getAuthState(authStateKey);
         getDeviceID();
+        getUserExpiryTime();
     },[])
 
     const checkAuthState = async (authState) => {
@@ -51,6 +89,7 @@ export default function Splash({ route, navigation }) {
              if (authState === '2') {
                 const loggedTime = new Date(await AsyncStorage.getItem('loggedinat'));
                 // console.log(loggedTime);
+         
                 const currentTime = new Date();
                 // console.log(currentTime);
 
@@ -58,7 +97,7 @@ export default function Splash({ route, navigation }) {
                 // console.log(elapsedTimeInSeconds);
                 
                 //if session expired...
-                if (elapsedTimeInSeconds > User_Expirytime) { 
+                if (elapsedTimeInSeconds > user_expiry_time) { 
                     // console.log("login screen");
                     nextScreen = 'Login';
                     setAuthState("1");
@@ -79,9 +118,7 @@ export default function Splash({ route, navigation }) {
                 await SecureStore.setItemAsync(authStateKey, "0");
             }
             await AsyncStorage.setItem('deviceID', DeviceID);
-            await AsyncStorage.setItem('appToken', App_Token);
-
-            
+            await AsyncStorage.setItem('appToken', App_Token);   
 
             Animated.timing(
                 fadeAnim,
@@ -102,13 +139,21 @@ export default function Splash({ route, navigation }) {
     };
 
     return (
-        <View style={styles.container}>
-            <Animated.Image
-                source={require('../../assets/ifm.png')}
-                style={[styles.image, { opacity: fadeAnim }]}
-                resizeMode="contain"
+        <>
+            <View style={styles.container}>
+                <Animated.Image
+                    source={require('../../assets/ifm.png')}
+                    style={[styles.image, { opacity: fadeAnim }]}
+                    resizeMode="contain"
+                />
+            </View>
+            <CustomAlert
+                    visible={showInValidAlert}
+                    onClose={() => setPopupAlert(false)}
+                    message={popMessage}
             />
-        </View>
+        </>
+        
     );
 }
 

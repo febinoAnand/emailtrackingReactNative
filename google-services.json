@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "626470183984",
+    "project_id": "emailtracking-a1568",
+    "storage_bucket": "emailtracking-a1568.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:626470183984:android:1df58cf1f72d41ee2139f5",
+        "android_client_info": {
+          "package_name": "com.richianand.EmailTracking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBT3sBqk7Z9HYk86KPjyxbC34uJor_ArP0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

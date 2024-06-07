@@ -15,14 +15,16 @@
       "config": {
         "usesNonExemptEncryption": false
       },
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.richianand.EmailTracking"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.richianand1990.EmailTracking"
+      "package": "com.richianand.EmailTracking",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -39,6 +41,7 @@
       "eas": {
         "projectId": "f9183547-5b37-4215-b05b-493e9e7abfb4"
       }
-    }
+    },
+    "owner": "richianand1990"
   }
 }

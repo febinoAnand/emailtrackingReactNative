@@ -43,10 +43,24 @@ export default function Checkscreen({ navigation }) {
         })
     }
 
+    // const backScreen = async ()=>{
+    //     navigation.navigate("")
+    // }
+
     // useEffect(()=>{
     //     getAuthState("authState");    
     //     getCurrentTime();
     // },[])
+
+    const clearAllStore = async ()=>{
+        await SecureStore.setItemAsync("authState","0"); 
+        // await AsyncStorage.setItem('token', null);
+        
+        await AsyncStorage.clear();
+
+        setSeedValue("0");
+
+    }
 
     const handleSetAuthState = () => {
         saveValue("authState",authState)
@@ -90,6 +104,21 @@ export default function Checkscreen({ navigation }) {
                     title="Switch"
                     color="#FF6E00"
                     onPress={handleSwitchToSplash}
+                />
+            </View>
+            {/* <View style={styles.buttonContainer1}>
+                <Button
+                    title="Back"
+                    color="#FF6E00"
+                    onPress={backScreen}
+                />
+            </View> */}
+            <View style={{ height: 20 }}></View>
+            <View style={styles.buttonContainer1}>
+                <Button
+                    title="Clear"
+                    color="#FF6E00"
+                    onPress={clearAllStore}
                 />
             </View>
             <View style={{ height: 20 }}></View>

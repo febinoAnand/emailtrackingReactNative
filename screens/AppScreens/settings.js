@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, TextInput, StyleSheet, ScrollView, Alert } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
-import { BaseURL } from '../../config/appconfig';
+import { App_Token, BaseURL } from '../../config/appconfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomAlert from '../AuthScreens/customalert.js';
 import NetInfo from "@react-native-community/netinfo";
@@ -10,8 +10,10 @@ export default function Settings({ navigation }) {
     const [showValidAlert, setShowValidAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [isConnected, setIsConnected] = useState(true);
+    const [deviceID,setDeviceID] = useState('');
 
     useEffect(() => {
+        getIDs();
         const unsubscribe = NetInfo.addEventListener(state => {
             setIsConnected(state.isConnected);
         });
@@ -20,6 +22,10 @@ export default function Settings({ navigation }) {
             unsubscribe();
         };
     }, []);
+
+    const getIDs = async ()=>{
+        setDeviceID(await SecureStore.getItemAsync("deviceID"))
+    }
 
     const handleLogout = async () => {
         try {
@@ -37,15 +43,19 @@ export default function Settings({ navigation }) {
             }
     
             console.log('Authorization:', `Token ${token}`);
-            const url = `${BaseURL}Userauth/revoke-token/?token=${token}`;
+            const url = `${BaseURL}Userauth/userlogout/`;
             console.log(`URL: ${url}`);
     
             const response = await fetch(url, {
-                method: 'DELETE',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Token ${token}`,
+                    'Authorization': `${token}`,
                 },
+                body: JSON.stringify({
+                    device_id: deviceID,
+                    app_token: App_Token,
+                }),
             });
     
             if (!response.ok) {
@@ -61,7 +71,7 @@ export default function Settings({ navigation }) {
             await AsyncStorage.removeItem('session_id');
             await AsyncStorage.removeItem('verificationID');
     
-            navigation.navigate("Login");
+            navigation.replace("Login");
         } catch (error) {
             console.error('Logout error:', error);
             setShowValidAlert(true);

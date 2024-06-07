@@ -10,6 +10,9 @@ import { BaseURL } from '../../config/appconfig';
 import * as SecureStore from 'expo-secure-store';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+import { v4 as uuidv4 } from 'uuid';
+import Constants from "expo-constants"
+import SuccessAlertPopup from './successalertpopup';
 
 export default function Registration({ navigation }) {
     const [isLoading, setIsLoading] = useState(false);
@@ -18,6 +21,7 @@ export default function Registration({ navigation }) {
     const [showInputAlert, setShowInputAlert] = useState(false);
     const [showRegisterAlert, setShowRegisterAlert] = useState(false);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [showSuccessAlertPopUp, setShowSuccessAlertPopUp] = useState(false);
     const [showValidAlert, setShowValidAlert] = useState(false);
     const [isConnected, setIsConnected] = useState(true);
     const [password, setPassword] = useState('');
@@ -28,6 +32,9 @@ export default function Registration({ navigation }) {
     const [showMessagePrompt,setShowMessagePrompt] = useState("")
     // let expoprojectID = AsyncStorage.getItem('applicationID');
 
+    const changeNavigation = async ()=>{
+       await navigation.replace("Login");
+    }
 
     const introEffect = async ()=>{
 
@@ -40,8 +47,9 @@ export default function Registration({ navigation }) {
          const projectExpoID = await initializeApplicationID();
 
         
+         console.log("registration applicationID--->",projectExpoID)
          // register the expo project and get id
-         registerForPushNotificationsAsync(projectExpoID);
+         await registerForPushNotificationsAsync(projectExpoID);
 
     }
 
@@ -54,7 +62,7 @@ export default function Registration({ navigation }) {
 
     const initializeApplicationID = async () =>{
         const expoprojectID = await AsyncStorage.getItem('applicationID');
-        // console.log("application id -->"+expoprojectID)
+        console.log("application id -->"+expoprojectID)
         return expoprojectID;
     }
 
@@ -67,6 +75,11 @@ export default function Registration({ navigation }) {
     //     });
     //     return uuid;
     // };    
+
+    const generateUUID = ()=>{
+        let uuid = uuidv4();
+        return uuid;
+    }
 
     const navigateToLogin = async () => {
         if (!isConnected) {
@@ -140,20 +153,41 @@ export default function Registration({ navigation }) {
 
 
                 setIsLoading(false);
-                setShowSuccessAlert(true);
-                // setTimeout(() => {
-                //     setShowSuccessAlert(false);
-                    
-                // }, 2000);
-            } else {
+                setShowSuccessAlertPopUp(true);
+                
+                setTimeout(() => {
+                    setShowSuccessAlertPopUp(false);
+                    navigation.replace("Login");
+                }, 3000);
+
+            }
+            else if (status === "INVALID") {
+                
+                const { message } = responseData;
+                if (!message) {
+                    message = "Something went wrong..."
+                }
+            setShowPopmessage(message);
+
+
+            setIsLoading(false);
+            setShowInputAlert(true);
+            // setTimeout(() => {
+            //     setShowSuccessAlert(false);
+                
+            // }, 2000);
+            } 
+             else {
                 const { message } = responseData;
                     if (message) {
                         setShowPopmessage(message);
                     }
             }
             } else {
-                setShowRegisterAlert(true);
                 setIsLoading(false);
+                setShowPopmessage("Something went wrong");
+                setShowRegisterAlert(true);
+                
             }
         } catch (error) {
             console.error('Error:', error);
@@ -186,17 +220,24 @@ export default function Registration({ navigation }) {
           }
           // Learn more about projectId:
           // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
-          
-          token = (await Notifications.getExpoPushTokenAsync({ projectId: expoProjectID})).data;
+          const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId
+          try{
+            token = (await Notifications.getExpoPushTokenAsync({ projectId})).data;
+            if(!token){
+                token = generateUUID();
+            }
+          }catch(error){
+            token = generateUUID();
+          }
           
           await AsyncStorage.setItem('notificationID',token);
-        //   console.log("Expo-device-id-->",await AsyncStorage.getItem('notificationID'));
+          console.log("Expo-device-id-->",await AsyncStorage.getItem('notificationID'));
 
         } else {
           alert('Must use physical device for Push Notifications');
         }
       
-        return token;
+        // return token;
       }
 
     return (
@@ -275,10 +316,25 @@ export default function Registration({ navigation }) {
                     />
                     <SuccessAlert
                         visible={showSuccessAlert}
-                        onClose={() => {
-                            navigation.pop();
-                            navigation.replace("Login");
-                            setShowSuccessAlert(false)
+                        onClose={ () => {
+                                // navigation.pop();
+                                // setIsLoading(false)
+                                // setShowSuccessAlert(false)
+                                // await navigation.replace("Login");
+                                // changeNavigation();
+                            }
+                        }
+                        message={showPopmessage}
+                    />
+
+                    <SuccessAlertPopup
+                        visible={showSuccessAlertPopUp}
+                        onClose={ () => {
+                                // navigation.pop();
+                                // setIsLoading(false)
+                                setShowSuccessAlertPopUp(false)
+                                // await navigation.replace("Login");
+                                // changeNavigation();
                             }
                         }
                         message={showPopmessage}

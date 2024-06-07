@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Pressable ,TouchableOpacity} from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Pressable ,TouchableOpacity, Keyboard,TouchableWithoutFeedback} from 'react-native';
 import NetInfo from "@react-native-community/netinfo";
 import { MaterialIcons } from '@expo/vector-icons';
 import LoadingScreen from './loadingscreen';
@@ -7,6 +7,7 @@ import CustomAlert from './customalert';
 import { BaseURL, serverTimeoutSeconds } from '../../config/appconfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+// import {  } from 'react-native-gesture-handler';
 // import {  } from 'react-native-gesture-handler';
 
 export default function OTPpage({ navigation, route }) {
@@ -121,7 +122,8 @@ export default function OTPpage({ navigation, route }) {
             const responseData = await response.json();
             const { status } = responseData;
 
-            // console.log(responseData);
+            console.log("otpauth-->",responseData);
+            
 
             if (status === "INVALID") {
               setShowInValidAlert(true);
@@ -273,7 +275,10 @@ export default function OTPpage({ navigation, route }) {
             <Text style={styles.baseText}>OTP was sent to +91-{mobileNo}</Text>
             <Text style={styles.innerText}>Click back to change mobile no</Text>
           </View>
+          
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style={styles.otpContainer}>
+          
             {[...Array(5)].map((_, index) => (
               <TextInput
                 key={index}
@@ -289,7 +294,10 @@ export default function OTPpage({ navigation, route }) {
                 }}
               />
             ))}
+            
           </View>
+          </TouchableWithoutFeedback>
+          
           <View style={styles.resendContainer}>
             {resendInterval !== null && (
               <Text>Resend in {resendInterval} sec....</Text>

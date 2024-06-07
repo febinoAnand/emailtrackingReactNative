@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
-import AntDesign from '@expo/vector-icons/AntDesign';
+import { MaterialIcons } from '@expo/vector-icons';
 
-const SuccessAlert = ({ visible, onClose, message }) => {
+const CustomSuccessAlert = ({ visible, onClose, message }) => {
   return (
     <Modal
       visible={visible}
@@ -12,7 +12,7 @@ const SuccessAlert = ({ visible, onClose, message }) => {
     >
       <View style={styles.overlay}>
         <View style={styles.alertContainer}>
-        <AntDesign name="checkcircle" size={50} color="white" />
+          <MaterialIcons name="check-circle" size={50} color="white" style={styles.icon} />
           <Text style={styles.message}>{message}</Text>
           <TouchableOpacity style={styles.button} onPress={onClose}>
             <Text style={styles.buttonText}>OK</Text>
@@ -60,4 +60,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SuccessAlert;
+export default CustomSuccessAlert;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, StyleSheet, Image } from 'react-native';
+import { View, TextInput, StyleSheet, Image,Platform } from 'react-native';
 import { SimpleLineIcons, Feather, MaterialIcons } from '@expo/vector-icons';
 import LoadingScreen from './loadingscreen';
 import NetInfo from "@react-native-community/netinfo";
@@ -9,6 +9,11 @@ import { format } from 'date-fns';
 import { App_Token, BaseURL, timeFormat } from '../../config/appconfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import { v4 as uuidv4 } from 'uuid';
+import Constants from 'expo-constants';
+import SuccessAlertPopup from './successalertpopup';
 
 export default function Login({ navigation }) {
     const [isLoading, setIsLoading] = useState(false);
@@ -18,20 +23,116 @@ export default function Login({ navigation }) {
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const [showValidAlert, setShowValidAlert] = useState(false);
     const [showInvalidAlert,setShowInvalidAlert] = useState(false)
+    const [showSuccessAlertPopUp, setShowSuccessAlertPopUp] = useState(false);
     const [lastErrorMessage, setLastErrorMessage] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [deviceID,setDeviceID] = useState('');
+    const [expoID, setExpoID] = useState("");
+    const [notificationID,setNotificationID] = useState("");
+    const [deviceMismatchAlert,setDeviceMismatchAlert] = useState(false);
+
+    const clearDatas = async ()=>{
+        await SecureStore.setItemAsync('authState', '0');
+        await AsyncStorage.setItem('token', "");
+        await AsyncStorage.setItem('notificationID',"");
+        await AsyncStorage.setItem('emailID',"");
+    }
+
+    const initializeApplicationID = async () =>{
+        const expoprojectID = await AsyncStorage.getItem('applicationID');
+        // console.log("application id -->"+expoprojectID)
+        return expoprojectID;
+    }
+
+
+    const introEffect = async ()=>{
+        //initialize the project id
+        const projectExpoID = await initializeApplicationID();
+
+        // console.log("registration applicationID--->",projectExpoID)
+        
+        // register the expo project and get id
+        await registerForPushNotificationsAsync(projectExpoID);
+    }
+
+    useEffect(() => {
+        
+        getIDs();
+        introEffect();
+    }, []);
+
 
     const getIDs = async ()=>{
         const emailID = await AsyncStorage.getItem("emailID");
         setDeviceID(await SecureStore.getItemAsync("deviceID"))
+        setExpoID(await AsyncStorage.getItem("applicationID"))
+
         setUsername(emailID);
     }
 
-    useEffect(() => {
-        getIDs();
-    }, []);
+    
+
+    const generateUUID = ()=>{
+        let uuid = uuidv4();
+        return uuid;
+    }
+
+    async function registerForPushNotificationsAsync (expoProjectID){
+        let token;
+      
+        if (Platform.OS === 'android') {
+          await Notifications.setNotificationChannelAsync('default', {
+            name: 'default',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+          });
+        }
+      
+        if (Device.isDevice) {
+            const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            let finalStatus = existingStatus;
+            if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+            }
+            if (finalStatus !== 'granted') {
+            alert('Failed to get push token for push notification!');
+            return;
+            }
+            const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+            if (!projectId) {
+                throw new Error('Project ID not found');
+            }
+            // console.log("projectid -->",projectId)
+          // Learn more about projectId:
+          // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
+          
+          try{
+            token = (await Notifications.getExpoPushTokenAsync({ projectId})).data;
+            if(!token){
+                token = generateUUID();
+            }
+            
+          }catch(error){
+            token = generateUUID();
+          }
+          
+        //   console.log("Login NotificationID--->",token)
+          setNotificationID(token);
+
+        //   console.log("notificationID state -->", notificationID);
+          await AsyncStorage.setItem('notificationID',token);
+
+          console.log("Login Expo-device-id-->",await AsyncStorage.getItem('notificationID'));
+
+        } else {
+          alert('Must use physical device for Push Notifications');
+        }
+      
+        return token;
+      }
 
     const handleLogin = () => {
         if (!username.trim() || !password.trim()) {
@@ -49,7 +150,7 @@ export default function Login({ navigation }) {
             // console.log("password",password)
             // console.log("deviceID",deviceID)
             // console.log("app_token",App_Token)
-
+            
 
             fetch(BaseURL + "app/userlogin/", {
                 method: 'POST',
@@ -60,29 +161,52 @@ export default function Login({ navigation }) {
                     username: username,
                     password: password,
                     device_id: deviceID,
-                    app_token: App_Token
+                    app_token: App_Token,
+                    notification_id:notificationID
                 }),
             })
             .then(async response => {
-                setIsLoading(false);
+                
                 // console.log("response==>",response);
+                
                 if (response.ok) {
+                    console.log("expoID ==>",expoID)
+                    setIsLoading(false);
                     const responseData = await response.json();
-                    const { status, message } = responseData;
-                    // console.log(responseData);
+                    const { status, message, token } = responseData;
+                    console.log(responseData);
                     if (status === "OK") {
-                        setShowPopmessage(message);
-                        setShowSuccessAlert(true);
-                        // console.log(responseData.token)
-                        await AsyncStorage.setItem('token', responseData.token);
+                        await AsyncStorage.setItem('token', token);
                         await SecureStore.setItemAsync('authState', '2');
                         const currentTime = format(new Date(),timeFormat);
                         await AsyncStorage.setItem('loggedinat', currentTime);
-                        // console.log("currentTime",currentTime)
+
+                        // setShowPopmessage(message);
+                        // setShowSuccessAlertPopUp(true);
+                        // setTimeout(() => {
+                            // setShowSuccessAlertPopUp(false);
+                            // setIsLoading(false);
+                            navigation.replace("TabScreen");
+                        // }, 3000);
                     }
                     else if(status === "INVALID"){
+                        
                         setShowPopmessage(message);
                         setShowInvalidAlert(true);
+                    }
+                    else if(status === "DEVICE_MISMATCH"){
+                        setShowPopmessage(message);
+                        setDeviceMismatchAlert(true);
+                        clearDatas();
+                        
+                        
+                    }
+                    else if(status === "INACTIVE"){
+                        if (!message) {
+                            message = "Something went wrong" 
+                         }
+                         setShowPopmessage(message);
+                         setShowInvalidAlert(true);
                     }
                     else {
                         if (!message) {
@@ -95,6 +219,7 @@ export default function Login({ navigation }) {
                 } else {
                     setShowPopmessage("Something Went Wrong Try after some times")
                     setShowInvalidAlert(true);
+                    setIsLoading(false);
                     // return data;
                 }
             })
@@ -164,7 +289,7 @@ export default function Login({ navigation }) {
                     <SuccessAlert
                         visible={showSuccessAlert}
                         onClose={() => {
-                                // setShowSuccessAlert(false)
+                                setShowSuccessAlert(false)
                                 navigation.replace("TabScreen");
                             }
                         }
@@ -184,6 +309,28 @@ export default function Login({ navigation }) {
                     <CustomAlert
                         visible={showInvalidAlert}
                         onClose={() => setShowInvalidAlert(false)}
+                        message={showPopmessage}
+                    />
+                    <CustomAlert
+                        visible={deviceMismatchAlert}
+                        onClose={() => {
+
+                                setDeviceMismatchAlert(false)
+                                navigation.replace("SignUp")
+                            }
+                        }
+                        message={showPopmessage}
+                    />
+                    <SuccessAlertPopup
+                        visible={showSuccessAlertPopUp}
+                        onClose={ () => {
+                                // navigation.pop();
+                                // setIsLoading(false)
+                                setShowSuccessAlertPopUp(false)
+                                // await navigation.replace("Login");
+                                // changeNavigation();
+                            }
+                        }
                         message={showPopmessage}
                     />
                 </View>
