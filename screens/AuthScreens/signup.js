@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Text, Alert } from 'react-native';
+import { View, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Text, Alert,ToastAndroid } from 'react-native';
 import { SimpleLineIcons, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import NetInfo from '@react-native-community/netinfo';
 import LoadingScreen from './loadingscreen'; 
@@ -34,6 +34,13 @@ export default function Signup({ navigation }) {
         isFocused && setIsLoading(false);
         return () => unsubscribe();
     }, [isFocused]);
+
+    const showToast = (toastMessage,delayInSeconds)=> {
+        setTimeout(()=>{
+            ToastAndroid.show(toastMessage, ToastAndroid.LONG);
+        },delayInSeconds*1000)
+        
+    }
 
     const promptNavigation = async (prompt) =>{
         try {
@@ -127,18 +134,29 @@ export default function Signup({ navigation }) {
     }
 
     const navigateToOTP = async () => {
+        let i = 0;
+        showToast("Navigate OTP",i++);
         try {
+            showToast("Checking connection",i++);
             const isConnected = await NetInfo.fetch().then(state => state.isConnected);
             setShowConnectAlert(!isConnected);
+            
             if (!isConnected) return;
+            showToast("Connected",i++);
+            
             const isEmailValid = validateEmail(email);
             const isMobileValid = validateMobile(mobileNo);
-    
+
+            showToast("Validating..",i++);
+            
             if (!isEmailValid || !isMobileValid) {
                 setShowValidAlert(true);
                 return;
             }
 
+            showToast("Checking Async",i++);
+
+            
             // save Email
             await AsyncStorage.setItem('emailID',email);
             await AsyncStorage.setItem('mobileNo', mobileNo);
@@ -153,10 +171,11 @@ export default function Signup({ navigation }) {
             //set authState to zero
             SecureStore.setItemAsync('authState','0');
 
+            showToast("Auth State OK",i++);
             //Open loading screen
             setIsLoading(true);
 
-            
+            showToast("setting time out",i++);
             //Start Timer 
             let timeout = false;
             const timeoutAlert = setTimeout(() => {
@@ -165,7 +184,12 @@ export default function Signup({ navigation }) {
                 timeout=true;
             }, serverTimeoutSeconds);
 
-            
+            showToast("Response=>"+JSON.stringify({
+                deviceID,
+                appToken,
+                email,
+                mobileno,
+            }),i++);
 
             
 
@@ -241,10 +265,12 @@ export default function Signup({ navigation }) {
                     setIsLoading(false);
                 }
             } else {
+                showToast("Server Request Failed",i++);
                 console.error('Server request failed');
                 setIsLoading(false);
             }
         } catch (error) {
+            showToast("Error checking internet connection",i++);
             console.error('Error checking internet connection:', error);
             setIsLoading(false);
         }

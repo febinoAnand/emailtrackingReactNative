@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, StyleSheet, Image,Platform, TouchableWithoutFeedback,Keyboard } from 'react-native';
+import { View, TextInput, StyleSheet, ToastAndroid,Image,Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { SimpleLineIcons, Feather, MaterialIcons } from '@expo/vector-icons';
 import LoadingScreen from './loadingscreen';
 import NetInfo from "@react-native-community/netinfo";
@@ -128,7 +128,10 @@ export default function Login({ navigation }) {
           console.log("Login Expo-device-id-->",await AsyncStorage.getItem('notificationID'));
 
         } else {
-          alert('Must use physical device for Push Notifications');
+            token = generateUUID();
+            await AsyncStorage.setItem('notificationID',token);
+            setNotificationID(token);
+            alert('Must use physical device for Push Notifications');
         }
       
         return token;
@@ -146,11 +149,18 @@ export default function Login({ navigation }) {
             }
             setIsLoading(true);
             
-            // console.log("username",username)
-            // console.log("password",password)
-            // console.log("deviceID",deviceID)
-            // console.log("app_token",App_Token)
+            console.log("username",username)
+            console.log("password",password)
+            console.log("deviceID",deviceID)
+            console.log("app_token",App_Token)
             
+            showToast("Request-->",JSON.stringify({
+                username: username,
+                password: password,
+                device_id: deviceID,
+                app_token: App_Token,
+                notification_id:notificationID
+            }));
 
             fetch(BaseURL + "app/userlogin/", {
                 method: 'POST',

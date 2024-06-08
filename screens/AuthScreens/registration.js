@@ -238,6 +238,8 @@ export default function Registration({ navigation }) {
 
         } else {
           alert('Must use physical device for Push Notifications');
+          token = generateUUID();
+          await AsyncStorage.setItem('notificationID',token);
         }
       
         // return token;
