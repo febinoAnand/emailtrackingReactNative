@@ -11,6 +11,18 @@ export default function Dashboard() {
     const [tableHead, setTableHead] = useState([]);
     const [barChartData, setBarChartData] = useState([]);
 
+    const headersWithNoData = recentData.map(rowData => {
+        return tableHead.filter(header => {
+            if (header === 'Date' || header === 'Time') {
+                return false;
+            }
+            const headerData = rowData.required_json[header];
+            return headerData === undefined || headerData === '';
+        });
+    });
+    
+    const allHeadersWithNoData = headersWithNoData.every(headers => headers.length === tableHead.length - 2);    
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -179,7 +191,7 @@ export default function Dashboard() {
             <View style={styles.tableContainer}>
                 <ScrollView horizontal>
                     <Table>
-                        <Row data={tableHead} style={styles.head3} textStyle={styles.text} />
+                    <Row data={tableHead} style={styles.head3} textStyle={styles.text} />
                         {recentData.slice(0).reverse().map((rowData, index) => (
                             <Row
                                 key={index}
@@ -189,7 +201,8 @@ export default function Dashboard() {
                                     } else if (header === 'Time') {
                                         return rowData.time;
                                     } else {
-                                        return rowData.required_json[header] || '';
+                                        const headerData = rowData.required_json[header];
+                                        return allHeadersWithNoData ? '-' : (headerData || '');
                                     }
                                 })}
                                 style={[styles.row, index === recentData.length - 1 && styles.lastRow]}

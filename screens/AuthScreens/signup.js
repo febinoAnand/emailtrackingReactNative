@@ -141,6 +141,7 @@ export default function Signup({ navigation }) {
 
             // save Email
             await AsyncStorage.setItem('emailID',email);
+            await AsyncStorage.setItem('mobileNo', mobileNo);
 
             const deviceID = await SecureStore.getItemAsync('deviceID');
             const appToken = await AsyncStorage.getItem('appToken');

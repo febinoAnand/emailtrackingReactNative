@@ -5,6 +5,8 @@ import { Table, Row } from 'react-native-table-component';
 import DatePicker from '@react-native-community/datetimepicker';
 import { BaseURL } from '../../config/appconfig';
 import { TouchableOpacity } from 'react-native';
+import { PermissionsAndroid } from 'react-native';
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
 
 export default function Reports() {
     const [searchText, setSearchText] = useState('');
@@ -43,6 +45,68 @@ export default function Reports() {
         const rowDate = new Date(rowData.date);
         return rowDate >= fromDate && rowDate <= toDate;
     });
+
+    const generatePDF = async () => {
+        try {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
+            );
+            if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+                throw new Error('Storage permission denied');
+            }
+            let htmlContent = `<html><body><h1>Report</h1>`;
+            
+            if (filteredData.length > 0) {
+                htmlContent += `<table border="1">
+                                    <tr>
+                                        <th>Ticket Name</th>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Rule</th>
+                                        <th>Message</th>
+                                        <th>Send To user</th>
+                                        <th>Operator</th>
+                                        <th>Value</th>
+                                        <th>Logical Operator</th>
+                                        <th>Actual Value</th>
+                                    </tr>`;
+    
+                filteredData.forEach(rowData => {
+                    htmlContent += `<tr>
+                                        <td>${rowData.ticket.ticketname}</td>
+                                        <td>${rowData.date}</td>
+                                        <td>${rowData.time}</td>
+                                        <td>${rowData.active_trigger.trigger_name}</td>
+                                        <td>${rowData.active_trigger.notification_message}</td>
+                                        <td>${rowData.active_trigger.user_to_send}</td>
+                                        <td>${rowData.active_trigger.parameter_filter_list && rowData.active_trigger.parameter_filter_list.length > 0 ? rowData.active_trigger.parameter_filter_list[0].operator : ''}</td>
+                                        <td>${rowData.active_trigger.parameter_filter_list && rowData.active_trigger.parameter_filter_list.length > 0 ? rowData.active_trigger.parameter_filter_list[0].value : ''}</td>
+                                        <td>${rowData.active_trigger.parameter_filter_list && rowData.active_trigger.parameter_filter_list.length > 0 ? rowData.active_trigger.parameter_filter_list[0].logical_operator : ''}</td>
+                                        <td>${rowData.actual_value}</td>
+                                    </tr>`;
+                });
+    
+                htmlContent += `</table>`;
+            } else {
+                htmlContent += `<p>No data available</p>`;
+            }
+    
+            htmlContent += `</body></html>`;
+
+            const options = {
+                html: htmlContent,
+                fileName: 'report',
+                directory: 'Documents',
+            };
+            
+            const file = await RNHTMLtoPDF.convert(options);
+            console.log('PDF generated successfully:', file.filePath);
+            alert('PDF generated successfully!');
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Failed to generate PDF');
+        }
+    };
 
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -96,33 +160,40 @@ export default function Reports() {
                 </View>
                 <View style={{ height: 20 }}></View>
                 <View style={styles.tableContainer}>
+                <ScrollView horizontal>
                     <Table>
-                        <Row data={['Ticket Name', 'Date', 'Time', 'Rule', 'Message', 'Send To user' , 'Operator', 'Value', 'Logical Operator', 'Actual Value']} style={styles.head} textStyle={styles.text} />
-                        {filteredData.map((rowData, index) => (
-                            <Row
-                                key={index}
-                                data={[
-                                    rowData.ticket.ticketname,
-                                    rowData.date,
-                                    rowData.time,
-                                    rowData.active_trigger.trigger_name,
-                                    rowData.active_trigger.notification_message,
-                                    rowData.active_trigger.user_to_send,
-                                    rowData.parameter_filter_list && rowData.parameter_filter_list.length > 0 ? rowData.parameter_filter_list[0].operator : '',
-                                    rowData.parameter_filter_list && rowData.parameter_filter_list.length > 0 ? rowData.parameter_filter_list[0].value : '',
-                                    rowData.parameter_filter_list && rowData.parameter_filter_list.length > 0 ? rowData.parameter_filter_list[0].logical_operator : '',
-                                    rowData.actual_value,
-                                ]}
-                                style={[styles.row, index === filteredData.length - 1 && styles.lastRow]}
-                                textStyle={styles.rowText}
-                            />
-                        ))}
+                        <Row data={['Ticket Name', 'Date', 'Time', 'Rule', 'Message', 'Send To user' , 'Operator', 'Value', 'Logical Operator', 'Actual Value']} style={styles.head3} textStyle={styles.text} />
+                        {filteredData.length > 0 ? (
+                                filteredData.map((rowData, index) => (
+                                    <Row
+                                        key={index}
+                                        data={[
+                                            rowData.ticket.ticketname,
+                                            rowData.date,
+                                            rowData.time,
+                                            rowData.active_trigger.trigger_name,
+                                            rowData.active_trigger.notification_message,
+                                            rowData.active_trigger.user_to_send,
+                                            rowData.active_trigger.parameter_filter_list && rowData.active_trigger.parameter_filter_list.length > 0 ? rowData.active_trigger.parameter_filter_list[0].operator : '',
+                                            rowData.active_trigger.parameter_filter_list && rowData.active_trigger.parameter_filter_list.length > 0 ? rowData.active_trigger.parameter_filter_list[0].value : '',
+                                            rowData.active_trigger.parameter_filter_list && rowData.active_trigger.parameter_filter_list.length > 0 ? rowData.active_trigger.parameter_filter_list[0].logical_operator : '',
+                                            rowData.actual_value,
+                                        ]}
+                                        style={[styles.row, index === filteredData.length - 1 && styles.lastRow]}
+                                        textStyle={styles.cellText}
+                                    />
+                                ))
+                            ) : (
+                                <Text style={styles.noDataText}>       No data available                                                                                        No data availables</Text>
+                            )}
                     </Table>
+                    </ScrollView>
                 </View>
                 <View style={{ height: 40 }}></View>
                 <View style={styles.buttonContainer}>
                     <Button title="Download"
                         color="#FF6E00"
+                        onPress={generatePDF}
                     />
                 </View>
                 <View style={{ height: 40 }}></View>
@@ -229,9 +300,11 @@ const styles = StyleSheet.create({
             shadowRadius: 5.84,
             elevation: 5,
       },
-    tableContainer: {
+      tableContainer: {
+        flex: 1,
         backgroundColor: 'white',
         borderRadius: 20,
+        width: '100%',
         shadowOffset: {
             width: 0,
             height: 10,
@@ -239,6 +312,20 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 5.84,
         elevation: 8,
+        overflowX: 'auto',
+        display: 'flex',
+    },
+    head3: {
+        backgroundColor: '#FF6E00',
+        width: '100%',
+        height: 70,
+        marginTop: 10,
+        borderColor: '#FF6E00',
+        padding: 10,
+        top: -10,
+        overflow: 'hidden',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
     },
     head: {
         height: 40,
@@ -250,11 +337,12 @@ const styles = StyleSheet.create({
     lastRow: {
         borderBottomWidth: 0
     },
-    row: { 
-        flex:1,
+    row: {
+        flex: 1,
         borderBottomWidth: 1,
-        width:'100%',
-        borderBottomColor: 'black' 
+        width: '100%',
+        height: 50,
+        borderBottomColor: 'black'
     },
     dateButton: {
         borderRadius: 25,
@@ -277,16 +365,25 @@ const styles = StyleSheet.create({
         color: 'black',
         textAlign: 'center',
     },    
-    text: { 
-        fontSize:12,
-        margin: 0,
-        left:30,
+    text: {
+        flexWrap: 'wrap',
+        width: 80,
+        left:10,
+        maxWidth: 80,
+        textAlign: 'left',
         color: 'white'
     },
     rowText: {
         margin: 6,
         left: 20,
         color: 'black'
+    },
+    cellText: {
+        flexWrap: 'wrap',
+        left:15,
+        width: 50,
+        maxWidth: 50,
+        textAlign: 'left'
     },
     downloadButton: {
         height: 40,
@@ -301,5 +398,13 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 5.84,
         elevation: 8,
+    },
+    noDataText: {
+        textAlign: 'center',
+        color: 'black',
+        marginTop: 20,
+        right:20,
+        top:150,
+        fontSize: 18,
     },
 });

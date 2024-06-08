@@ -11,6 +11,10 @@ export default function Settings({ navigation }) {
     const [alertMessage, setAlertMessage] = useState('');
     const [isConnected, setIsConnected] = useState(true);
     const [deviceID,setDeviceID] = useState('');
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [designation, setDesignation] = useState('');
+    const [mobileNo, setMobileNo] = useState('');
 
     useEffect(() => {
         getIDs();
@@ -23,8 +27,12 @@ export default function Settings({ navigation }) {
         };
     }, []);
 
-    const getIDs = async ()=>{
-        setDeviceID(await SecureStore.getItemAsync("deviceID"))
+    const getIDs = async () => {
+        setDeviceID(await SecureStore.getItemAsync("deviceID"));
+        setName(await AsyncStorage.getItem('name') || '');
+        setEmail(await AsyncStorage.getItem('emailID') || '');
+        setDesignation(await AsyncStorage.getItem('designation') || '');
+        setMobileNo(await AsyncStorage.getItem('mobileNo') || '');
     }
 
     const handleLogout = async () => {
@@ -91,14 +99,24 @@ export default function Settings({ navigation }) {
                         <Text style={styles.inputHeader}>Name</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="ViVO V9 pro"
+                            placeholder="Name"
+                            value={name}
+                            onChangeText={setName}
+                            editable={false}
+                            selectTextOnFocus={false}
                         />
                     </View>
+                    </View>
+                    <View style={styles.inputRow}>
                     <View style={styles.inputContainer}>
-                        <Text style={styles.inputHeader}>User Name</Text>
+                        <Text style={styles.inputHeader}>Email</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="2.1"
+                            placeholder="Email"
+                            value={email}
+                            onChangeText={setEmail}
+                            editable={false}
+                            selectTextOnFocus={false}
                         />
                     </View>
                 </View>
@@ -107,14 +125,22 @@ export default function Settings({ navigation }) {
                         <Text style={styles.inputHeader}>Designation</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="ViVO V9 pro"
+                            placeholder="Designation"
+                            value={designation}
+                            onChangeText={setDesignation}
+                            editable={false}
+                            selectTextOnFocus={false}
                         />
                     </View>
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputHeader}>Mobile No</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="2.1"
+                            placeholder="Mobile No"
+                            value={mobileNo}
+                            onChangeText={setMobileNo}
+                            editable={false}
+                            selectTextOnFocus={false}
                         />
                     </View>
                 </View>
@@ -151,13 +177,13 @@ export default function Settings({ navigation }) {
                     </View>
                 </View>
             </View>
-            <View style={{ height: 20 }}></View>
+            {/* <View style={{ height: 20 }}></View>
             <View style={styles.buttonContainer1}>
                 <Button
                     title="Change Password"
                     color="#FF6E00"
                 />
-            </View>
+            </View> */}
             <View style={{ height: 20 }}></View>
             <View style={styles.buttonContainer1}>
                 <Button

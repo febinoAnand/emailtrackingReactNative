@@ -112,6 +112,8 @@ export default function Registration({ navigation }) {
         setIsLoading(true);
 
         try {
+            await AsyncStorage.setItem('name', name);
+            await AsyncStorage.setItem('designation', designation);
             
             const sessionID = await AsyncStorage.getItem('sessionID');
             const deviceID = await SecureStore.getItemAsync('deviceID');
@@ -229,6 +231,7 @@ export default function Registration({ navigation }) {
           }catch(error){
             token = generateUUID();
           }
+          console.log("Expo-token-->", token);
           
           await AsyncStorage.setItem('notificationID',token);
           console.log("Expo-device-id-->",await AsyncStorage.getItem('notificationID'));
