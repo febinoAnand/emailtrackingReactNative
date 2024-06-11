@@ -31,7 +31,7 @@ export default function Navigation(){
                 {/* <Stack.Screen name='Checksecure' component={Checksecure} options={{headerShown: false}}/> */}
                 {/* <Stack.Screen name='NavigationTest' component={NavigationwithPOPUP} options={{headerShown: false}}/> */}
                 {/* <Stack.Screen name='UrlDataScreen' component={FetchDataFromURL} options={{headerShown: false}}/> */}
-                <Stack.Screen name='Checkscreen' component={Checkscreen} options={{headerShown: false}}/>
+                {/* <Stack.Screen name='Checkscreen' component={Checkscreen} options={{headerShown: false}}/> */}
                 <Stack.Screen name='Splash' component={Splash} options={{headerShown: false}}/>
                 {/* <Stack.Screen name='AuthHomeScreen' component={AuthScreenHome} options={{title: 'Auth Screen'}}/> */}
                 <Stack.Screen name='SignUp' component={Signup} options={{headerShown: false,}}/>
