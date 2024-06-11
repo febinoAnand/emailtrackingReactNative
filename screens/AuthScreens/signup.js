@@ -135,26 +135,26 @@ export default function Signup({ navigation }) {
 
     const navigateToOTP = async () => {
         let i = 0;
-        showToast("Navigate OTP",i++);
+        // showToast("Navigate OTP",i++);
         try {
-            showToast("Checking connection",i++);
+            // showToast("Checking connection",i++);
             const isConnected = await NetInfo.fetch().then(state => state.isConnected);
             setShowConnectAlert(!isConnected);
             
             if (!isConnected) return;
-            showToast("Connected",i++);
+            // showToast("Connected",i++);
             
             const isEmailValid = validateEmail(email);
             const isMobileValid = validateMobile(mobileNo);
 
-            showToast("Validating..",i++);
+            // showToast("Validating..",i++);
             
             if (!isEmailValid || !isMobileValid) {
                 setShowValidAlert(true);
                 return;
             }
 
-            showToast("Checking Async",i++);
+            // showToast("Checking Async",i++);
 
             
             // save Email
@@ -171,11 +171,11 @@ export default function Signup({ navigation }) {
             //set authState to zero
             SecureStore.setItemAsync('authState','0');
 
-            showToast("Auth State OK",i++);
+            // showToast("Auth State OK",i++);
             //Open loading screen
             setIsLoading(true);
 
-            showToast("setting time out",i++);
+            // showToast("setting time out",i++);
             //Start Timer 
             let timeout = false;
             const timeoutAlert = setTimeout(() => {
@@ -184,12 +184,12 @@ export default function Signup({ navigation }) {
                 timeout=true;
             }, serverTimeoutSeconds);
 
-            showToast("Response=>"+JSON.stringify({
-                deviceID,
-                appToken,
-                email,
-                mobileno,
-            }),i++);
+            // showToast("Response=>"+JSON.stringify({
+            //     deviceID,
+            //     appToken,
+            //     email,
+            //     mobileno,
+            // }),i++);
 
             
 

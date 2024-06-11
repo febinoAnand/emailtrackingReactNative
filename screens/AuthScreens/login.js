@@ -154,13 +154,13 @@ export default function Login({ navigation }) {
             console.log("deviceID",deviceID)
             console.log("app_token",App_Token)
             
-            showToast("Request-->",JSON.stringify({
-                username: username,
-                password: password,
-                device_id: deviceID,
-                app_token: App_Token,
-                notification_id:notificationID
-            }));
+            // showToast("Request-->",JSON.stringify({
+            //     username: username,
+            //     password: password,
+            //     device_id: deviceID,
+            //     app_token: App_Token,
+            //     notification_id:notificationID
+            // }));
 
             fetch(BaseURL + "app/userlogin/", {
                 method: 'POST',

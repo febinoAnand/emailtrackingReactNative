@@ -23,7 +23,6 @@
         "foregroundImage": "./assets/ifm.png",
         "backgroundColor": "#ffffff"
       },
-      "usesCleartextTraffic": true,
       "package": "com.richianand.EmailTracking",
       "googleServicesFile": "./google-services.json"
     },

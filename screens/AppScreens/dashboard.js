@@ -191,7 +191,9 @@ export default function Dashboard() {
             <View style={styles.tableContainer}>
                 <ScrollView horizontal>
                     <Table>
-                    <Row data={tableHead} style={styles.head3} textStyle={styles.text} />
+                    <Row data={tableHead} style={styles.head3} 
+                    textStyle={styles.text} 
+                    />
                         {recentData.slice(0).reverse().map((rowData, index) => (
                             <Row
                                 key={index}
@@ -206,7 +208,7 @@ export default function Dashboard() {
                                     }
                                 })}
                                 style={[styles.row, index === recentData.length - 1 && styles.lastRow]}
-                                textStyle={styles.cellText}
+                                // textStyle={styles.cellText}
                             />
                         ))}
                     </Table>
