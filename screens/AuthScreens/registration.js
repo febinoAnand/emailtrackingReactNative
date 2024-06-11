@@ -47,7 +47,7 @@ export default function Registration({ navigation }) {
          const projectExpoID = await initializeApplicationID();
 
         
-         console.log("registration applicationID--->",projectExpoID)
+        //  console.log("registration applicationID--->",projectExpoID)
          // register the expo project and get id
          await registerForPushNotificationsAsync(projectExpoID);
 
@@ -62,7 +62,7 @@ export default function Registration({ navigation }) {
 
     const initializeApplicationID = async () =>{
         const expoprojectID = await AsyncStorage.getItem('applicationID');
-        console.log("application id -->"+expoprojectID)
+        // console.log("application id -->"+expoprojectID)
         return expoprojectID;
     }
 
@@ -155,12 +155,17 @@ export default function Registration({ navigation }) {
 
 
                 setIsLoading(false);
-                setShowSuccessAlertPopUp(true);
+                // setShowSuccessAlertPopUp(true);
+                setShowSuccessAlert(true)
                 
-                setTimeout(() => {
-                    setShowSuccessAlertPopUp(false);
-                    navigation.replace("Login");
-                }, 3000);
+                // setTimeout(() => {
+                    
+                //     setIsLoading(false);
+                //     // setShowSuccessAlertPopUp(false);
+                //     // navigation.pop();
+                //     // navigation.replace("Login");
+                    
+                // }, 3000);
 
             }
             else if (status === "INVALID") {
@@ -231,10 +236,10 @@ export default function Registration({ navigation }) {
           }catch(error){
             token = generateUUID();
           }
-          console.log("Expo-token-->", token);
+        //   console.log("Expo-token-->", token);
           
           await AsyncStorage.setItem('notificationID',token);
-          console.log("Expo-device-id-->",await AsyncStorage.getItem('notificationID'));
+        //   console.log("Expo-device-id-->",await AsyncStorage.getItem('notificationID'));
 
         } else {
           alert('Must use physical device for Push Notifications');
@@ -323,10 +328,26 @@ export default function Registration({ navigation }) {
                         visible={showSuccessAlert}
                         onClose={ () => {
                                 // navigation.pop();
-                                // setIsLoading(false)
-                                // setShowSuccessAlert(false)
+                                
+                                setShowSuccessAlert(false)
                                 // await navigation.replace("Login");
                                 // changeNavigation();
+                                setIsLoading(true)
+                                setTimeout(()=>{
+                                    // setIsLoading(true)
+                                    setIsLoading(false)
+                                    navigation.pop();
+                                    navigation.replace("Login");
+                                    
+                                    
+                                },1000)
+
+                                // setTimeout(()=>{
+                                    
+                                   
+
+                                // },1100)
+
                             }
                         }
                         message={showPopmessage}

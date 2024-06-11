@@ -125,7 +125,7 @@ export default function Login({ navigation }) {
         //   console.log("notificationID state -->", notificationID);
           await AsyncStorage.setItem('notificationID',token);
 
-          console.log("Login Expo-device-id-->",await AsyncStorage.getItem('notificationID'));
+        //   console.log("Login Expo-device-id-->",await AsyncStorage.getItem('notificationID'));
 
         } else {
             token = generateUUID();
@@ -149,10 +149,10 @@ export default function Login({ navigation }) {
             }
             setIsLoading(true);
             
-            console.log("username",username)
-            console.log("password",password)
-            console.log("deviceID",deviceID)
-            console.log("app_token",App_Token)
+            // console.log("username",username)
+            // console.log("password",password)
+            // console.log("deviceID",deviceID)
+            // console.log("app_token",App_Token)
             
             // showToast("Request-->",JSON.stringify({
             //     username: username,
@@ -180,11 +180,11 @@ export default function Login({ navigation }) {
                 // console.log("response==>",response);
                 
                 if (response.ok) {
-                    console.log("expoID ==>",expoID)
+                    // console.log("expoID ==>",expoID)
                     setIsLoading(false);
                     const responseData = await response.json();
                     const { status, message, token } = responseData;
-                    console.log(responseData);
+                    // console.log(responseData);
                     if (status === "OK") {
                         await AsyncStorage.setItem('token', token);
                         await SecureStore.setItemAsync('authState', '2');
@@ -327,7 +327,10 @@ export default function Login({ navigation }) {
                         onClose={() => {
 
                                 setDeviceMismatchAlert(false)
-                                navigation.replace("SignUp")
+                                setTimeout(()=>{
+                                    navigation.replace("SignUp")
+                                },1000)
+                                
                             }
                         }
                         message={showPopmessage}

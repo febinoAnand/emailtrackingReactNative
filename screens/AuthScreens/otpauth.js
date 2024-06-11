@@ -122,7 +122,7 @@ export default function OTPpage({ navigation, route }) {
             const responseData = await response.json();
             const { status } = responseData;
 
-            console.log("otpauth-->",responseData);
+            // console.log("otpauth-->",responseData);
             
 
             if (status === "INVALID") {
