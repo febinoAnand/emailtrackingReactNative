@@ -338,10 +338,8 @@ const styles = StyleSheet.create({
         borderBottomWidth: 0
     },
     row: {
-        flex: 1,
         borderBottomWidth: 1,
         width: '100%',
-        height: 50,
         borderBottomColor: 'black'
     },
     dateButton: {

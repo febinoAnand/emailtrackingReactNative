@@ -208,7 +208,7 @@ export default function Dashboard() {
                                     }
                                 })}
                                 style={[styles.row, index === recentData.length - 1 && styles.lastRow]}
-                                // textStyle={styles.cellText}
+                                textStyle={styles.cellText}
                             />
                         ))}
                     </Table>

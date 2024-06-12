@@ -20,7 +20,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/ifm.png",
+        "foregroundImage": "./assets/androidifm.jpeg",
         "backgroundColor": "#ffffff"
       },
       "package": "com.richianand.EmailTracking",
