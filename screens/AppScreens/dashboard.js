@@ -11,30 +11,17 @@ export default function Dashboard() {
     const [tableHead, setTableHead] = useState([]);
     const [barChartData, setBarChartData] = useState([]);
 
-    const headersWithNoData = recentData.map(rowData => {
-        return tableHead.filter(header => {
-            if (header === 'Date' || header === 'Time') {
-                return false;
-            }
-            const headerData = rowData.required_json[header];
-            return headerData === undefined || headerData === '';
-        });
-    });
-    
-    const allHeadersWithNoData = headersWithNoData.every(headers => headers.length === tableHead.length - 2);    
-
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await fetch(BaseURL + "emailtracking/ticket/");
                 const result = await response.json();
-                const total = result.length;
-                setTotalTickets(total);
+                setTotalTickets(result.length);
+                setRecentData(result.slice(-10).reverse());
             } catch (error) {
                 console.error(error);
             }
         };
-
         fetchData();
     }, []);
 
@@ -43,13 +30,11 @@ export default function Dashboard() {
             try {
                 const response = await fetch(BaseURL + "emailtracking/inbox/");
                 const result = await response.json();
-                const totalNotifications = result.length;
-                setNotificationTickets(totalNotifications);
+                setNotificationTickets(result.length);
             } catch (error) {
                 console.error(error);
             }
         };
-
         fetchNotificationTickets();
     }, []);
 
@@ -67,30 +52,8 @@ export default function Dashboard() {
                 console.error('Error fetching table head:', error);
             }
         };
-
         fetchTableHead();
     }, []);
-
-    useEffect(() => {
-        const fetchRecentData = async () => {
-            try {
-                const response = await fetch(BaseURL + "emailtracking/ticket/");
-                const result = await response.json();
-                setRecentData(result.slice(0, 10));
-            } catch (error) {
-                console.error('Error fetching recent data:', error);
-            }
-        };
-
-        fetchRecentData();
-    }, []);
-
-    const formatCellContent = (content) => {
-        if (typeof content === 'object') {
-            return JSON.stringify(content);
-        }
-        return content;
-    };
 
     useEffect(() => {
         const fetchParameterData = async () => {
@@ -133,7 +96,6 @@ export default function Dashboard() {
                 console.error('Error fetching parameter data:', error);
             }
         };
-
         fetchParameterData();
     }, []);
 
@@ -191,10 +153,8 @@ export default function Dashboard() {
             <View style={styles.tableContainer}>
                 <ScrollView horizontal>
                     <Table>
-                    <Row data={tableHead} style={styles.head3} 
-                    textStyle={styles.text} 
-                    />
-                        {recentData.slice(0).reverse().map((rowData, index) => (
+                        <Row data={tableHead} style={styles.head3} textStyle={styles.text} />
+                        {recentData.map((rowData, index) => (
                             <Row
                                 key={index}
                                 data={tableHead.map(header => {
@@ -204,7 +164,7 @@ export default function Dashboard() {
                                         return rowData.time;
                                     } else {
                                         const headerData = rowData.required_json[header];
-                                        return allHeadersWithNoData ? '-' : (headerData || '');
+                                        return headerData !== undefined ? headerData : '-';
                                     }
                                 })}
                                 style={[styles.row, index === recentData.length - 1 && styles.lastRow]}
