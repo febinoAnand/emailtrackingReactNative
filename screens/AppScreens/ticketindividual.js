@@ -17,11 +17,11 @@ export default function TicketIndividual({ route, navigation }) {
 
     const formatRequiredJson = () => {
         let formattedData = [];
-        for (const key in item.required_json) {
+        for (const key in item.actual_json) {
             formattedData.push(
                 <View key={key} style={{ flexDirection: 'row', marginBottom: 10 }}>
                     <Text style={styles.inputHeader}>{key} :</Text>
-                    <Text style={styles.ticketDetailText}> {item.required_json[key]}</Text>
+                    <Text style={styles.ticketDetailText}> {item.actual_json[key]}</Text>
                 </View>
             );
         }

@@ -17,7 +17,12 @@ export default function Dashboard() {
                 const response = await fetch(BaseURL + "emailtracking/ticket/");
                 const result = await response.json();
                 setTotalTickets(result.length);
-                setRecentData(result.slice(-10).reverse());
+                const recentData = result.slice(-10).reverse();
+                setRecentData(recentData);
+                if (recentData.length > 0) {
+                    const headers = Object.keys(recentData[0].actual_json);
+                    setTableHead(['Date', 'Time', ...headers]);
+                }
             } catch (error) {
                 console.error(error);
             }
@@ -39,55 +44,33 @@ export default function Dashboard() {
     }, []);
 
     useEffect(() => {
-        const fetchTableHead = async () => {
-            try {
-                const response = await fetch(BaseURL + "emailtracking/parameter/");
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const result = await response.json();
-                const headers = result.map(item => item.field);
-                setTableHead(['Date', 'Time', ...headers]);
-            } catch (error) {
-                console.error('Error fetching table head:', error);
-            }
-        };
-        fetchTableHead();
-    }, []);
-
-    useEffect(() => {
         const fetchParameterData = async () => {
             try {
-                const response = await fetch(BaseURL + "emailtracking/parameter/");
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const result = await response.json();
-                const labels = result.map(item => item.field);
+                const departmentResponse = await fetch(BaseURL + "emailtracking/departments/");
+                const departmentResult = await departmentResponse.json();
                 const ticketResponse = await fetch(BaseURL + "emailtracking/ticket/");
-                if (!ticketResponse.ok) {
-                    throw new Error('Network response was not ok');
-                }
                 const ticketResult = await ticketResponse.json();
 
-                const fieldCounts = {};
+                const departmentCounts = departmentResult.reduce((acc, dept) => {
+                    acc[dept.department] = 0;
+                    return acc;
+                }, {});
+
                 ticketResult.forEach(ticket => {
-                    labels.forEach(label => {
-                        if (ticket.required_json[label]) {
-                            if (!fieldCounts[label]) {
-                                fieldCounts[label] = 0;
-                            }
-                            fieldCounts[label]++;
+                    departmentResult.forEach(dept => {
+                        if (ticket.actual_json.Topology && ticket.actual_json.Topology.includes(dept.department)) {
+                            departmentCounts[dept.department]++;
                         }
                     });
                 });
-                const maxValue = Math.max(...Object.values(fieldCounts));
 
-                const randomColors = Array.from({ length: labels.length }, () => '#' + (Math.random().toString(16) + '000000').slice(2, 8));
-                const barChartData = labels.map((label, index) => ({
-                    label,
-                    value: fieldCounts[label] || 0,
-                    scaledValue: (fieldCounts[label] || 0) * 100 / maxValue,
+                const maxValue = Math.max(...Object.values(departmentCounts));
+
+                const randomColors = Array.from({ length: departmentResult.length }, () => '#' + (Math.random().toString(16) + '000000').slice(2, 8));
+                const barChartData = Object.keys(departmentCounts).map((dept, index) => ({
+                    label: dept,
+                    value: departmentCounts[dept] || 0,
+                    scaledValue: (departmentCounts[dept] || 0) * 100 / maxValue,
                     color: randomColors[index]
                 }));
 
@@ -163,7 +146,7 @@ export default function Dashboard() {
                                     } else if (header === 'Time') {
                                         return rowData.time;
                                     } else {
-                                        const headerData = rowData.required_json[header];
+                                        const headerData = rowData.actual_json[header];
                                         return headerData !== undefined ? headerData : '-';
                                     }
                                 })}
@@ -257,7 +240,7 @@ const styles = StyleSheet.create({
         flex: 1,
         borderBottomWidth: 1,
         width: '100%',
-        height: 50,
+        height: 80,
         borderBottomColor: 'black'
     },
     pie: {

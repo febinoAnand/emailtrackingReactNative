@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Button, TextInput, Text, StyleSheet, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Button, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Table, Row } from 'react-native-table-component';
 import DatePicker from '@react-native-community/datetimepicker';
 import { BaseURL } from '../../config/appconfig';
-import { TouchableOpacity } from 'react-native';
 import { PermissionsAndroid } from 'react-native';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 
@@ -22,7 +20,7 @@ export default function Reports() {
 
     const fetchData = async () => {
         try {
-            const response = await fetch(BaseURL + "emailtracking/report/");
+            const response = await fetch(BaseURL + "emailtracking/reports/");
             if (!response.ok) {
                 throw new Error('Failed to fetch data');
             }
@@ -59,30 +57,21 @@ export default function Reports() {
             if (filteredData.length > 0) {
                 htmlContent += `<table border="1">
                                     <tr>
-                                        <th>Ticket Name</th>
                                         <th>Date</th>
                                         <th>Time</th>
-                                        <th>Rule</th>
+                                        <th>Department</th>
                                         <th>Message</th>
-                                        <th>Send To user</th>
-                                        <th>Operator</th>
-                                        <th>Value</th>
-                                        <th>Logical Operator</th>
-                                        <th>Actual Value</th>
+                                        <th>Send To User</th>
                                     </tr>`;
     
                 filteredData.forEach(rowData => {
+                    const users = rowData.send_to_user.map(user => user.email).join(', ');
                     htmlContent += `<tr>
-                                        <td>${rowData.ticket.ticketname}</td>
                                         <td>${rowData.date}</td>
                                         <td>${rowData.time}</td>
-                                        <td>${rowData.active_trigger.trigger_name}</td>
-                                        <td>${rowData.active_trigger.notification_message}</td>
-                                        <td>${rowData.active_trigger.user_to_send}</td>
-                                        <td>${rowData.active_trigger.parameter_filter_list && rowData.active_trigger.parameter_filter_list.length > 0 ? rowData.active_trigger.parameter_filter_list[0].operator : ''}</td>
-                                        <td>${rowData.active_trigger.parameter_filter_list && rowData.active_trigger.parameter_filter_list.length > 0 ? rowData.active_trigger.parameter_filter_list[0].value : ''}</td>
-                                        <td>${rowData.active_trigger.parameter_filter_list && rowData.active_trigger.parameter_filter_list.length > 0 ? rowData.active_trigger.parameter_filter_list[0].logical_operator : ''}</td>
-                                        <td>${rowData.actual_value}</td>
+                                        <td>${rowData.Department}</td>
+                                        <td>${rowData.message}</td>
+                                        <td>${users}</td>
                                     </tr>`;
                 });
     
@@ -160,24 +149,19 @@ export default function Reports() {
                 </View>
                 <View style={{ height: 20 }}></View>
                 <View style={styles.tableContainer}>
-                <ScrollView horizontal>
-                    <Table>
-                        <Row data={['Ticket Name', 'Date', 'Time', 'Rule', 'Message', 'Send To user' , 'Operator', 'Value', 'Logical Operator', 'Actual Value']} style={styles.head3} textStyle={styles.text} />
-                        {filteredData.length > 0 ? (
+                    <ScrollView horizontal>
+                        <Table>
+                            <Row data={['Date', 'Time', 'Department', 'Send To User', 'Message']} style={styles.head3} textStyle={styles.text} />
+                            {filteredData.length > 0 ? (
                                 filteredData.map((rowData, index) => (
                                     <Row
                                         key={index}
                                         data={[
-                                            rowData.ticket.ticketname,
                                             rowData.date,
                                             rowData.time,
-                                            rowData.active_trigger.trigger_name,
-                                            rowData.active_trigger.notification_message,
-                                            rowData.active_trigger.user_to_send,
-                                            rowData.active_trigger.parameter_filter_list && rowData.active_trigger.parameter_filter_list.length > 0 ? rowData.active_trigger.parameter_filter_list[0].operator : '',
-                                            rowData.active_trigger.parameter_filter_list && rowData.active_trigger.parameter_filter_list.length > 0 ? rowData.active_trigger.parameter_filter_list[0].value : '',
-                                            rowData.active_trigger.parameter_filter_list && rowData.active_trigger.parameter_filter_list.length > 0 ? rowData.active_trigger.parameter_filter_list[0].logical_operator : '',
-                                            rowData.actual_value,
+                                            rowData.Department,
+                                            rowData.send_to_user.map(user => user.email).join(', '),
+                                            rowData.message
                                         ]}
                                         style={[styles.row, index === filteredData.length - 1 && styles.lastRow]}
                                         textStyle={styles.cellText}
@@ -186,7 +170,7 @@ export default function Reports() {
                             ) : (
                                 <Text style={styles.noDataText}>       No data available                                                                                        No data availables</Text>
                             )}
-                    </Table>
+                        </Table>
                     </ScrollView>
                 </View>
                 <View style={{ height: 40 }}></View>
