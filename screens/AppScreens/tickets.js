@@ -36,11 +36,11 @@ export default function Ticket() {
     }; 
 
     const renderItem = ({ item }) => {
-        const requiredJsonCount = item.required_json ? Object.keys(item.required_json).length : 0;
+        const actualJsonCount = item.actual_json ? Object.keys(item.actual_json).length : 0;
         return (
             <TouchableOpacity style={styles.inputContainer} onPress={() => handleItemPress(item)}>
                 <View style={styles.circleAvatar}>
-                    <Text style={styles.avatarText}>{requiredJsonCount}</Text>
+                    <Text style={styles.avatarText}>{actualJsonCount}</Text>
                 </View>
                 <View style={styles.textContent}>
                     <Text style={styles.baseText}>{item.ticketname}</Text>
