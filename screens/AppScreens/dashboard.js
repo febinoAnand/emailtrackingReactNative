@@ -48,12 +48,14 @@ export default function Dashboard() {
             try {
                 const response = await fetch(BaseURL + "emailtracking/ticket/");
                 const result = await response.json();
+                result.sort((a, b) => {
+                    const dateA = new Date(`${a.date}T${a.time}`);
+                    const dateB = new Date(`${b.date}T${b.time}`);
+                    return dateB - dateA;
+                });
 
-                result.sort((a, b) => new Date(b.date) - new Date(a.date));
                 const recentEntries = result.slice(0, 10);
-    
                 setTicketData(recentEntries);
-    
                 if (recentEntries.length > 0) {
                     const headers = Object.keys(recentEntries[0].actual_json || {});
                     setTableHead(['Date', 'Time', ...headers]);
@@ -62,7 +64,6 @@ export default function Dashboard() {
                 console.error('Error fetching ticket data:', error);
             }
         };
-    
         fetchTicketData();
     }, []);
 

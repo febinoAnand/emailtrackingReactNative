@@ -52,8 +52,6 @@ export function TabGroup() {
         .catch(error => console.error('Error fetching ticket data:', error));
     };
     fetchData();
-    const intervalId = setInterval(fetchData, 5000);
-    return () => clearInterval(intervalId);
   }, []);
   
 
