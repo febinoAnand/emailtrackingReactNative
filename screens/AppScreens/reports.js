@@ -60,7 +60,6 @@ export default function Reports() {
                                         <th>Date</th>
                                         <th>Time</th>
                                         <th>Department</th>
-                                        <th>Message</th>
                                         <th>Send To User</th>
                                     </tr>`;
     
@@ -70,7 +69,6 @@ export default function Reports() {
                                         <td>${rowData.date}</td>
                                         <td>${rowData.time}</td>
                                         <td>${rowData.Department}</td>
-                                        <td>${rowData.message}</td>
                                         <td>${users}</td>
                                     </tr>`;
                 });
@@ -151,7 +149,7 @@ export default function Reports() {
                 <View style={styles.tableContainer}>
                     <ScrollView horizontal>
                         <Table>
-                            <Row data={['Date', 'Time', 'Department', 'Send To User', 'Message']} style={styles.head3} textStyle={styles.text} />
+                            <Row data={['Date', 'Time', 'Department', 'Send To User']} style={styles.head3} textStyle={styles.text} />
                             {filteredData.length > 0 ? (
                                 filteredData.map((rowData, index) => (
                                     <Row
@@ -161,7 +159,6 @@ export default function Reports() {
                                             rowData.time,
                                             rowData.Department,
                                             rowData.send_to_user.map(user => user.email).join(', '),
-                                            rowData.message
                                         ]}
                                         style={[styles.row, index === filteredData.length - 1 && styles.lastRow]}
                                         textStyle={styles.cellText}
@@ -363,8 +360,8 @@ const styles = StyleSheet.create({
     cellText: {
         flexWrap: 'wrap',
         left:15,
-        width: 50,
-        maxWidth: 50,
+        width: 90,
+        maxWidth: 90,
         textAlign: 'left'
     },
     downloadButton: {

@@ -7,66 +7,26 @@ import { BaseURL } from '../../config/appconfig';
 export default function Dashboard() {
     const [totalTickets, setTotalTickets] = useState(0);
     const [notificationTickets, setNotificationTickets] = useState(0);
-    const [recentData, setRecentData] = useState([]);
+    const [ticketData, setTicketData] = useState([]);
     const [tableHead, setTableHead] = useState([]);
     const [barChartData, setBarChartData] = useState([]);
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchDashboardData = async () => {
             try {
-                const response = await fetch(BaseURL + "emailtracking/ticket/");
+                const response = await fetch(BaseURL + "emailtracking/dashboard/");
                 const result = await response.json();
-                setTotalTickets(result.length);
-                const recentData = result.slice(-10).reverse();
-                setRecentData(recentData);
-                if (recentData.length > 0) {
-                    const headers = Object.keys(recentData[0].actual_json);
-                    setTableHead(['Date', 'Time', ...headers]);
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        };
-        fetchData();
-    }, []);
 
-    useEffect(() => {
-        const fetchNotificationTickets = async () => {
-            try {
-                const response = await fetch(BaseURL + "emailtracking/inbox/");
-                const result = await response.json();
-                setNotificationTickets(result.length);
-            } catch (error) {
-                console.error(error);
-            }
-        };
-        fetchNotificationTickets();
-    }, []);
+                setTotalTickets(result.total_tickets);
+                setNotificationTickets(result.total_inbox);
 
-    useEffect(() => {
-        const fetchParameterData = async () => {
-            try {
-                const departmentResponse = await fetch(BaseURL + "emailtracking/departments/");
-                const departmentResult = await departmentResponse.json();
-                const ticketResponse = await fetch(BaseURL + "emailtracking/ticket/");
-                const ticketResult = await ticketResponse.json();
-
-                const departmentCounts = departmentResult.reduce((acc, dept) => {
-                    acc[dept.department] = 0;
+                const departmentCounts = result.department_ticket_count.reduce((acc, dept) => {
+                    acc[dept.department_name] = dept.ticket_count;
                     return acc;
                 }, {});
 
-                ticketResult.forEach(ticket => {
-                    departmentResult.forEach(dept => {
-                        if (ticket.actual_json.Topology && ticket.actual_json.Topology.includes(dept.department)) {
-                            departmentCounts[dept.department]++;
-                        }
-                    });
-                });
-
                 const maxValue = Math.max(...Object.values(departmentCounts));
-
-                const randomColors = Array.from({ length: departmentResult.length }, () => '#' + (Math.random().toString(16) + '000000').slice(2, 8));
+                const randomColors = Array.from({ length: result.department_ticket_count.length }, () => '#' + (Math.random().toString(16) + '000000').slice(2, 8));
                 const barChartData = Object.keys(departmentCounts).map((dept, index) => ({
                     label: dept,
                     value: departmentCounts[dept] || 0,
@@ -76,10 +36,34 @@ export default function Dashboard() {
 
                 setBarChartData(barChartData);
             } catch (error) {
-                console.error('Error fetching parameter data:', error);
+                console.error('Error fetching dashboard data:', error);
             }
         };
-        fetchParameterData();
+
+        fetchDashboardData();
+    }, []);
+
+    useEffect(() => {
+        const fetchTicketData = async () => {
+            try {
+                const response = await fetch(BaseURL + "emailtracking/ticket/");
+                const result = await response.json();
+
+                result.sort((a, b) => new Date(b.date) - new Date(a.date));
+                const recentEntries = result.slice(0, 10);
+    
+                setTicketData(recentEntries);
+    
+                if (recentEntries.length > 0) {
+                    const headers = Object.keys(recentEntries[0].actual_json || {});
+                    setTableHead(['Date', 'Time', ...headers]);
+                }
+            } catch (error) {
+                console.error('Error fetching ticket data:', error);
+            }
+        };
+    
+        fetchTicketData();
     }, []);
 
     return (
@@ -110,7 +94,7 @@ export default function Dashboard() {
             <View style={{ height: 40 }} />
             <View style={styles.inputTitles}>
                 <View style={styles.heads}>
-                    <Text style={styles.topHeader}>Bar Chart</Text>
+                    <Text style={styles.topHeader}>Ticket Analysis</Text>
                 </View>
                 <View style={{ flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', width: '100%' }}>
                     {barChartData.map((data, index) => (
@@ -137,20 +121,15 @@ export default function Dashboard() {
                 <ScrollView horizontal>
                     <Table>
                         <Row data={tableHead} style={styles.head3} textStyle={styles.text} />
-                        {recentData.map((rowData, index) => (
+                        {ticketData.map((rowData, index) => (
                             <Row
                                 key={index}
-                                data={tableHead.map(header => {
-                                    if (header === 'Date') {
-                                        return rowData.date;
-                                    } else if (header === 'Time') {
-                                        return rowData.time;
-                                    } else {
-                                        const headerData = rowData.actual_json[header];
-                                        return headerData !== undefined ? headerData : '-';
-                                    }
-                                })}
-                                style={[styles.row, index === recentData.length - 1 && styles.lastRow]}
+                                data={[
+                                    rowData.date,
+                                    rowData.time,
+                                    ...(tableHead.slice(2).map(header => rowData.actual_json ? rowData.actual_json[header] || '-' : '-'))
+                                ]}
+                                style={[styles.row, index === ticketData.length - 1 && styles.lastRow]}
                                 textStyle={styles.cellText}
                             />
                         ))}
