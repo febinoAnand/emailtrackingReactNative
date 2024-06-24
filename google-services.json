@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:626470183984:android:1df58cf1f72d41ee2139f5",
+        "mobilesdk_app_id": "1:626470183984:android:f2d2ec6da6d300d72139f5",
         "android_client_info": {
-          "package_name": "com.richianand.EmailTracking"
+          "package_name": "com.ifm.emailtracker"
         }
       },
       "oauth_client": [],

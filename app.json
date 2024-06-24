@@ -16,14 +16,14 @@
         "usesNonExemptEncryption": false
       },
       "supportsTablet": true,
-      "bundleIdentifier": "com.richianand.EmailTracking"
+      "bundleIdentifier": "com.ifm.emailtracker"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/ifm.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.richianand.EmailTracking",
+      "package": "com.ifm.emailtracker",
       "googleServicesFile": "./google-services.json"
     },
     "web": {
