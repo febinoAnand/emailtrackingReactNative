@@ -77,7 +77,7 @@ export default function Dashboard() {
                     </View>
                     <View style={styles.inputRow}>
                         <View style={styles.inputContainer}>
-                            <Text style={{ fontSize: 60, textAlign: 'center' }}>{totalTickets}</Text>
+                            <Text style={{ fontSize: 50, textAlign: 'center' }}>{totalTickets}</Text>
                         </View>
                     </View>
                 </View>
@@ -87,7 +87,7 @@ export default function Dashboard() {
                     </View>
                     <View style={styles.inputRow}>
                         <View style={styles.inputContainer}>
-                            <Text style={{ fontSize: 60, textAlign: 'center' }}>{notificationTickets}</Text>
+                            <Text style={{ fontSize: 50, textAlign: 'center' }}>{notificationTickets}</Text>
                         </View>
                     </View>
                 </View>

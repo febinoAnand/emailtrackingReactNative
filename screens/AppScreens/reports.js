@@ -165,7 +165,7 @@ export default function Reports() {
                                     />
                                 ))
                             ) : (
-                                <Text style={styles.noDataText}>       No data available                                                                                        No data availables</Text>
+                                <Text style={styles.noDataText}>                                    No data available                           </Text>
                             )}
                         </Table>
                     </ScrollView>
@@ -320,6 +320,7 @@ const styles = StyleSheet.create({
     },
     row: {
         borderBottomWidth: 1,
+        height: 80,
         width: '100%',
         borderBottomColor: 'black'
     },
@@ -359,9 +360,9 @@ const styles = StyleSheet.create({
     },
     cellText: {
         flexWrap: 'wrap',
-        left:15,
-        width: 90,
-        maxWidth: 90,
+        left:5,
+        width: 100,
+        maxWidth: 100,
         textAlign: 'left'
     },
     downloadButton: {
