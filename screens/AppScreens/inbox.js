@@ -30,8 +30,8 @@ const Inbox = () => {
         <TouchableOpacity style={styles.inputContainer} onPress={() => handleItemClick(item)}>
             <CircleAvatar text={item.from_email} />
             <View style={styles.textContent}>
-            <Text style={styles.baseText}>{item.subject.length > 20 ? item.subject.substring(0, 20) + "..." : item.subject}</Text>
-            <Text style={styles.messagetext}>{item.message.length > 40 ? item.message.substring(0, 40) + "..." : item.message}</Text>
+            <Text style={styles.baseText}>{item.subject.length > 10 ? item.subject.substring(0, 10) + "..." : item.subject}</Text>
+            <Text style={styles.messagetext}>{item.message.length > 15 ? item.message.substring(0, 15) + "..." : item.message}</Text>
                 <Text style={styles.innerText}>{item.date}</Text>
                 <Text style={styles.innerText}>{item.time}</Text>
             </View>

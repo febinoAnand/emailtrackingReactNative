@@ -43,7 +43,7 @@ export default function Ticket() {
                     <Text style={styles.avatarText}>{actualJsonCount}</Text>
                 </View>
                 <View style={styles.textContent}>
-                    <Text style={styles.baseText}>{item.ticketname}</Text>
+                    <Text style={styles.baseText}>{item.ticketname.length > 30 ? item.ticketname.substring(0, 30) + "..." : item.ticketname}</Text>
                     <Text style={styles.innerText}>{item.date}</Text>
                     <Text style={styles.innerText}>{item.time}</Text>
                 </View>

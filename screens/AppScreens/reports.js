@@ -361,8 +361,8 @@ const styles = StyleSheet.create({
     cellText: {
         flexWrap: 'wrap',
         left:5,
-        width: 100,
-        maxWidth: 100,
+        width: 206,
+        maxWidth: 250,
         textAlign: 'left'
     },
     downloadButton: {

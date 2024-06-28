@@ -3,13 +3,15 @@ import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { Table, Row } from 'react-native-table-component';
 import Svg, { Rect } from 'react-native-svg';
 import { BaseURL } from '../../config/appconfig';
+import * as ScreenOrientation from 'expo-screen-orientation'; 
 
-export default function Dashboard() {
+const Dashboard = () => {
     const [totalTickets, setTotalTickets] = useState(0);
     const [notificationTickets, setNotificationTickets] = useState(0);
     const [ticketData, setTicketData] = useState([]);
     const [tableHead, setTableHead] = useState([]);
     const [barChartData, setBarChartData] = useState([]);
+    const [orientation, setOrientation] = useState(ScreenOrientation.Orientation.PORTRAIT_UP);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -56,6 +58,7 @@ export default function Dashboard() {
 
                 const recentEntries = result.slice(0, 10);
                 setTicketData(recentEntries);
+
                 if (recentEntries.length > 0) {
                     const headers = Object.keys(recentEntries[0].actual_json || {});
                     setTableHead(['Date', 'Time', ...headers]);
@@ -64,12 +67,31 @@ export default function Dashboard() {
                 console.error('Error fetching ticket data:', error);
             }
         };
+
         fetchTicketData();
     }, []);
 
+    useEffect(() => {
+        const lockOrientation = async () => {
+            await ScreenOrientation.lockAsync(orientation);
+        };
+
+        lockOrientation();
+
+        const orientationChangeListener = (event) => {
+            setOrientation(event.orientationLock);
+        };
+
+        ScreenOrientation.addOrientationChangeListener(orientationChangeListener);
+
+        return () => {
+            ScreenOrientation.removeOrientationChangeListener(orientationChangeListener);
+        };
+    }, [orientation]);
+
     return (
-        <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-            <View style={{ height: 40 }} />
+        <ScrollView contentContainerStyle={[styles.scrollViewContainer, orientation === ScreenOrientation.Orientation.PORTRAIT_UP ? styles.portraitContainer : styles.landscapeContainer]}>
+            <View style={{ height: 40 }} />  
             <View style={{ flexDirection: 'row', gap: 20 }}>
                 <View style={styles.inputTitle}>
                     <View style={styles.head}>
@@ -77,7 +99,7 @@ export default function Dashboard() {
                     </View>
                     <View style={styles.inputRow}>
                         <View style={styles.inputContainer}>
-                            <Text style={{ fontSize: 50, textAlign: 'center' }}>{totalTickets}</Text>
+                            <Text style={{ fontSize: orientation === ScreenOrientation.Orientation.PORTRAIT_UP ? 30 : 30, textAlign: 'center' }}>{totalTickets}</Text>
                         </View>
                     </View>
                 </View>
@@ -87,7 +109,7 @@ export default function Dashboard() {
                     </View>
                     <View style={styles.inputRow}>
                         <View style={styles.inputContainer}>
-                            <Text style={{ fontSize: 50, textAlign: 'center' }}>{notificationTickets}</Text>
+                            <Text style={{ fontSize: orientation === ScreenOrientation.Orientation.PORTRAIT_UP ? 30 : 30, textAlign: 'center' }}>{notificationTickets}</Text>
                         </View>
                     </View>
                 </View>
@@ -103,11 +125,11 @@ export default function Dashboard() {
                             <View style={{ width: 100, alignItems: 'flex-end', marginRight: 10 }}>
                                 <Text style={{ marginRight: 5 }}>{data.label}</Text>
                             </View>
-                            <Svg height="40" width={data.scaledValue + 20}>
+                            <Svg height="40" width={data.scaledValue ? data.scaledValue + 20 : 20}>
                                 <Rect
-                                    x="0"
+                                    x="0" 
                                     y="0"
-                                    width={data.scaledValue}
+                                    width={data.scaledValue || 0}
                                     height="30"
                                     fill={data.color}
                                 />
@@ -140,14 +162,19 @@ export default function Dashboard() {
             <View style={{ height: 40 }} />
         </ScrollView>
     );
-}
+};
 
 const styles = StyleSheet.create({
     scrollViewContainer: {
         flexGrow: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'ghostwhite'
+        backgroundColor: 'ghostwhite',
+    },
+    portraitContainer: {
+    },
+    landscapeContainer: {
+        flexDirection: 'row',
     },
     container: {
         flex: 1,
@@ -169,13 +196,6 @@ const styles = StyleSheet.create({
         flex: 1,
         marginRight: 20,
         marginLeft: 20
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: 'gray',
-        borderRadius: 3,
-        paddingHorizontal: 10,
-        paddingVertical: 1,
     },
     head: {
         backgroundColor: '#FF6E00',
@@ -319,8 +339,9 @@ const styles = StyleSheet.create({
     cellText: {
         flexWrap: 'wrap',
         left:15,
-        width: 50,
-        maxWidth: 50,
+        width: 100,
+        maxWidth: 200,
         textAlign: 'left'
     }
 });
+export default Dashboard;
