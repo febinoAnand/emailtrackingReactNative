@@ -5,6 +5,7 @@ import DatePicker from '@react-native-community/datetimepicker';
 import { BaseURL } from '../../config/appconfig';
 import { PermissionsAndroid } from 'react-native';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Reports() {
     const [searchText, setSearchText] = useState('');
@@ -13,14 +14,40 @@ export default function Reports() {
     const [toDate, setToDate] = useState(new Date());
     const [showFromDatePicker, setShowFromDatePicker] = useState(false);
     const [showToDatePicker, setShowToDatePicker] = useState(false);
+    const [token, setToken] = useState(null);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        getToken();
+    }, []);
 
     useEffect(() => {
         fetchData();
     }, [fromDate, toDate]);
 
+    const getToken = async () => {
+        try {
+            const storedToken = await AsyncStorage.getItem('token');
+            console.log(storedToken)
+            if (storedToken !== null) {
+                setToken(storedToken);
+                console.log('Retrieved token:', storedToken);
+            } else {
+                console.log('No token found in AsyncStorage');
+            }
+        } catch (error) {
+            console.error('Error retrieving token:', error);
+            setError('Error retrieving token');
+        }
+    };
+
     const fetchData = async () => {
         try {
-            const response = await fetch(BaseURL + "emailtracking/reports/");
+            const response = await fetch(BaseURL + "emailtracking/reports/", {
+                headers: {
+                    Authorization: `Token ${token}`
+                }
+            });
             if (!response.ok) {
                 throw new Error('Failed to fetch data');
             }
@@ -28,6 +55,7 @@ export default function Reports() {
             setTableData(data);
         } catch (error) {
             console.error('Error fetching data:', error);
+            setError('Error fetching data');
         }
     };
 

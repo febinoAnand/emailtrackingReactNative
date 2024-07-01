@@ -3,7 +3,8 @@ import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { Table, Row } from 'react-native-table-component';
 import Svg, { Rect } from 'react-native-svg';
 import { BaseURL } from '../../config/appconfig';
-import * as ScreenOrientation from 'expo-screen-orientation'; 
+import * as ScreenOrientation from 'expo-screen-orientation';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Dashboard = () => {
     const [totalTickets, setTotalTickets] = useState(0);
@@ -12,64 +13,109 @@ const Dashboard = () => {
     const [tableHead, setTableHead] = useState([]);
     const [barChartData, setBarChartData] = useState([]);
     const [orientation, setOrientation] = useState(ScreenOrientation.Orientation.PORTRAIT_UP);
+    const [token, setToken] = useState(null);
+
+    useEffect(() => {
+        const getToken = async () => {
+            try {
+                const storedToken = await AsyncStorage.getItem('token');
+                if (storedToken !== null) {
+                    setToken(storedToken);
+                    console.log('Retrieved token:', storedToken);
+                } else {
+                    console.log('No token found in AsyncStorage');
+                }
+            } catch (error) {
+                console.error('Error retrieving token:', error);
+            }
+        };
+
+        getToken();
+    }, []);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                const response = await fetch(BaseURL + "emailtracking/dashboard/");
-                const result = await response.json();
+                const response = await fetch(`${BaseURL}emailtracking/dashboard/`, {
+                    headers: {
+                        Authorization: `Token ${token}`
+                    }
+                });
 
-                setTotalTickets(result.total_tickets);
-                setNotificationTickets(result.total_inbox);
+                if (response.ok) {
+                    const result = await response.json();
 
-                const departmentCounts = result.department_ticket_count.reduce((acc, dept) => {
-                    acc[dept.department_name] = dept.ticket_count;
-                    return acc;
-                }, {});
+                    setTotalTickets(result.total_tickets);
+                    setNotificationTickets(result.total_inbox);
 
-                const maxValue = Math.max(...Object.values(departmentCounts));
-                const randomColors = Array.from({ length: result.department_ticket_count.length }, () => '#' + (Math.random().toString(16) + '000000').slice(2, 8));
-                const barChartData = Object.keys(departmentCounts).map((dept, index) => ({
-                    label: dept,
-                    value: departmentCounts[dept] || 0,
-                    scaledValue: (departmentCounts[dept] || 0) * 100 / maxValue,
-                    color: randomColors[index]
-                }));
+                    if (result.department_ticket_count) {
+                        const departmentCounts = result.department_ticket_count.reduce((acc, dept) => {
+                            acc[dept.department_name] = dept.ticket_count;
+                            return acc;
+                        }, {});
 
-                setBarChartData(barChartData);
+                        const maxValue = Math.max(...Object.values(departmentCounts));
+                        const randomColors = Array.from({ length: result.department_ticket_count.length }, () => '#' + (Math.random().toString(16) + '000000').slice(2, 8));
+                        const barChartData = Object.keys(departmentCounts).map((dept, index) => ({
+                            label: dept,
+                            value: departmentCounts[dept] || 0,
+                            scaledValue: (departmentCounts[dept] || 0) * 100 / maxValue,
+                            color: randomColors[index]
+                        }));
+
+                        setBarChartData(barChartData);
+                    } else {
+                        console.error('Error: department_ticket_count is undefined');
+                    }
+                } else {
+                    console.error('Error fetching dashboard data:', response.statusText);
+                }
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
             }
         };
 
-        fetchDashboardData();
-    }, []);
+        if (token) {
+            fetchDashboardData();
+        }
+    }, [token]);
 
     useEffect(() => {
         const fetchTicketData = async () => {
             try {
-                const response = await fetch(BaseURL + "emailtracking/ticket/");
-                const result = await response.json();
-                result.sort((a, b) => {
-                    const dateA = new Date(`${a.date}T${a.time}`);
-                    const dateB = new Date(`${b.date}T${b.time}`);
-                    return dateB - dateA;
+                const response = await fetch(`${BaseURL}emailtracking/ticket/`, {
+                    headers: {
+                        Authorization: `Token ${token}`
+                    }
                 });
 
-                const recentEntries = result.slice(0, 10);
-                setTicketData(recentEntries);
+                if (response.ok) {
+                    const result = await response.json();
+                    result.sort((a, b) => {
+                        const dateA = new Date(`${a.date}T${a.time}`);
+                        const dateB = new Date(`${b.date}T${b.time}`);
+                        return dateB - dateA;
+                    });
 
-                if (recentEntries.length > 0) {
-                    const headers = Object.keys(recentEntries[0].actual_json || {});
-                    setTableHead(['Date', 'Time', ...headers]);
+                    const recentEntries = result.slice(0, 10);
+                    setTicketData(recentEntries);
+
+                    if (recentEntries.length > 0) {
+                        const headers = Object.keys(recentEntries[0].actual_json || {});
+                        setTableHead(['Date', 'Time', ...headers]);
+                    }
+                } else {
+                    console.error('Error fetching ticket data:', response.statusText);
                 }
             } catch (error) {
                 console.error('Error fetching ticket data:', error);
             }
         };
 
-        fetchTicketData();
-    }, []);
+        if (token) {
+            fetchTicketData();
+        }
+    }, [token]);
 
     useEffect(() => {
         const lockOrientation = async () => {
@@ -91,7 +137,7 @@ const Dashboard = () => {
 
     return (
         <ScrollView contentContainerStyle={[styles.scrollViewContainer, orientation === ScreenOrientation.Orientation.PORTRAIT_UP ? styles.portraitContainer : styles.landscapeContainer]}>
-            <View style={{ height: 40 }} />  
+            <View style={{ height: 40 }} />
             <View style={{ flexDirection: 'row', gap: 20 }}>
                 <View style={styles.inputTitle}>
                     <View style={styles.head}>
@@ -99,7 +145,7 @@ const Dashboard = () => {
                     </View>
                     <View style={styles.inputRow}>
                         <View style={styles.inputContainer}>
-                            <Text style={{ fontSize: orientation === ScreenOrientation.Orientation.PORTRAIT_UP ? 30 : 30, textAlign: 'center' }}>{totalTickets}</Text>
+                            <Text style={{ fontSize: 30, textAlign: 'center' }}>{totalTickets}</Text>
                         </View>
                     </View>
                 </View>
@@ -109,7 +155,7 @@ const Dashboard = () => {
                     </View>
                     <View style={styles.inputRow}>
                         <View style={styles.inputContainer}>
-                            <Text style={{ fontSize: orientation === ScreenOrientation.Orientation.PORTRAIT_UP ? 30 : 30, textAlign: 'center' }}>{notificationTickets}</Text>
+                            <Text style={{ fontSize: 30, textAlign: 'center' }}>{notificationTickets}</Text>
                         </View>
                     </View>
                 </View>
@@ -127,7 +173,7 @@ const Dashboard = () => {
                             </View>
                             <Svg height="40" width={data.scaledValue ? data.scaledValue + 20 : 20}>
                                 <Rect
-                                    x="0" 
+                                    x="0"
                                     y="0"
                                     width={data.scaledValue || 0}
                                     height="30"

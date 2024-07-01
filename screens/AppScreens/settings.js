@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, TextInput, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, Button, TextInput, StyleSheet, ScrollView } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { App_Token, BaseURL } from '../../config/appconfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -10,7 +10,7 @@ export default function Settings({ navigation }) {
     const [showValidAlert, setShowValidAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [isConnected, setIsConnected] = useState(true);
-    const [deviceID,setDeviceID] = useState('');
+    const [deviceID, setDeviceID] = useState('');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [designation, setDesignation] = useState('');
@@ -58,7 +58,7 @@ export default function Settings({ navigation }) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `${token}`,
+                    'Authorization': `Token ${token}`,
                 },
                 body: JSON.stringify({
                     device_id: deviceID,

@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Inbox from '../screens/AppScreens/inbox';
 import InboxIndividual from '../screens/AppScreens/individualInbox';
@@ -20,8 +21,8 @@ const TicketStack = createStackNavigator();
 function InboxStackScreen() {
   return (
     <InboxStack.Navigator>
-      <InboxStack.Screen name="Inbox" component={Inbox} options={{headerShown: false}} />
-      <InboxStack.Screen name="InboxIndividual" component={InboxIndividual} />
+      <InboxStack.Screen name="Inbox" component={Inbox} options={{ headerShown: false }} />
+      <InboxStack.Screen name="InboxIndividual" component={InboxIndividual} options={{ headerShown: false }} />
     </InboxStack.Navigator>
   );
 }
@@ -29,8 +30,8 @@ function InboxStackScreen() {
 function TicketStackScreen() {
   return (
     <TicketStack.Navigator>
-      <TicketStack.Screen name="Ticket" component={Ticket} options={{headerShown: false}} />
-      <TicketStack.Screen name="TicketIndividual" component={TicketIndividual} />
+      <TicketStack.Screen name="Ticket" component={Ticket} options={{ headerShown: false }} />
+      <TicketStack.Screen name="TicketIndividual" component={TicketIndividual} options={{ headerShown: false }} />
     </TicketStack.Navigator>
   );
 }
@@ -38,22 +39,50 @@ function TicketStackScreen() {
 export function TabGroup() {
   const [inboxData, setInboxData] = useState([]);
   const [ticketData, setticketData] = useState([]);
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
-    const fetchData = () => {
-      fetch(BaseURL + "emailtracking/inbox/")
-        .then(response => response.json())
-        .then(data => setInboxData(data))
-        .catch(error => console.error('Error fetching inbox data:', error));
-  
-      fetch(BaseURL + "emailtracking/ticket/")
-        .then(response => response.json())
-        .then(data => setticketData(data))
-        .catch(error => console.error('Error fetching ticket data:', error));
+    const getToken = async () => {
+      try {
+        const storedToken = await AsyncStorage.getItem('token');
+        if (storedToken !== null) {
+          setToken(storedToken);
+        }
+      } catch (error) {
+        console.error('Error retrieving token:', error);
+      }
     };
-    fetchData();
+
+    getToken();
   }, []);
-  
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const inboxResponse = await fetch(BaseURL + "emailtracking/inbox/", {
+          headers: {
+            Authorization: `Token ${token}`
+          }
+        });
+        const inboxData = await inboxResponse.json();
+        setInboxData(inboxData);
+
+        const ticketResponse = await fetch(BaseURL + "emailtracking/ticket/", {
+          headers: {
+            Authorization: `Token ${token}`
+          }
+        });
+        const ticketData = await ticketResponse.json();
+        setticketData(ticketData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    if (token) {
+      fetchData();
+    }
+  }, [token]);
 
   return (
     <BottomTab.Navigator
@@ -85,11 +114,11 @@ export function TabGroup() {
     >
       <BottomTab.Screen name='Dashboard' component={Dashboard} />
       <BottomTab.Screen name='Inbox' component={InboxStackScreen} options={{
-          tabBarBadge: inboxData.length > 0 ? inboxData.length : null,
-        }}/>
+        tabBarBadge: inboxData.length > 0 ? inboxData.length : null,
+      }} />
       <BottomTab.Screen name='Ticket' component={TicketStackScreen} options={{
-          tabBarBadge: ticketData.length > 0 ? ticketData.length : null,
-        }}/>
+        tabBarBadge: ticketData.length > 0 ? ticketData.length : null,
+      }} />
       <BottomTab.Screen name='Report' component={Report} />
       <BottomTab.Screen name='Settings' component={Settings} />
     </BottomTab.Navigator>
@@ -99,7 +128,7 @@ export function TabGroup() {
 export default function TabNavigation() {
   return (
     <NavigationContainer>
-      <TabGroup  />
+      <TabGroup />
     </NavigationContainer>
   );
 }

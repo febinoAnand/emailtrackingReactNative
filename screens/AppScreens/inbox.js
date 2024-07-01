@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import NetInfo from '@react-native-community/netinfo';
 import { BaseURL } from '../../config/appconfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CircleAvatar = ({ text }) => {
     let firstLetter = text.charAt(0).toUpperCase()
@@ -22,49 +23,65 @@ const Inbox = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const navigation = useNavigation();
 
+    const fetchData = async () => {
+        const token = await AsyncStorage.getItem('token');
+        if (!token) {
+            Alert.alert('Token not found', 'Please log in again.');
+            return;
+        }
+
+        const state = await NetInfo.fetch();
+        if (state.isConnected) {
+            try {
+                const response = await fetch(BaseURL + "emailtracking/inbox/", {
+                    headers: {
+                        'Authorization': `Token ${token}`
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                const result = await response.json();
+                setData(result);
+            } catch (error) {
+                Alert.alert("Error", "Failed to fetch data from server");
+            }
+        } else {
+            Alert.alert("No Internet Connection", "Please check your internet connection and try again.");
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+        const intervalId = setInterval(fetchData, 3000);
+
+        return () => clearInterval(intervalId);
+    }, []);
+
     const handleItemClick = (item) => {
-        navigation.navigate('InboxIndividual', { item, navigation });
-    };        
+        navigation.navigate('InboxIndividual', { item });
+    };
 
     const renderItem = ({ item }) => (
         <TouchableOpacity style={styles.inputContainer} onPress={() => handleItemClick(item)}>
             <CircleAvatar text={item.from_email} />
             <View style={styles.textContent}>
-            <Text style={styles.baseText}>{item.subject.length > 10 ? item.subject.substring(0, 10) + "..." : item.subject}</Text>
-            <Text style={styles.messagetext}>{item.message.length > 15 ? item.message.substring(0, 15) + "..." : item.message}</Text>
+                <Text style={styles.baseText}>{item.subject.length > 10 ? item.subject.substring(0, 10) + "..." : item.subject}</Text>
+                <Text style={styles.messagetext}>{item.message.length > 15 ? item.message.substring(0, 15) + "..." : item.message}</Text>
                 <Text style={styles.innerText}>{item.date}</Text>
                 <Text style={styles.innerText}>{item.time}</Text>
             </View>
         </TouchableOpacity>
     );
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const state = await NetInfo.fetch();
-            if (state.isConnected) {
-                try {
-                    const response = await fetch(BaseURL+ "emailtracking/inbox/");
-                    const result = await response.json();
-                    setData(result);
-                } catch (error) {
-                    Alert.alert("Error", "Failed to fetch data from server");
-                }
-            } else {
-                Alert.alert("No Internet Connection", "Please check your internet connection and try again.");
-            }
-        };
-
-        fetchData();
-    }, []);
-
-    const filteredData = data.filter(item => {
-        return item.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                item.date.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                item.time.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                item.from_email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                item.to_email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-               item.message.toLowerCase().includes(searchQuery.toLowerCase());
-    });
+    const filteredData = data.filter(item => (
+        item.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.date.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.time.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.from_email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.to_email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.message.toLowerCase().includes(searchQuery.toLowerCase())
+    ));
 
     return (
         <View style={styles.container}>

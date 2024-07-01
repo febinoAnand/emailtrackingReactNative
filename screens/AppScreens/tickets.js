@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, Alert } 
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import NetInfo from '@react-native-community/netinfo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BaseURL } from '../../config/appconfig';
 
 export default function Ticket() {
@@ -10,13 +11,20 @@ export default function Ticket() {
     const [searchText, setSearchText] = useState('');
     const [data, setData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
+    const [token, setToken] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
             const state = await NetInfo.fetch();
             if (state.isConnected) {
                 try {
-                    const response = await fetch(BaseURL + "emailtracking/ticket/");
+                    const token = await AsyncStorage.getItem('token');
+                    setToken(token);
+                    const response = await fetch(BaseURL + "emailtracking/ticket/", {
+                        headers: {
+                            'Authorization': `Token ${token}`
+                        }
+                    });
                     const result = await response.json();
                     setData(result);
                     setFilteredData(result);
@@ -33,7 +41,7 @@ export default function Ticket() {
 
     const handleItemPress = (item) => {
         navigation.navigate('TicketIndividual', { item, navigation });
-    }; 
+    };
 
     const renderItem = ({ item }) => {
         const actualJsonCount = item.actual_json ? Object.keys(item.actual_json).length : 0;
@@ -43,14 +51,14 @@ export default function Ticket() {
                     <Text style={styles.avatarText}>{actualJsonCount}</Text>
                 </View>
                 <View style={styles.textContent}>
-                    <Text style={styles.baseText}>{item.ticketname.length > 30 ? item.ticketname.substring(0, 30) + "..." : item.ticketname}</Text>
+                    <Text style={styles.baseText}>{item.ticketname.length > 15 ? item.ticketname.substring(0, 15) + "..." : item.ticketname}</Text>
                     <Text style={styles.innerText}>{item.date}</Text>
                     <Text style={styles.innerText}>{item.time}</Text>
                 </View>
                 <View style={{ position: 'absolute', top: '50%', right: 10, backgroundColor: 'green', width: 10, height: 10, borderRadius: 5 }}></View>
             </TouchableOpacity>
         );
-    };    
+    };
 
     const handleSearch = (text) => {
         setSearchText(text);

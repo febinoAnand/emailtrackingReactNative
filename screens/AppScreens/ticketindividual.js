@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet, ScrollView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 export default function TicketIndividual({ route, navigation }) {
@@ -29,7 +29,7 @@ export default function TicketIndividual({ route, navigation }) {
     };
 
     return (
-        <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollViewContainer}>
             <View style={{ height: 40 }}></View>
             <View style={styles.spacer}></View>
             <View style={styles.inputTitle}>
@@ -70,11 +70,17 @@ export default function TicketIndividual({ route, navigation }) {
                 </View>
                 {formatRequiredJson()}
             </View>
-        </View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
+    scrollViewContainer: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'ghostwhite'
+    },
     container: {
         flex: 1,
         alignItems: "center",
