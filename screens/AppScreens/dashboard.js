@@ -128,10 +128,10 @@ const Dashboard = () => {
             setOrientation(event.orientationLock);
         };
 
-        ScreenOrientation.addOrientationChangeListener(orientationChangeListener);
+        const subscription = ScreenOrientation.addOrientationChangeListener(orientationChangeListener);
 
         return () => {
-            ScreenOrientation.removeOrientationChangeListener(orientationChangeListener);
+            ScreenOrientation.removeOrientationChangeListener(subscription);
         };
     }, [orientation]);
 
