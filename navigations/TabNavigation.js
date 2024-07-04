@@ -81,6 +81,8 @@ export function TabGroup() {
 
     if (token) {
       fetchData();
+      const interval = setInterval(fetchData, 3000);
+      return () => clearInterval(interval);
     }
   }, [token]);
 

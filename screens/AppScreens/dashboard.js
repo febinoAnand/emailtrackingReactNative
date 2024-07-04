@@ -41,19 +41,19 @@ const Dashboard = () => {
                         Authorization: `Token ${token}`
                     }
                 });
-
+    
                 if (response.ok) {
                     const result = await response.json();
-
+    
                     setTotalTickets(result.total_tickets);
                     setNotificationTickets(result.total_inbox);
-
+    
                     if (result.department_ticket_count) {
                         const departmentCounts = result.department_ticket_count.reduce((acc, dept) => {
                             acc[dept.department_name] = dept.ticket_count;
                             return acc;
                         }, {});
-
+    
                         const maxValue = Math.max(...Object.values(departmentCounts));
                         const randomColors = Array.from({ length: result.department_ticket_count.length }, () => '#' + (Math.random().toString(16) + '000000').slice(2, 8));
                         const barChartData = Object.keys(departmentCounts).map((dept, index) => ({
@@ -62,7 +62,7 @@ const Dashboard = () => {
                             scaledValue: (departmentCounts[dept] || 0) * 100 / maxValue,
                             color: randomColors[index]
                         }));
-
+    
                         setBarChartData(barChartData);
                     } else {
                         console.error('Error: department_ticket_count is undefined');
@@ -74,13 +74,7 @@ const Dashboard = () => {
                 console.error('Error fetching dashboard data:', error);
             }
         };
-
-        if (token) {
-            fetchDashboardData();
-        }
-    }, [token]);
-
-    useEffect(() => {
+    
         const fetchTicketData = async () => {
             try {
                 const response = await fetch(`${BaseURL}emailtracking/ticket/`, {
@@ -88,7 +82,7 @@ const Dashboard = () => {
                         Authorization: `Token ${token}`
                     }
                 });
-
+    
                 if (response.ok) {
                     const result = await response.json();
                     result.sort((a, b) => {
@@ -96,10 +90,10 @@ const Dashboard = () => {
                         const dateB = new Date(`${b.date}T${b.time}`);
                         return dateB - dateA;
                     });
-
+    
                     const recentEntries = result.slice(0, 10);
                     setTicketData(recentEntries);
-
+    
                     if (recentEntries.length > 0) {
                         const headers = Object.keys(recentEntries[0].actual_json || {});
                         setTableHead(['Date', 'Time', ...headers]);
@@ -113,9 +107,16 @@ const Dashboard = () => {
         };
 
         if (token) {
+            fetchDashboardData();
             fetchTicketData();
+            const intervalId = setInterval(() => {
+                fetchDashboardData();
+                fetchTicketData();
+            }, 3000);
+    
+            return () => clearInterval(intervalId);
         }
-    }, [token]);
+    }, [token]);    
 
     useEffect(() => {
         const lockOrientation = async () => {
