@@ -11,12 +11,9 @@ import Signup from '../screens/AuthScreens/signup';
 import Login from '../screens/AuthScreens/login';
 import OTPAuth from '../screens/AuthScreens/otpauth';
 import Registration from '../screens/AuthScreens/registration';
-import AuthScreenHome from '../screens/AuthScreens/authHome';
 import Splash from '../screens/AuthScreens/splash';
-import Checkscreen from '../screens/AuthScreens/checkingscreen';
 
 import { TabGroup } from './TabNavigation';
-import Checksecure from '../screens/AuthScreens/checkingsecure';
 import NavigationwithPOPUP from '../screens/TestScreens/navigationtestwitpopup';
 import FetchDataFromURL from '../screens/TestScreens/fetchdatafromurl';
 const Stack = createNativeStackNavigator();
