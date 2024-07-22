@@ -2,7 +2,7 @@
   "expo": {
     "name": "EmailTracking",
     "slug": "EmailTracking",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -16,14 +16,15 @@
         "usesNonExemptEncryption": false
       },
       "supportsTablet": true,
-      "bundleIdentifier": "com.richianand.EmailTracking"
+      "bundleIdentifier": "com.ifm.emailtracker"
     },
     "android": {
+      "versionCode":"2",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.richianand.EmailTracking",
+      "package": "com.ifm.emailtracker",
       "googleServicesFile": "./google-services.json"
     },
     "web": {

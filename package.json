@@ -46,7 +46,8 @@
     "react-native-svg": "15.2.0",
     "react-native-tab-view": "^3.5.2",
     "react-native-table-component": "^1.2.2",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "expo-dev-client": "~4.0.20"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
