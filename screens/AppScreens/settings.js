@@ -69,8 +69,6 @@ export default function Settings({ navigation }) {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.log('Error data:', errorData);
-                setShowValidAlert(true);
-                setAlertMessage(errorData.error || 'Failed to revoke token');
             }
     
             await SecureStore.setItemAsync('authState', '1');
@@ -81,8 +79,6 @@ export default function Settings({ navigation }) {
             navigation.replace("Login");
         } catch (error) {
             console.error('Logout error:', error);
-            setShowValidAlert(true);
-            setAlertMessage(error.message || 'Failed to logout');
             navigation.replace("Login");
         }
     };

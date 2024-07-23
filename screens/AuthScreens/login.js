@@ -68,7 +68,11 @@ export default function Login({ navigation }) {
         setDeviceID(await SecureStore.getItemAsync("deviceID"))
         setExpoID(await AsyncStorage.getItem("applicationID"))
 
-        setUsername(emailID);
+        if (!emailID) {
+            navigation.replace("SignUp");
+        } else {
+            setUsername(emailID);
+        }
     }
 
     

@@ -139,6 +139,7 @@ export default function Signup({ navigation }) {
             await AsyncStorage.setItem('emailID', 'demo@ifm.com');
             await AsyncStorage.setItem('mobileNo', '9876543210');
             await AsyncStorage.setItem('name', 'demo')
+            await AsyncStorage.setItem('designation', 'demo')
             navigation.navigate('Login');
         } catch (error) {
             console.error('Error storing data or navigating:', error);
