@@ -6,12 +6,18 @@ import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BaseURL } from '../../config/appconfig';
 
+const defaultData = [
+    { id: 1, ticketname: 'Default Ticket 1', date: '2024-07-01', time: '10:00 AM', actual_json: {} },
+    { id: 2, ticketname: 'Default Ticket 2', date: '2024-07-02', time: '11:00 AM', actual_json: {} },
+];
+
 export default function Ticket() {
     const navigation = useNavigation();
     const [searchText, setSearchText] = useState('');
     const [data, setData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [token, setToken] = useState('');
+    const [username, setUsername] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -20,14 +26,22 @@ export default function Ticket() {
                 try {
                     const token = await AsyncStorage.getItem('token');
                     setToken(token);
-                    const response = await fetch(BaseURL + "emailtracking/ticket/", {
-                        headers: {
-                            'Authorization': `Token ${token}`
-                        }
-                    });
-                    const result = await response.json();
-                    setData(result);
-                    setFilteredData(result);
+                    const storedUsername = await AsyncStorage.getItem('emailID');
+                    setUsername(storedUsername);
+
+                    if (storedUsername === 'demo@ifm.com') {
+                        setData(defaultData);
+                        setFilteredData(defaultData);
+                    } else {
+                        const response = await fetch(BaseURL + "emailtracking/ticket/", {
+                            headers: {
+                                'Authorization': `Token ${token}`
+                            }
+                        });
+                        const result = await response.json();
+                        setData(result);
+                        setFilteredData(result);
+                    }
                 } catch (error) {
                     Alert.alert("Error", "Failed to fetch data from server");
                 }

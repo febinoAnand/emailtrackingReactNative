@@ -40,50 +40,60 @@ export function TabGroup() {
   const [inboxData, setInboxData] = useState([]);
   const [ticketData, setticketData] = useState([]);
   const [token, setToken] = useState(null);
+  const [username, setUsername] = useState('');
+  const [isDemoUser, setIsDemoUser] = useState(false);
 
   useEffect(() => {
-    const getToken = async () => {
+    const getTokenAndUser = async () => {
       try {
         const storedToken = await AsyncStorage.getItem('token');
+        const storedUsername = await AsyncStorage.getItem('emailID');
         if (storedToken !== null) {
           setToken(storedToken);
         }
+
+        if (storedUsername === 'demo@ifm.com') {
+          setIsDemoUser(true);
+        } else {
+          setIsDemoUser(false);
+        }
+        setUsername(storedUsername || '');
       } catch (error) {
-        console.error('Error retrieving token:', error);
+        console.error('Error retrieving data:', error);
       }
     };
 
-    getToken();
+    getTokenAndUser();
   }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const inboxResponse = await fetch(BaseURL + "emailtracking/inbox/", {
-          headers: {
-            Authorization: `Token ${token}`
-          }
-        });
-        const inboxData = await inboxResponse.json();
-        setInboxData(inboxData);
+        if (token) {
+          const inboxResponse = await fetch(BaseURL + "emailtracking/inbox/", {
+            headers: {
+              Authorization: `Token ${token}`
+            }
+          });
+          const inboxData = await inboxResponse.json();
+          setInboxData(inboxData);
 
-        const ticketResponse = await fetch(BaseURL + "emailtracking/ticket/", {
-          headers: {
-            Authorization: `Token ${token}`
-          }
-        });
-        const ticketData = await ticketResponse.json();
-        setticketData(ticketData);
+          const ticketResponse = await fetch(BaseURL + "emailtracking/ticket/", {
+            headers: {
+              Authorization: `Token ${token}`
+            }
+          });
+          const ticketData = await ticketResponse.json();
+          setticketData(ticketData);
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
 
-    if (token) {
-      fetchData();
-      const interval = setInterval(fetchData, 3000);
-      return () => clearInterval(interval);
-    }
+    fetchData();
+    const interval = setInterval(fetchData, 3000);
+    return () => clearInterval(interval);
   }, [token]);
 
   return (
@@ -115,12 +125,20 @@ export function TabGroup() {
       }}
     >
       <BottomTab.Screen name='Dashboard' component={Dashboard} />
-      <BottomTab.Screen name='Inbox' component={InboxStackScreen} options={{
-        tabBarBadge: inboxData.length > 0 ? inboxData.length : null,
-      }} />
-      <BottomTab.Screen name='Ticket' component={TicketStackScreen} options={{
-        tabBarBadge: ticketData.length > 0 ? ticketData.length : null,
-      }} />
+      <BottomTab.Screen 
+        name='Inbox' 
+        component={InboxStackScreen} 
+        options={{
+          tabBarBadge: isDemoUser ? 2 : (inboxData.length > 0 ? inboxData.length : null),
+        }} 
+      />
+      <BottomTab.Screen 
+        name='Ticket' 
+        component={TicketStackScreen} 
+        options={{
+          tabBarBadge: isDemoUser ? 2 : (ticketData.length > 0 ? ticketData.length : null),
+        }} 
+      />
       <BottomTab.Screen name='Report' component={Report} />
       <BottomTab.Screen name='Settings' component={Settings} />
     </BottomTab.Navigator>

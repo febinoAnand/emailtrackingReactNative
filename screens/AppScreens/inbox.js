@@ -7,7 +7,7 @@ import { BaseURL } from '../../config/appconfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CircleAvatar = ({ text }) => {
-    let firstLetter = text.charAt(0).toUpperCase()
+    let firstLetter = text.charAt(0).toUpperCase();
     if (!firstLetter.match(/[a-zA-Z]/)) {
         firstLetter = text.charAt(1);
     }
@@ -21,7 +21,54 @@ const CircleAvatar = ({ text }) => {
 const Inbox = () => {
     const [data, setData] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [username, setUsername] = useState(null);
     const navigation = useNavigation();
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const storedUsername = await AsyncStorage.getItem('emailID');
+                if (storedUsername !== null) {
+                    setUsername(storedUsername);
+                    if (storedUsername === 'demo@ifm.com') {
+                        fetchDefaultData();
+                    } else {
+                        fetchData();
+                        const intervalId = setInterval(fetchData, 3000);
+                        return () => clearInterval(intervalId);
+                    }
+                } else {
+                    console.log('No username found in AsyncStorage');
+                }
+            } catch (error) {
+                console.error('Error retrieving username:', error);
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
+    const fetchDefaultData = () => {
+        const defaultData = [
+            {
+                id: '1',
+                from_email: 'demo@ifm.com',
+                subject: 'Default Subject 1',
+                message: 'This is a default message 1.',
+                date: '2024-07-01',
+                time: '10:00'
+            },
+            {
+                id: '2',
+                from_email: 'demo@ifm.com',
+                subject: 'Default Subject 2',
+                message: 'This is a default message 2.',
+                date: '2024-07-02',
+                time: '11:00'
+            }
+        ];
+        setData(defaultData);
+    };
 
     const fetchData = async () => {
         const token = await AsyncStorage.getItem('token');
@@ -50,13 +97,6 @@ const Inbox = () => {
             Alert.alert("No Internet Connection", "Please check your internet connection and try again.");
         }
     };
-
-    useEffect(() => {
-        fetchData();
-        const intervalId = setInterval(fetchData, 3000);
-
-        return () => clearInterval(intervalId);
-    }, []);
 
     const handleItemClick = (item) => {
         navigation.navigate('InboxIndividual', { item });
@@ -103,7 +143,7 @@ const Inbox = () => {
             />
         </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {

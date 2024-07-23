@@ -133,6 +133,18 @@ export default function Signup({ navigation }) {
 
     }
 
+    const navigateToLogin = async () => {
+        try {
+            await SecureStore.setItemAsync('deviceID', '14844490-da5d-4c67-9f4d-3dd4b0cb2294');
+            await AsyncStorage.setItem('emailID', 'demo@ifm.com');
+            await AsyncStorage.setItem('mobileNo', '9876543210');
+            await AsyncStorage.setItem('name', 'demo')
+            navigation.navigate('Login');
+        } catch (error) {
+            console.error('Error storing data or navigating:', error);
+        }
+    };
+
     const navigateToOTP = async () => {
         let i = 0;
         // showToast("Navigate OTP",i++);
@@ -319,6 +331,11 @@ export default function Signup({ navigation }) {
                             onChangeText={setMobileNumber}
                         />
                     </View>
+                    <View style={styles.navigationLinkContainer}>
+                        <TouchableOpacity onPress={navigateToLogin}>
+                            <Text style={styles.navigationLink}>Login Demo User</Text>
+                        </TouchableOpacity>
+                    </View>
                     <TouchableOpacity style={[styles.circle, { backgroundColor: '#FF6E00' }]} onPress={navigateToOTP}>
                         <MaterialIcons name="arrow-forward-ios" size={24} color="white" />
                     </TouchableOpacity>
@@ -418,5 +435,16 @@ const styles = StyleSheet.create({
     },
     text: {
         left:25
-    }
+    },
+    navigationLinkContainer: {
+        marginTop: 20,
+        flexDirection: 'row',
+    },
+    navigationText: {
+        color: '#FF6E00',
+    },
+    navigationLink: {
+        color: '#FF6E00',
+        fontWeight: 'bold',
+    },
 });

@@ -15,23 +15,23 @@ export default function Reports() {
     const [showFromDatePicker, setShowFromDatePicker] = useState(false);
     const [showToDatePicker, setShowToDatePicker] = useState(false);
     const [token, setToken] = useState(null);
+    const [emailID, setEmailID] = useState(null);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         getToken();
+        getEmailID();
     }, []);
 
     useEffect(() => {
         fetchData();
-    }, [fromDate, toDate]);
+    }, [fromDate, toDate, emailID]);
 
     const getToken = async () => {
         try {
             const storedToken = await AsyncStorage.getItem('token');
-            console.log(storedToken)
             if (storedToken !== null) {
                 setToken(storedToken);
-                console.log('Retrieved token:', storedToken);
             } else {
                 console.log('No token found in AsyncStorage');
             }
@@ -41,18 +41,39 @@ export default function Reports() {
         }
     };
 
+    const getEmailID = async () => {
+        try {
+            const storedEmailID = await AsyncStorage.getItem('emailID');
+            if (storedEmailID !== null) {
+                setEmailID(storedEmailID);
+            } else {
+                console.log('No emailID found in AsyncStorage');
+            }
+        } catch (error) {
+            console.error('Error retrieving emailID:', error);
+            setError('Error retrieving emailID');
+        }
+    };
+
     const fetchData = async () => {
         try {
-            const response = await fetch(BaseURL + "emailtracking/reports/", {
-                headers: {
-                    Authorization: `Token ${token}`
+            if (emailID === 'demo@ifm.com') {
+                setTableData([
+                    { date: '2024-07-01', time: '10:00 AM', Department: 'Sample Dept', send_to_user: [{ email: 'sample1@domain.com' }, { email: 'sample2@domain.com' }] },
+                    { date: '2024-07-02', time: '11:00 AM', Department: 'Sample Dept', send_to_user: [{ email: 'sample1@domain.com' }, { email: 'sample2@domain.com' }] },
+                ]);
+            } else {
+                const response = await fetch(BaseURL + "emailtracking/reports/", {
+                    headers: {
+                        Authorization: `Token ${token}`
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
                 }
-            });
-            if (!response.ok) {
-                throw new Error('Failed to fetch data');
+                const data = await response.json();
+                setTableData(data);
             }
-            const data = await response.json();
-            setTableData(data);
         } catch (error) {
             console.error('Error fetching data:', error);
             setError('Error fetching data');
