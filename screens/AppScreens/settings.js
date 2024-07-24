@@ -83,9 +83,23 @@ export default function Settings({ navigation }) {
         }
     };
 
+    const handleResetUser = async () => {
+        try {
+            await AsyncStorage.removeItem('emailID');
+            await AsyncStorage.removeItem('name');
+            await AsyncStorage.removeItem('mobileNo');
+            await AsyncStorage.removeItem('designation');
+            await SecureStore.setItemAsync('authState', '0');
+
+            navigation.replace("SignUp");
+        } catch (error) {
+            console.error('Reset User error:', error);
+        }
+    };
+
     return (
         <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-            <View style={{ height: 40 }}></View>
+            <View style={{ height: 20 }}></View>
             <View style={styles.inputTitle}>
                 <View style={styles.head}>
                     <Text style={styles.topHeader}>Profile</Text>
@@ -141,7 +155,7 @@ export default function Settings({ navigation }) {
                     </View>
                 </View>
             </View>
-            <View style={{ height: 20 }}></View>
+            <View style={{ height: 10 }}></View>
             <View style={styles.inputTitle}>
                 <View style={styles.head}>
                     <Text style={styles.topHeader}>Device</Text>
@@ -186,6 +200,14 @@ export default function Settings({ navigation }) {
                     title="Logout"
                     color="#FF6E00"
                     onPress={handleLogout}
+                />
+            </View>
+            <View style={{ height: 10 }}></View>
+            <View style={styles.buttonContainer1}>
+                <Button
+                    title="Reset User"
+                    color="#FF6E00"
+                    onPress={handleResetUser}
                 />
             </View>
             <CustomAlert
