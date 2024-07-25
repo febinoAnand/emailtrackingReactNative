@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Pressable ,TouchableOpacity, Keyboard,TouchableWithoutFeedback} from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Keyboard,TouchableWithoutFeedback} from 'react-native';
 import NetInfo from "@react-native-community/netinfo";
 import { MaterialIcons } from '@expo/vector-icons';
 import LoadingScreen from './loadingscreen';

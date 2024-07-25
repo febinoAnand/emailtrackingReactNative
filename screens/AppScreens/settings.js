@@ -45,8 +45,6 @@ export default function Settings({ navigation }) {
     
             const token = await AsyncStorage.getItem('token');
             if (!token) {
-                setShowValidAlert(true);
-                setAlertMessage('Token not found in AsyncStorage');
                 return;
             }
     

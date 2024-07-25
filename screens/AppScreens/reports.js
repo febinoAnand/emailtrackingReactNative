@@ -37,7 +37,6 @@ export default function Reports() {
             }
         } catch (error) {
             console.error('Error retrieving token:', error);
-            setError('Error retrieving token');
         }
     };
 
@@ -51,7 +50,6 @@ export default function Reports() {
             }
         } catch (error) {
             console.error('Error retrieving emailID:', error);
-            setError('Error retrieving emailID');
         }
     };
 

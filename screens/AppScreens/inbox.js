@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import NetInfo from '@react-native-community/netinfo';
@@ -73,7 +73,6 @@ const Inbox = () => {
     const fetchData = async () => {
         const token = await AsyncStorage.getItem('token');
         if (!token) {
-            Alert.alert('Token not found', 'Please log in again.');
             return;
         }
 
@@ -91,10 +90,10 @@ const Inbox = () => {
                 const result = await response.json();
                 setData(result);
             } catch (error) {
-                Alert.alert("Error", "Failed to fetch data from server");
+                console.log("Error", "Failed to fetch data from server");
             }
         } else {
-            Alert.alert("No Internet Connection", "Please check your internet connection and try again.");
+            console.log("No Internet Connection", "Please check your internet connection and try again.");
         }
     };
 
