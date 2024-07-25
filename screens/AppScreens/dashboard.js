@@ -6,7 +6,7 @@ import { BaseURL } from '../../config/appconfig';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const Dashboard = () => {
+const Dashboard = ({ navigation }) => {
     const [totalTickets, setTotalTickets] = useState(0);
     const [notificationTickets, setNotificationTickets] = useState(0);
     const [ticketData, setTicketData] = useState([]);
@@ -15,6 +15,8 @@ const Dashboard = () => {
     const [orientation, setOrientation] = useState(ScreenOrientation.Orientation.PORTRAIT_UP);
     const [token, setToken] = useState(null);
     const [username, setUsername] = useState(null);
+    const [authState, setAuthState] = useState(2);
+    const [intervalId, setIntervalId] = useState(null);
 
     useEffect(() => {
         const getUsername = async () => {
@@ -138,17 +140,22 @@ const Dashboard = () => {
             }
         };
 
-        if (token) {
+        if (authState === 2 && token) {
             fetchDashboardData();
             fetchTicketData();
-            const intervalId = setInterval(() => {
+            const id = setInterval(() => {
                 fetchDashboardData();
                 fetchTicketData();
             }, 3000);
+            setIntervalId(id);
 
-            return () => clearInterval(intervalId);
+            return () => {
+                clearInterval(id);
+                setIntervalId(null);
+            };
         }
-    }, [token, username]);
+
+    }, [token, username, authState]);
 
     useEffect(() => {
         const lockOrientation = async () => {
@@ -167,6 +174,17 @@ const Dashboard = () => {
             ScreenOrientation.removeOrientationChangeListener(subscription);
         };
     }, [orientation]);
+
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('blur', () => {
+            if (intervalId) {
+                clearInterval(intervalId);
+                setIntervalId(null);
+            }
+        });
+
+        return unsubscribe;
+    }, [navigation, intervalId]);
 
     return (
         <ScrollView contentContainerStyle={[styles.scrollViewContainer, orientation === ScreenOrientation.Orientation.PORTRAIT_UP ? styles.portraitContainer : styles.landscapeContainer]}>

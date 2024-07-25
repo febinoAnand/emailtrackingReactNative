@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import NetInfo from '@react-native-community/netinfo';
 import { BaseURL } from '../../config/appconfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -22,6 +22,9 @@ const Inbox = () => {
     const [data, setData] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [username, setUsername] = useState(null);
+    const [isAuthValid, setIsAuthValid] = useState(false);
+    const [authstate, setAuthstate] = useState(null);
+    const [intervalId, setIntervalId] = useState(null);
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -30,23 +33,41 @@ const Inbox = () => {
                 const storedUsername = await AsyncStorage.getItem('emailID');
                 if (storedUsername !== null) {
                     setUsername(storedUsername);
+                    const token = await AsyncStorage.getItem('token');
+                    const storedAuthstate = await AsyncStorage.getItem('authstate');
+                    if (token) {
+                        setIsAuthValid(true);
+                    } else {
+                        setIsAuthValid(false);
+                    }
+                    setAuthstate(parseInt(storedAuthstate, 10));
                     if (storedUsername === 'demo@ifm.com') {
                         fetchDefaultData();
                     } else {
                         fetchData();
-                        const intervalId = setInterval(fetchData, 3000);
-                        return () => clearInterval(intervalId);
                     }
                 } else {
                     console.log('No username found in AsyncStorage');
                 }
             } catch (error) {
-                console.error('Error retrieving username:', error);
+                console.error('Error retrieving user data:', error);
             }
         };
 
         fetchUserData();
     }, []);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            if (isAuthValid && authstate === 2 && username !== 'demo@ifm.com') {
+                const id = setInterval(fetchData, 3000);
+                setIntervalId(id);
+                return () => clearInterval(id);
+            } else {
+                return () => clearInterval(intervalId);
+            }
+        }, [isAuthValid, authstate, username])
+    );
 
     const fetchDefaultData = () => {
         const defaultData = [
@@ -73,6 +94,7 @@ const Inbox = () => {
     const fetchData = async () => {
         const token = await AsyncStorage.getItem('token');
         if (!token) {
+            setIsAuthValid(false);
             return;
         }
 
