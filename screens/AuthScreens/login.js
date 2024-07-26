@@ -141,7 +141,7 @@ export default function Login({ navigation }) {
         return token;
       }
 
-    const handleLogin = () => {
+      const handleLogin = () => {
         if (!username.trim() || !password.trim()) {
             setShowFieldAlert(true);
             return;
@@ -152,19 +152,13 @@ export default function Login({ navigation }) {
                 return;
             }
             setIsLoading(true);
-            
-            // console.log("username",username)
-            // console.log("password",password)
-            // console.log("deviceID",deviceID)
-            // console.log("app_token",App_Token)
-            
-            // showToast("Request-->",JSON.stringify({
-            //     username: username,
-            //     password: password,
-            //     device_id: deviceID,
-            //     app_token: App_Token,
-            //     notification_id:notificationID
-            // }));
+
+            if (username === 'demo@ifm.com' && password === 'demo@3366') {
+                AsyncStorage.setItem('token', 'demo_token');
+                navigation.replace("TabScreen");
+                setIsLoading(false);
+                return;
+            }
 
             fetch(BaseURL + "app/userlogin/", {
                 method: 'POST',
@@ -176,76 +170,55 @@ export default function Login({ navigation }) {
                     password: password,
                     device_id: deviceID,
                     app_token: App_Token,
-                    notification_id:notificationID
+                    notification_id: notificationID
                 }),
             })
-            .then(async response => {
-                
-                // console.log("response==>",response);
-                
-                if (response.ok) {
-                    // console.log("expoID ==>",expoID)
-                    setIsLoading(false);
-                    const responseData = await response.json();
-                    const { status, message, token, user_expiry_time } = responseData;
-                    console.log(responseData);
-                    if (status === "OK") {
-                        await AsyncStorage.setItem('token', token);
-                        await SecureStore.setItemAsync('authState', '2');
-                        const currentTime = format(new Date(),timeFormat);
-                        await AsyncStorage.setItem('loggedinat', currentTime);
-                        await AsyncStorage.setItem('expiry_time', ""+user_expiry_time);
-                        console.log("expire time ==>",user_expiry_time)
-                        // setShowPopmessage(message);
-                        // setShowSuccessAlertPopUp(true);
-                        // setTimeout(() => {
-                            // setShowSuccessAlertPopUp(false);
-                            // setIsLoading(false);
+                .then(async response => {
+                    if (response.ok) {
+                        setIsLoading(false);
+                        const responseData = await response.json();
+                        const { status, message, token, user_expiry_time } = responseData;
+                        if (status === "OK") {
+                            await AsyncStorage.setItem('token', token);
+                            await SecureStore.setItemAsync('authState', '2');
+                            const currentTime = format(new Date(), timeFormat);
+                            await AsyncStorage.setItem('loggedinat', currentTime);
+                            await AsyncStorage.setItem('expiry_time', "" + user_expiry_time);
                             navigation.replace("TabScreen");
-                        // }, 3000);
-                    }
-                    else if(status === "INVALID"){
-                        
-                        setShowPopmessage(message);
-                        setShowInvalidAlert(true);
-                    }
-                    else if(status === "DEVICE_MISMATCH"){
-                        setShowPopmessage(message);
-                        setDeviceMismatchAlert(true);
-                        clearDatas();
-                        
-                        
-                    }
-                    else if(status === "INACTIVE"){
-                        if (!message) {
-                            message = "Something went wrong" 
-                         }
-                         setShowPopmessage(message);
-                         setShowInvalidAlert(true);
-                    }
-                    else {
-                        if (!message) {
-                           message = "Something went wrong" 
+                        } else {
+                            handleLoginError(status, message);
                         }
-                        setShowPopmessage(message);
-                        setShowInvalidAlert(true);
+                    } else {
+                        handleLoginError();
                     }
-                    // return response.json();
-                } else {
-                    setShowPopmessage("Something Went Wrong Try after some times")
-                    setShowInvalidAlert(true);
+                })
+                .catch(error => {
                     setIsLoading(false);
-                    // return data;
-                }
-            })
-            .catch(error => {
-                setIsLoading(false);
-                // setLastErrorMessage(error.message);
-                setShowPopmessage("Something Went Wrong Try after some times")
-                setShowInvalidAlert(true);
-            });
+                    handleLoginError();
+                });
         });
-    };    
+    }; 
+
+    const handleLoginError = (status, message) => {
+        if (!message) {
+            message = "Something went wrong";
+        }
+        if (status === "INVALID") {
+            setShowPopmessage(message);
+            setShowInvalidAlert(true);
+        } else if (status === "DEVICE_MISMATCH") {
+            setShowPopmessage(message);
+            setDeviceMismatchAlert(true);
+            clearDatas();
+        } else if (status === "INACTIVE") {
+            setShowPopmessage(message);
+            setShowInvalidAlert(true);
+        } else {
+            setShowPopmessage(message);
+            setShowInvalidAlert(true);
+        }
+        setIsLoading(false);
+    };
 
     return (
         <>

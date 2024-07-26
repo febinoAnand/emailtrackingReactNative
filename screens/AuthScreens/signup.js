@@ -334,7 +334,7 @@ export default function Signup({ navigation }) {
                     </View>
                     <View style={styles.navigationLinkContainer}>
                         <TouchableOpacity onPress={navigateToLogin}>
-                            <Text style={styles.navigationLink}>Login Demo User</Text>
+                            <Text style={styles.navigationLink}>Login to Demo User</Text>
                         </TouchableOpacity>
                     </View>
                     <TouchableOpacity style={[styles.circle, { backgroundColor: '#FF6E00' }]} onPress={navigateToOTP}>

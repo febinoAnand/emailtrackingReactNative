@@ -37,6 +37,13 @@ export default function Settings({ navigation }) {
 
     const handleLogout = async () => {
         try {
+            const username = await AsyncStorage.getItem('username');
+
+            if (username === 'demo@ifm.com') {
+                await handleDirectLogout();
+                return;
+            }
+
             if (!isConnected) {
                 setShowValidAlert(true);
                 setAlertMessage('No internet connection');
@@ -50,7 +57,6 @@ export default function Settings({ navigation }) {
     
             console.log('Authorization:', `Token ${token}`);
             const url = `${BaseURL}Userauth/userlogout/`;
-            console.log(`URL: ${url}`);
     
             const response = await fetch(url, {
                 method: 'POST',
@@ -78,6 +84,14 @@ export default function Settings({ navigation }) {
         } catch (error) {
             console.error('Logout error:', error);
             navigation.replace("Login");
+        }
+    };
+
+    const handleDirectLogout = async () => {
+        try {
+            navigation.replace("Login");
+        } catch (error) {
+            console.error('Direct logout error:', error);
         }
     };
 
