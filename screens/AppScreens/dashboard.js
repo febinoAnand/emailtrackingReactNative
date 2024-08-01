@@ -17,7 +17,6 @@ const Dashboard = ({ navigation }) => {
     const [username, setUsername] = useState(null);
     const [authState, setAuthState] = useState(2);
     const [intervalId, setIntervalId] = useState(null);
-    const [isCredentialsChecked, setIsCredentialsChecked] = useState(false);
 
     useEffect(() => {
         const getUsername = async () => {
@@ -52,17 +51,33 @@ const Dashboard = ({ navigation }) => {
     }, []);
 
     useEffect(() => {
-        if (username !== null && token !== null) {
-            setIsCredentialsChecked(true);
-            if (!username || !token) {
-                navigation.navigate('SignUp');
+        const checkTokenValidity = async () => {
+            try {
+                if (username !== 'demo@ifm.com') {
+                    const response = await fetch(`${BaseURL}Userauth/check-token/`, {
+                        method: 'POST',
+                        headers: {
+                            Authorization: `Token ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    });
+    
+                    if (!response.ok) {
+                        Alert.alert('Session Expired', 'Your session has expired. Please log in again.');
+                        navigation.navigate('SignUp');
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking token validity:', error);
             }
+        };
+    
+        if (token) {
+            checkTokenValidity();
         }
-    }, [username, token]);
+    }, [token, username, navigation]);
 
     useEffect(() => {
-        if (!isCredentialsChecked) return;
-
         const fetchDashboardData = async () => {
             if (username === 'demo@ifm.com') {
                 setTotalTickets(2);
@@ -111,8 +126,6 @@ const Dashboard = ({ navigation }) => {
                     } else {
                         console.error('Error: department_ticket_count is undefined');
                     }
-                } else if (response.status === 401 || response.status === 403) {
-                    navigation.navigate('SignUp');
                 } else {
                     console.error('Error fetching dashboard data:', response.statusText);
                 }
@@ -146,8 +159,6 @@ const Dashboard = ({ navigation }) => {
                         const headers = Object.keys(recentEntries[0].actual_json || {});
                         setTableHead(['Date', 'Time', ...headers]);
                     }
-                } else if (response.status === 401 || response.status === 403) {
-                    navigation.navigate('SignUp');
                 } else {
                     console.error('Error fetching ticket data:', response.statusText);
                 }
@@ -171,7 +182,7 @@ const Dashboard = ({ navigation }) => {
             };
         }
 
-    }, [token, username, authState, isCredentialsChecked]);
+    }, [token, username, authState]);
 
     useEffect(() => {
         const lockOrientation = async () => {
